@@ -1,0 +1,50 @@
+{
+  "name": "@discussify/browser-extension",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@discussify/styleguide": "^0.1.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-scripts": "1.1.4"
+  },
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test --env=jsdom",
+    "lint": "eslint --ignore-path .gitignore . && stylelint --ignore-path .gitignore \"**/*.css\"",
+    "precommit": "lint-staged",
+    "commitmsg": "commitlint -e $GIT_PARAMS"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.css": [
+      "stylelint --fix",
+      "git add"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/config-conventional": "^7.0.1",
+    "babel-preset-moxy": "^2.3.3",
+    "commitlint": "^7.0.0",
+    "eslint": "^4.19.1",
+    "eslint-config-moxy": "^5.4.1",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.2.0",
+    "postcss-preset-moxy": "^2.2.0",
+    "react-app-rewire-css-modules-extensionless": "^1.1.1",
+    "react-app-rewire-external-svg-loader": "^1.0.0",
+    "react-app-rewire-postcss": "^1.0.2",
+    "react-app-rewired": "^1.5.2",
+    "stylelint": "^9.3.0",
+    "stylelint-config-moxy": "^5.0.0"
+  }
+}
