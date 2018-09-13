@@ -1,0 +1,31 @@
+.fab {
+    position: fixed;
+    right: 40px; /* Must be set in pixels because Popover's viewportPadding is in pixels */
+    bottom: 40px;
+}
+
+.popoverBox {
+    width: 40rem;
+    height: 43.4rem;
+    padding: 4em;
+    display: flex;
+    flex-direction: column;
+}
+
+.popoverContent {
+    display: flex;
+    flex: 1 0;
+    flex-direction: column;
+
+    & > * {
+        flex: 1 0;
+    }
+}
+
+@media (max-width: 40em), (max-height: 40em) {
+    .popoverBox {
+        width: 32.5rem;
+        height: 35.2625rem;
+        padding: 2em;
+    }
+}

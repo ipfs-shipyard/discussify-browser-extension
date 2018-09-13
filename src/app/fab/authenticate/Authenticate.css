@@ -1,0 +1,31 @@
+.authenticate {
+    display: flex;
+    flex-direction: column;
+
+    & .screen {
+        will-change: opacity;
+        flex: 1 0;
+        transition: opacity 0.25s ease;
+
+        &.enter {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            opacity: 0;
+        }
+
+        &.enterActive {
+            opacity: 1;
+        }
+
+        &.exit {
+            opacity: 1;
+        }
+
+        &.exitActive {
+            opacity: 0;
+        }
+    }
+}
