@@ -13,8 +13,8 @@ const buildConfig = (env) => {
         context: projectDir,
         mode: env,
         entry: {
-            background: path.join(projectDir, 'src/chrome/background.js'),
-            'content-script': path.join(projectDir, 'src/chrome/content-script.js'),
+            background: path.join(projectDir, 'src/entry-background.js'),
+            'content-script': path.join(projectDir, 'src/entry-content-script.js'),
         },
         output: {
             path: path.join(projectDir, 'dist/build'),
