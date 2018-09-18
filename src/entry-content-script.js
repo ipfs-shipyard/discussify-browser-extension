@@ -1,22 +1,22 @@
+import retargetEvents from 'react-shadow-dom-retarget-events';
 import createExtensionClient from './extension-client';
 import { renderApp, destroyApp, configureStore } from './slices/frame';
 
 const context = window.__DISCUSSIFY_INJECTION_CONTEXT__;
 
-console.log('context', window.__DISCUSSIFY_INJECTION_CONTEXT__);
-
-const extensionEl = document.getElementById('discussify-host');
-const rootEl = extensionEl.shadowRoot.querySelector('[data-role="root"]');
+const hostEl = document.getElementById(context.hostElementId);
+const rootEl = hostEl.shadowRoot.querySelector('[data-role="root"]');
 const extensionClient = createExtensionClient();
 const store = configureStore(extensionClient);
 
-rootEl.addEventListener(context.destroyEvent, () => {
+hostEl.addEventListener(context.destroyEvent, () => {
     destroyApp(rootEl);
     extensionClient.destroy();
-    extensionEl.remove();
+    hostEl.remove();
     context.injected = false;
 });
 
+retargetEvents(hostEl);
 renderApp(rootEl, store);
 context.injected = true;
 

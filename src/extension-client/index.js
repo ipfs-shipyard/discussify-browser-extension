@@ -1,14 +1,5 @@
 import { messageTypes } from '../extension';
 
-const sendMethodCallMessage = (name, args) =>
-    browser.runtime.sendMessage({
-        type: messageTypes.METHOD_CALL,
-        payload: {
-            name,
-            args,
-        },
-    });
-
 const createExtensionClient = () => {
     const handlers = {
         onSliceStateChange: () => {},
@@ -21,8 +12,6 @@ const createExtensionClient = () => {
     const handleOnMessage = (request) => {
         if (request.type === messageTypes.METHOD_CALL) {
             const { name, args } = request.payload;
-
-            console.log('exec method', name, args);
 
             if (methods[name]) {
                 methods[name](...args);
@@ -38,9 +27,23 @@ const createExtensionClient = () => {
     browser.runtime.onMessage.addListener(handleOnMessage);
 
     return {
-        setUser: (user) => sendMethodCallMessage('setUser', [user]),
+        setUser: (user) =>
+            browser.runtime.sendMessage({
+                type: messageTypes.METHOD_CALL,
+                payload: {
+                    name: 'setUser',
+                    args: [user],
+                },
+            }),
 
-        setSidebarOpen: (tabId, open) => sendMethodCallMessage('setSidebarOpen', [tabId, open]),
+        setSidebarOpen: (tabId, open) =>
+            browser.runtime.sendMessage({
+                type: messageTypes.METHOD_CALL,
+                payload: {
+                    name: 'setSidebarOpen',
+                    args: [tabId, open],
+                },
+            }),
 
         onSliceStateChange: (handler) => {
             handlers.onSliceStateChange = handler;

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { DiscussionFab, PopoverTrigger, Popover } from '@discussify/styleguide';
-import Authenticate from './authenticate';
 import styles from './Fab.css';
 
 class Fab extends Component {
@@ -36,9 +35,11 @@ class Fab extends Component {
             <Popover
                 placement="top"
                 viewportPadding={ 40 }
-                boxClassName={ styles.popoverBox }
+                boundariesElement="viewport"
                 contentClassName={ styles.popoverContent }>
-                <Authenticate />
+                <iframe
+                    src={ browser.runtime.getURL('/authentication.html') }
+                    className={ styles.iframe } />
             </Popover>
         );
 

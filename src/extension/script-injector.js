@@ -1,5 +1,6 @@
 import serialize from 'serialize-javascript';
 
+const HOST_ELEMENT_ID = window.__DISCUSSIFY_HOST_ELEMENT_ID__;
 const DESTROY_EVENT = 'discussify/destroy';
 const SUPPORTED_PROTOCOLS = ['http:', 'https:', 'ftp:'];
 
@@ -19,6 +20,7 @@ const assertUrlSupported = (url) => {
 
 const injectContext = async (tabId, sliceState) => {
     const context = {
+        hostElementId: HOST_ELEMENT_ID,
         destroyEvent: DESTROY_EVENT,
         sliceState,
         injected: false,
@@ -62,12 +64,12 @@ const executeDestroyContentScript = async (tabId) => {
     const result = await browser.tabs.executeScript(tabId, {
         code: `
         (() => {
-            const rootEl = document.getElementById('discussify-host');
+            const hostEl = document.getElementById('${HOST_ELEMENT_ID}');
             const context = window.__DISCUSSIFY_INJECTION_CONTEXT__;
             let success = false;
 
-            if (rootEl && context) {
-                rootEl.dispatchEvent(new Event('${DESTROY_EVENT}'));
+            if (hostEl && context) {
+                hostEl.dispatchEvent(new Event('${DESTROY_EVENT}'));
                 success = context.injected === false;
                 delete window.__DISCUSSIFY_INJECTION_CONTEXT__;
             }

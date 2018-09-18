@@ -1,10 +1,10 @@
-import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
-// import { reducer as sessionReducer } from './session';
+import { reducer as sessionReducer } from './session';
 import { reducer as sidebarReducer, middleware as sidebarMiddleware } from './sidebar';
 
 const reducer = combineReducers({
-    // Session: sessionReducer,
+    session: sessionReducer,
     sidebar: sidebarReducer,
 });
 
@@ -17,8 +17,8 @@ const configureStore = (extensionClient) => {
 
     const store = createStore(reducer, {}, enhancer);
 
-    extensionClient.onSliceStateChange(() => {
-        // TODO:
+    extensionClient.onSliceStateChange((sliceState) => {
+        console.log('slice state', sliceState);
     });
 
     return store;

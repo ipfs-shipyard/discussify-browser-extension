@@ -28,6 +28,10 @@ const buildConfig = (env) => {
                 path.join(__dirname, 'util/webextension-polyfill.js'),
                 path.join(projectDir, 'src/entry-content-script.js'),
             ],
+            authentication: [
+                path.join(__dirname, 'util/webextension-polyfill.js'),
+                path.join(projectDir, 'src/entry-authentication.js'),
+            ],
         },
         output: {
             path: path.join(projectDir, 'dist/build'),
@@ -73,7 +77,12 @@ const buildConfig = (env) => {
                                 singleton: true,
                                 attrs: { 'data-role': 'styles' },
                                 /* eslint-disable no-undef */
-                                insertInto: () => document.getElementById('discussify-extension').shadowRoot,
+                                // Inject styles into the host element's shadow root and fallback to head
+                                insertInto: () => {
+                                    const hostEl = document.getElementById('discussify-host');
+
+                                    return hostEl ? hostEl.shadowRoot : document.head;
+                                },
                                 /* eslint-enable */
                                 transform: path.join(__dirname, './util/css-transform'),
                             },
@@ -139,7 +148,14 @@ const buildConfig = (env) => {
             ],
         },
         plugins: [
-            // Create `#discussify-main` element on all slices with shadow root
+            // Assign __DISCUSSIFY_HOST_ELEMENT_ID__ to the background entry, which is used by the script-injector
+            new BannerPlugin({
+                banner: 'window.__DISCUSSIFY_HOST_ELEMENT_ID__ = \'discussify-host\';',
+                raw: true,
+                entryOnly: true,
+                include: /background/,
+            }),
+            // Create host element on the content-script entry with a shadow-dom
             // so that styles are isolated from the webpage
             new BannerPlugin({
                 banner: `
@@ -157,7 +173,7 @@ const buildConfig = (env) => {
                     `,
                 raw: true,
                 entryOnly: true,
-                exclude: /background/,
+                include: /content-script/,
             }),
             // Add support for environment variables under `process.env`
             new DefinePlugin({

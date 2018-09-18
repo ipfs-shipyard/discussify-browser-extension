@@ -3,6 +3,8 @@
 @import "@discussify/styleguide/styles/mixins/typography";
 
 :host {
+    position: absolute;
+    z-index: 99999999999999;
     @mixin typography-body-1 rem;
     color: var(--color-black);
     overflow-wrap: break-word;  /* Break long words by default */

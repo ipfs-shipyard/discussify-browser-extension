@@ -8,13 +8,13 @@ import {
     getPromptQrCodeUri,
     authenticate,
     resetAuthenticate,
-} from '../../shared/store/session';
+} from './shared/store';
 import { PromptScreen, ScanScreen, ErrorScreen, WelcomeScreen } from './screens';
-import styles from './Authenticate.css';
+import styles from './App.css';
 
 const SCREEN_ANIMATION_DURATION = 350;
 
-export class Authenticate extends Component {
+export class App extends Component {
     static propTypes = {
         user: PropTypes.object,
         qrCodeUri: PropTypes.string,
@@ -52,7 +52,7 @@ export class Authenticate extends Component {
         const { step } = this.state;
 
         return (
-            <TransitionGroup className={ styles.authenticate }>
+            <TransitionGroup className={ styles.app }>
                 <CSSTransition
                     key={ step }
                     timeout={ SCREEN_ANIMATION_DURATION }
@@ -104,4 +104,4 @@ const mapDispatchToProps = (dispatch) => ({
     onResetAuthenticate: () => dispatch(resetAuthenticate()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Authenticate);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

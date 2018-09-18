@@ -3,19 +3,16 @@ import { get } from 'lodash';
 export const getTabIds = (state) =>
     Object.keys(state.tabs).map((tabId) => Number(tabId));
 
-export const hasTabChanged = (state, previousState, tabId) =>
-    previousState && state.tabs[tabId] !== previousState.tabs[tabId];
-
 export const getUser = (state) => state.user;
 
 export const isTabReady = (state, tabId) =>
-    get(state.tabs, [tabId, 'ready']);
+    get(state.tabs, [tabId, 'ready'], false);
 
 export const isTabEnabled = (state, tabId) =>
-    get(state.tabs, [tabId, 'enabled']);
+    get(state.tabs, [tabId, 'enabled'], false);
 
 export const isTabSidebarOpen = (state, tabId) =>
-    get(state.tabs, [tabId, 'sidebarOpen']);
+    get(state.tabs, [tabId, 'sidebarOpen'], false);
 
 export const getTabInjectionStatus = (state, tabId) =>
     get(state.tabs, [tabId, 'injectionStatus']);

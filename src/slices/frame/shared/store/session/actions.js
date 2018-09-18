@@ -8,7 +8,7 @@ const uport = new Connect('Discussify - satazor test', {
     signer: simpleSigner('2b9ec2cc378f70baa1069d0be13d77484edee0df5912cde4467ff081a1af230f'),
 });
 
-export const authenticate = () => async (dispatch) => {
+export const authenticate = () => async (dispatch, getState, { extensionClient }) => {
     const uriHandler = (data, cancelPrompt) => {
         const pngBuffer = qrImage.imageSync(data, { type: 'png', margin: 0 });
 
@@ -21,12 +21,20 @@ export const authenticate = () => async (dispatch) => {
         });
     };
 
-    let profile;
+    let user;
 
     try {
-        profile = await uport.requestCredentials({
+        const profile = await uport.requestCredentials({
             requested: ['name', 'avatar'],
         }, uriHandler);
+
+        user = {
+            did: `did:uport:${profile.did}`,
+            name: profile.name,
+            avatar: profile.avatar && profile.avatar.uri,
+        };
+
+        await extensionClient.setUser(user);
     } catch (error) {
         // Ignore cancelation error which may be triggered by resetAuthenticate()
         if (/cancell?ed/i.test(error.message)) {
@@ -40,12 +48,6 @@ export const authenticate = () => async (dispatch) => {
 
         throw error;
     }
-
-    const user = {
-        did: `did:uport:${profile.did}`,
-        name: profile.name,
-        avatar: profile.avatar && profile.avatar.uri,
-    };
 
     dispatch({
         type: actionTypes.AUTHENTICATE_OK,

@@ -1,8 +1,9 @@
 import {
     getTabIds,
-    hasTabChanged,
+    getUser,
     isTabReady,
     isTabEnabled,
+    isTabSidebarOpen,
     getTabInjectionStatus,
 } from './store';
 
@@ -22,15 +23,9 @@ const shouldRemoveScriptFromTab = (state, tabId) => {
            tabInjectionStatus === 'inject-success';
 };
 
-const shouldUpdateBrowserAction = (state, previousState, tabId) => {
-    const tabEnabled = isTabEnabled(state, tabId);
-    const previousTabEnabled = isTabEnabled(previousState, tabId);
-    const tabInjectionStatus = getTabInjectionStatus(state, tabId);
-    const previousInjectionStatus = getTabInjectionStatus(previousState, tabId);
-
-    return tabEnabled !== previousTabEnabled ||
-           tabInjectionStatus !== previousInjectionStatus;
-};
+const shouldNotifyBrowserAction = (state, previousState, tabId) =>
+    isTabEnabled(state, tabId) !== isTabEnabled(previousState, tabId) ||
+    getTabInjectionStatus(state, tabId) !== getTabInjectionStatus(previousState, tabId);
 
 const computeBrowserAction = (state, tabId) => {
     const tabInjectionStatus = getTabInjectionStatus(state, tabId);
@@ -51,6 +46,15 @@ const computeBrowserAction = (state, tabId) => {
         count: null,
     };
 };
+
+const shouldNotifySliceStateChange = (state, previousState, tabId) =>
+    getUser(state) !== getUser(previousState) ||
+    isTabSidebarOpen(state, tabId) !== isTabSidebarOpen(previousState, tabId);
+
+const computeSliceState = (state, tabId) => ({
+    user: getUser(state),
+    sidebarOpen: isTabSidebarOpen(state, tabId),
+});
 
 const wrapHandlerWithSetImmediate = (handler) =>
     (...args) => setImmediate(() => handler(...args));
@@ -75,16 +79,18 @@ const createStateOverseer = (store) => {
     };
 
     const checkTabState = (state, tabId) => {
-        if (!hasTabChanged(state, previousState, tabId)) {
-            return;
-        }
-
         if (shouldInjectScriptIntoTab(state, tabId)) {
             handlers.onInjectScript(tabId);
         } else if (shouldRemoveScriptFromTab(state, tabId)) {
             handlers.onRemoveScript(tabId);
-        } else if (shouldUpdateBrowserAction(state, previousState, tabId)) {
+        }
+
+        if (shouldNotifyBrowserAction(state, previousState, tabId)) {
             handlers.onBrowserActionChange(tabId, computeBrowserAction(state, tabId));
+        }
+
+        if (shouldNotifySliceStateChange(state, previousState, tabId)) {
+            handlers.onSliceStateChange(tabId, computeSliceState(state, tabId));
         }
     };
 

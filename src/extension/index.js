@@ -57,7 +57,17 @@ const setupStateOverseer = (store) => {
         .catch(promiseDone);
     });
 
-    stateOverseer.onSliceStateChange(() => {});
+    stateOverseer.onSliceStateChange((tabId, sliceState) => {
+        console.log('sending', tabId, sliceState)
+        browser.tabs.sendMessage(tabId, {
+            type: messageTypes.METHOD_CALL,
+            payload: {
+                name: 'setSliceState',
+                args: [sliceState],
+            },
+        })
+        .catch(promiseDone);
+    });
 };
 
 const setupMethods = (store) => {

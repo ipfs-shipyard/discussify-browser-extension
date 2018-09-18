@@ -1,3 +1,49 @@
 .app {
+    & .fab {
+        will-change: opacity;
+        z-index: 1;
 
+        &.enter {
+            opacity: 0;
+            transition: opacity 0.2s 0.198s ease; /* 66% of sidebar duration */
+        }
+
+        &.enterActive {
+            opacity: 1;
+        }
+
+        &.exit {
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        &.exitActive {
+            opacity: 0;
+        }
+    }
+
+    & .sidebar {
+        will-change: transform;
+        z-index: 2;
+
+        &.appear,
+        &.enter {
+            transform: translateX(100%);
+            transition: transform 0.3s 0.132s ease; /* 66% of fab duration */
+        }
+
+        &.appearActive,
+        &.enterActive {
+            transform: translateX(0);
+        }
+
+        &.exit {
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+
+        &.exitActive {
+            transform: translate(100%);
+        }
+    }
 }
