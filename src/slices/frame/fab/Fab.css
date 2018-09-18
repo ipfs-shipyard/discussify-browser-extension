@@ -2,6 +2,14 @@
     position: fixed;
     right: 40px; /* Must be set in pixels because Popover's viewportPadding is in pixels */
     bottom: 40px;
+
+    & .overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
 }
 
 .popoverContent {

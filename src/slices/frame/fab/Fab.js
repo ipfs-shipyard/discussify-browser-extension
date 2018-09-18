@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { pure } from 'recompose';
 import { DiscussionFab, PopoverTrigger, Popover } from '@discussify/styleguide';
+import { default as Iframe_ } from '../shared/components/iframe';
 import styles from './Fab.css';
+
+// The the iframe will be inside the popover, which will be rendered several
+// because of its animation
+// Making it pure improves the performance
+const Iframe = pure(Iframe_);
 
 class Fab extends Component {
     static getDerivedStateFromProps(props, state) {
@@ -25,8 +32,7 @@ class Fab extends Component {
         if (authenticated) {
             return (
                 <div className={ finalClassName }>
-                    <DiscussionFab
-                        onClick={ onClick } />
+                    <DiscussionFab onClick={ onClick } />
                 </div>
             );
         }
@@ -37,28 +43,25 @@ class Fab extends Component {
                 viewportPadding={ 40 }
                 boundariesElement="viewport"
                 contentClassName={ styles.popoverContent }>
-                <iframe
-                    src={ browser.runtime.getURL('/authentication.html') }
-                    className={ styles.iframe } />
+                <Iframe src={ browser.runtime.getURL('/authentication.html') } />
             </Popover>
         );
 
         return (
-            <div className={ finalClassName }>
-                <PopoverTrigger popover={ popover }>
-                    { ({
-                        isOpen,
-                        ref,
-                        defaultEventProps: { onClick },
-                    }) => (
-                        <div ref={ ref }>
-                            <DiscussionFab
-                                active={ isOpen }
-                                onClick={ onClick } />
-                        </div>
-                    ) }
-                </PopoverTrigger>
-            </div>
+            <PopoverTrigger popover={ popover }>
+                { ({
+                    isOpen,
+                    close,
+                    ref,
+                    defaultEventProps: { onClick },
+                }) => (
+                    // The overlay above makes the click on outside even if the click target was an iframe
+                    <div ref={ ref } className={ finalClassName }>
+                        { isOpen && <div className={ styles.overlay } onClick={ close } /> }
+                        <DiscussionFab active={ isOpen } onClick={ onClick } />
+                    </div>
+                ) }
+            </PopoverTrigger>
         );
     }
 }
