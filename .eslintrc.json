@@ -10,6 +10,6 @@
         "eslint-config-moxy/addons/jest"
     ],
     "globals": {
-        "chrome": false
+        "browser": false
     }
 }

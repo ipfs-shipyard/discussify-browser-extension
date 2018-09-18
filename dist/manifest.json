@@ -8,24 +8,20 @@
     "permissions": [
         "<all_urls>",
         "storage",
-        "tabs"
+        "tabs",
+        "webNavigation"
     ],
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "browser_action": {
+      "default_title": "Discussify"
+    },
     "background": {
         "persistent": true,
         "scripts": [
             "build/background.js"
         ]
     },
-    "content_scripts": [
-        {
-            "matches": [
-                "<all_urls>"
-            ],
-            "all_frames": true,
-            "js": [
-                "build/content-script.js"
-            ]
-        }
+    "web_accessible_resources": [
+        "build/*"
     ]
 }

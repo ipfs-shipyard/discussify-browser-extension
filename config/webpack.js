@@ -1,9 +1,16 @@
 'use strict';
 
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
+const BannerPlugin = require('webpack/lib/BannerPlugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
+
+const BROWSERS = [
+    'last 2 Chrome versions',
+    'last 2 Firefox versions',
+];
 
 const buildConfig = (env) => {
     const projectDir = path.resolve(__dirname, '..');
@@ -13,15 +20,20 @@ const buildConfig = (env) => {
         context: projectDir,
         mode: env,
         entry: {
-            background: path.join(projectDir, 'src/entry-background.js'),
-            'content-script': path.join(projectDir, 'src/entry-content-script.js'),
+            background: [
+                path.join(__dirname, 'util/webextension-polyfill.js'),
+                path.join(projectDir, 'src/entry-background.js'),
+            ],
+            'content-script': [
+                path.join(__dirname, 'util/webextension-polyfill.js'),
+                path.join(projectDir, 'src/entry-content-script.js'),
+            ],
         },
         output: {
             path: path.join(projectDir, 'dist/build'),
             publicPath: '.',
             filename: '[name].js',
             chunkFilename: '[id].chunk.js',
-            libraryTarget: 'umd',
         },
         resolve: {
             // Allow symlinked packages to work normally, e.g.: when linking @discussify/styleguide
@@ -41,10 +53,7 @@ const buildConfig = (env) => {
                                 presets: [
                                     [require.resolve('babel-preset-moxy'), {
                                         targets: {
-                                            browsers: [
-                                                'last 2 Chrome versions',
-                                                'last 2 Firefox versions',
-                                            ],
+                                            browsers: BROWSERS,
                                         },
                                         react: true,
                                         modules: false,
@@ -60,6 +69,14 @@ const buildConfig = (env) => {
                     loader: [
                         {
                             loader: require.resolve('style-loader'),
+                            options: {
+                                singleton: true,
+                                attrs: { 'data-role': 'styles' },
+                                /* eslint-disable no-undef */
+                                insertInto: () => document.getElementById('discussify-extension').shadowRoot,
+                                /* eslint-enable */
+                                transform: path.join(__dirname, './util/css-transform'),
+                            },
                         },
                         {
                             loader: require.resolve('css-loader'),
@@ -72,6 +89,15 @@ const buildConfig = (env) => {
                         },
                         {
                             loader: require.resolve('postcss-loader'),
+                            options: require('postcss-preset-moxy')({
+                                browsers: BROWSERS,
+                                // Inline any url() calls to avoid Content Security Policy errors
+                                // Do not inline woff files because woff2 will be used instead, saving space in the bundle
+                                url: [
+                                    { filter: '**/*.woff', url: 'rebase' },
+                                    { filter: '**/*', url: 'inline' },
+                                ],
+                            }),
                         },
                     ],
                 },
@@ -100,25 +126,39 @@ const buildConfig = (env) => {
                         },
                     ],
                 },
-                // Raster images (png, jpg, etc)
-                {
-                    test: /\.(png|jpg|jpeg|gif|webp)$/,
-                    loader: require.resolve('file-loader'),
-                    options: {
-                        name: 'images/[name].[ext]',
-                    },
-                },
                 // Web fonts
                 {
-                    test: /\.(eot|ttf|woff|woff2|otf)$/,
+                    test: /\.(woff|woff2)$/,
                     loader: require.resolve('file-loader'),
                     options: {
                         name: 'fonts/[name].[ext]',
+                        // Do not emit fonts as they will be inlined to avoid Content Security Policy errors
+                        emitFile: false,
                     },
                 },
             ],
         },
         plugins: [
+            // Create `#discussify-main` element on all slices with shadow root
+            // so that styles are isolated from the webpage
+            new BannerPlugin({
+                banner: `
+                    (() => {
+                        const discussifyEl = document.createElement('div');
+                        const rootEl = document.createElement('div');
+
+                        discussifyEl.setAttribute('id', 'discussify-host');
+                        discussifyEl.attachShadow({ mode: 'open' });
+                        rootEl.setAttribute('data-role', 'root');
+
+                        discussifyEl.shadowRoot.appendChild(rootEl);
+                        document.body.appendChild(discussifyEl);
+                    })();
+                    `,
+                raw: true,
+                entryOnly: true,
+                exclude: /background/,
+            }),
             // Add support for environment variables under `process.env`
             new DefinePlugin({
                 'process.env.NODE_ENV': `"${env}"`,
@@ -128,9 +168,30 @@ const buildConfig = (env) => {
             // Support reloading extension during development
             isDev && new ChromeExtensionReloader(),
         ].filter(Boolean),
-        devtool: 'cheap-module-eval-source-map',
+        devtool: isDev ? 'cheap-module-eval-source-map' : 'nosources-source-map',
         optimization: {
-            minimize: false,
+            minimize: !isDev,
+            minimizer: [
+                new TerserPlugin({
+                    sourceMap: true,
+                    extractComments: true,
+                    parallel: true,
+                    cache: true,
+                    terserOptions: {
+                        mangle: true,
+                        compress: {
+                            warnings: false, // Mute warnings
+                            /* eslint-disable camelcase */
+                            drop_console: true, // Drop console.* statements
+                            drop_debugger: true, // Drop debugger statements
+                            /* eslint-enable camelcase */
+                        },
+                    },
+                }),
+            ],
+        },
+        performance: {
+            hints: false,
         },
     };
 };

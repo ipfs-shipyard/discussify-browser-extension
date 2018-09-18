@@ -1,32 +1,27 @@
 import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
-import { reducer as sessionReducer } from './session';
+// import { reducer as sessionReducer } from './session';
 import { reducer as sidebarReducer, middleware as sidebarMiddleware } from './sidebar';
 
-const reducers = {
-    session: sessionReducer,
+const reducer = combineReducers({
+    // Session: sessionReducer,
     sidebar: sidebarReducer,
-};
+});
 
-const middlewares = [
-    thunkMiddleware,
-    sidebarMiddleware,
-];
+const configureStore = (extensionClient) => {
+    const middlewares = [
+        thunkMiddleware.withExtraArgument({ extensionClient }),
+        sidebarMiddleware,
+    ];
+    const enhancer = applyMiddleware(...middlewares);
 
-const enhancers = [
-    applyMiddleware(...middlewares),
-];
+    const store = createStore(reducer, {}, enhancer);
 
-// If Redux DevTools Extension is installed use it, otherwise use Redux compose
-const composeEnhancers = process.env.NODE_ENV !== 'production' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ :
-    compose;
+    extensionClient.onSliceStateChange(() => {
+        // TODO:
+    });
 
-const configureStore = (initialState = {}) => {
-    const reducer = combineReducers(reducers);
-    const enhancer = composeEnhancers(...enhancers);
-
-    return createStore(reducer, initialState, enhancer);
+    return store;
 };
 
 export default configureStore;

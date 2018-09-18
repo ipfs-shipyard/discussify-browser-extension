@@ -1,0 +1,7 @@
+export const AUTHENTICATE_PROMPT = 'session/AUTHENTICATE_PROMPT';
+export const AUTHENTICATE_OK = 'session/AUTHENTICATE_OK';
+export const AUTHENTICATE_ERROR = 'session/AUTHENTICATE_ERROR';
+
+export const RESET_AUTHENTICATE = 'session/RESET_AUTHENTICATE';
+
+export const UNAUTHENTICATE = 'session/UNAUTHENTICATE';

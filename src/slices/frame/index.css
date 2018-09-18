@@ -1,0 +1,9 @@
+@import "@discussify/styleguide/styles";
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+:host {
+    @mixin typography-body-1 rem;
+    color: var(--color-black);
+    overflow-wrap: break-word;  /* Break long words by default */
+}
