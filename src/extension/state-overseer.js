@@ -1,9 +1,9 @@
 import {
+    initialState,
     getTabIds,
     getUser,
     isTabReady,
     isTabEnabled,
-    isTabSidebarOpen,
     getTabInjectionStatus,
 } from './store';
 
@@ -43,24 +43,22 @@ const computeBrowserAction = (state, tabId) => {
 
     return {
         status,
-        count: null,
+        count: null, // TODO:
     };
 };
 
-const shouldNotifySliceStateChange = (state, previousState, tabId) =>
-    getUser(state) !== getUser(previousState) ||
-    isTabSidebarOpen(state, tabId) !== isTabSidebarOpen(previousState, tabId);
+const shouldNotifySliceStateChange = (state, previousState) =>
+    getUser(state) !== getUser(previousState);
 
-const computeSliceState = (state, tabId) => ({
+const computeSliceState = (state) => ({
     user: getUser(state),
-    sidebarOpen: isTabSidebarOpen(state, tabId),
 });
 
 const wrapHandlerWithSetImmediate = (handler) =>
     (...args) => setImmediate(() => handler(...args));
 
 const createStateOverseer = (store) => {
-    let previousState;
+    let previousState = initialState;
 
     const handlers = {
         onInjectScript: () => {},
@@ -89,13 +87,14 @@ const createStateOverseer = (store) => {
             handlers.onBrowserActionChange(tabId, computeBrowserAction(state, tabId));
         }
 
-        if (shouldNotifySliceStateChange(state, previousState, tabId)) {
+        if (shouldNotifySliceStateChange(state, previousState)) {
             handlers.onSliceStateChange(tabId, computeSliceState(state, tabId));
         }
     };
 
     store.subscribe(handleStateChange);
 
+    // TODO:
     setImmediate(handleStateChange);
 
     return {

@@ -9,17 +9,11 @@ const configureStore = (extensionClient) => {
         logger,
     ];
 
-    const store = createStore(
+    return createStore(
         reducer,
         undefined,
         applyMiddleware(...middlewares),
     );
-
-    extensionClient.onSliceStateChange((sliceState) => {
-        console.log('sliceState', sliceState);
-    });
-
-    return store;
 };
 
 export default configureStore;

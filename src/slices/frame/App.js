@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { isOpen, open } from './shared/store/sidebar';
-import { isAuthenticated } from './shared/store/session';
+import { isAuthenticated } from './shared/store/extension';
 import Fab from './fab';
 import Sidebar from './sidebar';
 import styles from './App.css';

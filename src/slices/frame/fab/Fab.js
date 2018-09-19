@@ -48,20 +48,22 @@ class Fab extends Component {
         );
 
         return (
-            <PopoverTrigger popover={ popover }>
-                { ({
-                    isOpen,
-                    close,
-                    ref,
-                    defaultEventProps: { onClick },
-                }) => (
-                    // The overlay above makes the click on outside even if the click target was an iframe
-                    <div ref={ ref } className={ finalClassName }>
-                        { isOpen && <div className={ styles.overlay } onClick={ close } /> }
-                        <DiscussionFab active={ isOpen } onClick={ onClick } />
-                    </div>
-                ) }
-            </PopoverTrigger>
+            <div className={ finalClassName }>
+                <PopoverTrigger popover={ popover }>
+                    { ({
+                        isOpen,
+                        close,
+                        ref,
+                        defaultEventProps: { onClick },
+                    }) => (
+                        // The overlay above makes the click on outside even if the click target was an iframe
+                        <div ref={ ref }>
+                            { isOpen && <div className={ styles.overlay } onClick={ close } /> }
+                            <DiscussionFab active={ isOpen } onClick={ onClick } />
+                        </div>
+                    ) }
+                </PopoverTrigger>
+            </div>
         );
     }
 }

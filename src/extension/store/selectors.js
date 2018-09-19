@@ -11,9 +11,6 @@ export const isTabReady = (state, tabId) =>
 export const isTabEnabled = (state, tabId) =>
     get(state.tabs, [tabId, 'enabled'], false);
 
-export const isTabSidebarOpen = (state, tabId) =>
-    get(state.tabs, [tabId, 'sidebarOpen'], false);
-
 export const getTabInjectionStatus = (state, tabId) =>
     get(state.tabs, [tabId, 'injectionStatus']);
 

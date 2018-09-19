@@ -11,7 +11,6 @@ import configureStore, {
     setTabReady,
     toggleTabEnabled,
     updateTabInjection,
-    setTabSidebarOpen,
 } from './store';
 
 const setupStore = () => {
@@ -58,9 +57,8 @@ const setupStateOverseer = (store) => {
     });
 
     stateOverseer.onSliceStateChange((tabId, sliceState) => {
-        console.log('sending', tabId, sliceState)
         browser.tabs.sendMessage(tabId, {
-            type: messageTypes.METHOD_CALL,
+            type: messageTypes.CALL_CLIENT_METHOD,
             payload: {
                 name: 'setSliceState',
                 args: [sliceState],
@@ -73,14 +71,11 @@ const setupStateOverseer = (store) => {
 const setupMethods = (store) => {
     const methods = {
         setUser: (user) => store.dispatch(setUser(user)),
-        setSidebarOpen: (sidebarOpen) => store.dispatch(setTabSidebarOpen(sidebarOpen)),
     };
 
     browser.runtime.onMessage.addListener((request) => {
-        if (request.type === messageTypes.METHOD_CALL) {
+        if (request.type === messageTypes.CALL_BACKGROUND_METHOD) {
             const { name, args } = request.payload;
-
-            console.log('exec method', name, args);
 
             if (methods[name]) {
                 methods[name](...args);

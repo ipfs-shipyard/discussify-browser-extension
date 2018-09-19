@@ -10,7 +10,7 @@ const createExtensionClient = () => {
     };
 
     const handleOnMessage = (request) => {
-        if (request.type === messageTypes.METHOD_CALL) {
+        if (request.type === messageTypes.CALL_CLIENT_METHOD) {
             const { name, args } = request.payload;
 
             if (methods[name]) {
@@ -29,19 +29,10 @@ const createExtensionClient = () => {
     return {
         setUser: (user) =>
             browser.runtime.sendMessage({
-                type: messageTypes.METHOD_CALL,
+                type: messageTypes.CALL_BACKGROUND_METHOD,
                 payload: {
                     name: 'setUser',
                     args: [user],
-                },
-            }),
-
-        setSidebarOpen: (tabId, open) =>
-            browser.runtime.sendMessage({
-                type: messageTypes.METHOD_CALL,
-                payload: {
-                    name: 'setSidebarOpen',
-                    args: [tabId, open],
                 },
             }),
 

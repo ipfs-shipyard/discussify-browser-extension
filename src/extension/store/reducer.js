@@ -1,7 +1,7 @@
 import { omit } from 'lodash';
 import * as actionTypes from './action-types';
 
-const initialState = {
+export const initialState = {
     // Holds the logged in user
     user: null,
     // Holds the tabs state
@@ -19,8 +19,6 @@ const initialTabState = {
     injectionStatus: null,
     // The injection error object in case the status is 'inject-error' or `remove-error`
     injectionError: null,
-    // Indicates if the sidebar is open
-    sidebarOpen: false, // Indicates if the sidebar is open
 };
 
 const setUser = (state, action) => {
@@ -126,22 +124,6 @@ const updateTabInjection = (state, action) => {
     };
 };
 
-const setTabSidebarOpen = (state, action) => {
-    const { tabId, sidebarOpen } = action.payload;
-    const tabState = state.tabs[tabId] || initialTabState;
-
-    return {
-        ...state,
-        tabs: {
-            ...state.tabs,
-            [tabId]: {
-                ...tabState,
-                sidebarOpen,
-            },
-        },
-    };
-};
-
 const reducer = (state = initialState, action) => {
     switch (action.type) {
     case actionTypes.SET_USER:
@@ -158,8 +140,6 @@ const reducer = (state = initialState, action) => {
         return toggleTabEnabled(state, action);
     case actionTypes.UPDATE_TAB_INJECTION:
         return updateTabInjection(state, action);
-    case actionTypes.SET_TAB_SIDEBAR_OPEN:
-        return setTabSidebarOpen(state, action);
     default:
         return state;
     }

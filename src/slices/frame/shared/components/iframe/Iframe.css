@@ -1,3 +1,5 @@
+@import "@discussify/styleguide/styles/colors";
+
 .iframe {
     position: relative;
     width: 100%;
@@ -15,6 +17,7 @@
         left: 50%;
         z-index: 1;
         transform: translate(-50%, -50%);
+        color: var(--color-gray);
 
         &.exit {
             opacity: 0;

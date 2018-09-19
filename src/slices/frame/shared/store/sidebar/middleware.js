@@ -1,4 +1,4 @@
-import { UNAUTHENTICATE, AUTHENTICATE_OK } from '../session';
+import { UPDATE_STATE, isAuthenticated } from '../extension';
 import { open, close } from './actions';
 
 const OPEN_DELAY = 2000;
@@ -7,17 +7,20 @@ const middleware = (store) => {
     let openTimeout;
 
     return (next) => (action) => {
-        const ret = next(action);
-
-        // Open the sidebar when the user logs in
-        if (action.type === AUTHENTICATE_OK) {
-            openTimeout = setTimeout(() => {
-                store.dispatch(open());
-            }, OPEN_DELAY);
+        if (action.type !== UPDATE_STATE) {
+            return next(action);
         }
 
+        const previousAuthenticated = isAuthenticated(store.getState());
+        const ret = next(action);
+        const authenticated = isAuthenticated(store.getState());
+
+        // Open the sidebar when the user logs in
+        if (!previousAuthenticated && authenticated) {
+            clearTimeout(openTimeout);
+            openTimeout = setTimeout(() => store.dispatch(open()), OPEN_DELAY);
         // Close sidebar when the user logs out
-        if (action.type === UNAUTHENTICATE) {
+        } else if (previousAuthenticated && !authenticated) {
             clearTimeout(openTimeout);
             store.dispatch(close());
         }

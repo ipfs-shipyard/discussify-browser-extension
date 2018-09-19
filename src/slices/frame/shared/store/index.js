@@ -1,24 +1,27 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import thunkMiddleware from 'redux-thunk';
-import { reducer as sessionReducer } from './session';
+import thunk from 'redux-thunk';
+import logger from 'redux-logger';
+import { reducer as extensionReducer, updateState } from './extension';
 import { reducer as sidebarReducer, middleware as sidebarMiddleware } from './sidebar';
 
 const reducer = combineReducers({
-    session: sessionReducer,
+    extension: extensionReducer,
     sidebar: sidebarReducer,
 });
 
 const configureStore = (extensionClient) => {
     const middlewares = [
-        thunkMiddleware.withExtraArgument({ extensionClient }),
+        thunk.withExtraArgument({ extensionClient }),
         sidebarMiddleware,
+        logger,
     ];
-    const enhancer = applyMiddleware(...middlewares);
 
-    const store = createStore(reducer, {}, enhancer);
+    const store = createStore(reducer, {}, applyMiddleware(...middlewares));
 
+    // Update extension state whenever it changes
     extensionClient.onSliceStateChange((sliceState) => {
-        console.log('slice state', sliceState);
+        console.log('slice state change', sliceState);
+        store.dispatch(updateState(sliceState));
     });
 
     return store;
