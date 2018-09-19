@@ -8,7 +8,7 @@ export const initialState = {
     tabs: {},
 };
 
-const initialTabState = {
+export const initialTabState = {
     // Indicates if the tab is ready and that the extension can be installed
     ready: false,
     // Indicates if the extension is enabled on this tab
@@ -82,10 +82,8 @@ const setTabReady = (state, action) => {
             [tabId]: {
                 ...tabState,
                 ready,
-                ...(ready ? {} : {
-                    injectionStatus: null,
-                    injectionError: null,
-                }),
+                injectionStatus: null,
+                injectionError: null,
             },
         },
     };
@@ -117,8 +115,9 @@ const updateTabInjection = (state, action) => {
             ...state.tabs,
             [tabId]: {
                 ...tabState,
+                enabled: error ? false : tabState.enabled,
                 injectionStatus: status,
-                injectionError: error,
+                injectionError: error || null,
             },
         },
     };

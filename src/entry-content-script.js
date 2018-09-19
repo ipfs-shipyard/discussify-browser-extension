@@ -19,5 +19,3 @@ hostEl.addEventListener(context.destroyEvent, () => {
 retargetEvents(hostEl);
 renderApp(rootEl, store);
 context.injected = true;
-
-console.log('ok!');

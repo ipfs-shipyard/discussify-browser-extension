@@ -6,5 +6,3 @@ const extensionClient = createExtensionClient();
 const store = configureStore(extensionClient);
 
 renderApp(rootEl, store);
-
-console.log('ok authentication!');

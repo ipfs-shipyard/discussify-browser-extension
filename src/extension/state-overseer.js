@@ -1,5 +1,4 @@
 import {
-    initialState,
     getTabIds,
     getUser,
     isTabReady,
@@ -24,8 +23,14 @@ const shouldRemoveScriptFromTab = (state, tabId) => {
 };
 
 const shouldNotifyBrowserAction = (state, previousState, tabId) =>
+    isTabReady(state, tabId) !== isTabReady(previousState, tabId) ||
     isTabEnabled(state, tabId) !== isTabEnabled(previousState, tabId) ||
     getTabInjectionStatus(state, tabId) !== getTabInjectionStatus(previousState, tabId);
+
+const shouldNotifySliceStateChange = (state, previousState, tabId) =>
+    getUser(state) !== getUser(previousState) &&
+    isTabReady(state, tabId) &&
+    isTabEnabled(state, tabId);
 
 const computeBrowserAction = (state, tabId) => {
     const tabInjectionStatus = getTabInjectionStatus(state, tabId);
@@ -47,9 +52,6 @@ const computeBrowserAction = (state, tabId) => {
     };
 };
 
-const shouldNotifySliceStateChange = (state, previousState) =>
-    getUser(state) !== getUser(previousState);
-
 const computeSliceState = (state) => ({
     user: getUser(state),
 });
@@ -58,7 +60,7 @@ const wrapHandlerWithSetImmediate = (handler) =>
     (...args) => setImmediate(() => handler(...args));
 
 const createStateOverseer = (store) => {
-    let previousState = initialState;
+    let previousState = store.getState();
 
     const handlers = {
         onInjectScript: () => {},
@@ -87,15 +89,12 @@ const createStateOverseer = (store) => {
             handlers.onBrowserActionChange(tabId, computeBrowserAction(state, tabId));
         }
 
-        if (shouldNotifySliceStateChange(state, previousState)) {
+        if (shouldNotifySliceStateChange(state, previousState, tabId)) {
             handlers.onSliceStateChange(tabId, computeSliceState(state, tabId));
         }
     };
 
     store.subscribe(handleStateChange);
-
-    // TODO:
-    setImmediate(handleStateChange);
 
     return {
         onInjectScript: (handler) => {

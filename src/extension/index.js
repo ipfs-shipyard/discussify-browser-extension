@@ -1,4 +1,3 @@
-import promiseDone from 'promise-done';
 import * as messageTypes from './message-types';
 import { injectScript, removeScript } from './script-injector';
 import { readState, writeState } from './state-storage';
@@ -13,12 +12,12 @@ import configureStore, {
     updateTabInjection,
 } from './store';
 
-const setupStore = () => {
-    // const store = configureStore(readState());
-    const store = configureStore();
+const setupStore = async () => {
+    const state = await readState();
+    const store = configureStore(state);
 
     store.subscribe(() => {
-        // writeState(store.getState());
+        writeState(store.getState());
     });
 
     return store;
@@ -28,43 +27,48 @@ const setupStateOverseer = (store) => {
     const stateOverseer = createStateOverseer(store);
 
     stateOverseer.onBrowserActionChange((tabId, { status, count }) => {
+        console.log('onBrowserActionChange', tabId, status);
+
         browser.browserAction.setBadgeText({
             text: status[0],
             tabId,
         });
     });
 
-    stateOverseer.onInjectScript((tabId, sliceState) => {
+    stateOverseer.onInjectScript(async (tabId, sliceState) => {
         store.dispatch(updateTabInjection(tabId, 'inject-pending'));
 
-        injectScript(tabId, sliceState)
-        .then(
-            () => store.dispatch(updateTabInjection(tabId, 'inject-success')),
-            (err) => store.dispatch(updateTabInjection(tabId, 'inject-error', err))
-        )
-        .catch(promiseDone);
+        try {
+            await injectScript(tabId, sliceState);
+        } catch (err) {
+            return store.dispatch(updateTabInjection(tabId, 'inject-error', err));
+        }
+
+        store.dispatch(updateTabInjection(tabId, 'inject-success'));
     });
 
-    stateOverseer.onRemoveScript((tabId) => {
+    stateOverseer.onRemoveScript(async (tabId, sliceState) => {
         store.dispatch(updateTabInjection(tabId, 'remove-pending'));
 
-        removeScript(tabId)
-        .then(
-            () => store.dispatch(updateTabInjection(tabId, 'remove-success')),
-            (err) => store.dispatch(updateTabInjection(tabId, 'remove-error', err))
-        )
-        .catch(promiseDone);
+        try {
+            await removeScript(tabId, sliceState);
+        } catch (err) {
+            return store.dispatch(updateTabInjection(tabId, 'remove-error', err));
+        }
+
+        store.dispatch(updateTabInjection(tabId, 'remove-success'));
     });
 
     stateOverseer.onSliceStateChange((tabId, sliceState) => {
+        console.log('onSliceStateChange', tabId);
+
         browser.tabs.sendMessage(tabId, {
             type: messageTypes.CALL_CLIENT_METHOD,
             payload: {
                 name: 'setSliceState',
                 args: [sliceState],
             },
-        })
-        .catch(promiseDone);
+        });
     });
 };
 
@@ -99,11 +103,12 @@ const setupTabListeners = (store) => {
     browser.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
         store.dispatch(replaceTab(addedTabId, removedTabId));
     });
-    browser.webNavigation.onBeforeNavigate.addListener(({ tabId, frameId }) => {
-        !frameId && store.dispatch(setTabReady(tabId, false));
-    });
-    browser.webNavigation.onDOMContentLoaded.addListener(({ tabId, frameId }) => {
-        !frameId && store.dispatch(setTabReady(tabId, true));
+    browser.tabs.onUpdated.addListener((tabId, info) => {
+        if (info.status === 'loading') {
+            store.dispatch(setTabReady(tabId, false));
+        } else if (info.status === 'complete') {
+            store.dispatch(setTabReady(tabId, true));
+        }
     });
 };
 
@@ -114,13 +119,14 @@ const setupBrowserAction = (store) => {
 };
 
 const setupInstallListeners = () => {
+    // TODO:
     browser.runtime.onInstalled.addListener(({ reason }) => {
-        console.log('onInstalled', reason);
+        console.log('onInstalled2', reason);
     });
 };
 
-const createExtension = () => {
-    const store = setupStore();
+const createExtension = async () => {
+    const store = await setupStore();
 
     setupStateOverseer(store);
     setupTabListeners(store);

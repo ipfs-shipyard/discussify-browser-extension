@@ -16,7 +16,10 @@ const App = ({ authenticated, sidebarOpen, onSidebarOpen }) => (
             <CSSTransition
                 key="fab"
                 timeout={ ANIMATION_DURATION }
+                appear
                 classNames={ {
+                    appear: styles.enter,
+                    appearActive: styles.enterActive,
                     enter: styles.enter,
                     enterActive: styles.enterActive,
                     exit: styles.exit,
