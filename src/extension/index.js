@@ -27,7 +27,7 @@ const setupStore = async () => {
 const setupStateOverseer = (store) => {
     const stateOverseer = createStateOverseer(store);
 
-    stateOverseer.onBrowserActionChange((tabId, { status, error, count }) => {
+    stateOverseer.onBrowserActionChange(async (tabId, { status, error, count }) => {
         console.info('onBrowserActionChange', { tabId, status, error, count });
 
         // Update icon & badge
@@ -44,19 +44,19 @@ const setupStateOverseer = (store) => {
             icon = 'icons/discussify-blue.svg';
         }
 
-        browser.browserAction.setIcon({ tabId, path: icon });
-        browser.browserAction.setBadgeText({ text: count ? count.toString() : '', tabId });
-        browser.browserAction.setBadgeBackgroundColor({ color: '#0a6adb', tabId });
+        await browser.browserAction.setIcon({ tabId, path: icon });
+        await browser.browserAction.setBadgeText({ text: count ? count.toString() : '', tabId });
+        await browser.browserAction.setBadgeBackgroundColor({ color: '#0a6adb', tabId });
 
         // Disable if loading to avoid double injections/removals
         if (status === 'loading') {
-            browser.browserAction.disable();
+            await browser.browserAction.disable();
         } else {
-            browser.browserAction.enable();
+            await browser.browserAction.enable();
         }
 
         // Setup popup based on the error
-        browser.browserAction.setPopup({
+        await browser.browserAction.setPopup({
             tabId,
             popup: error ?
                 `error-popup.html?${queryString.stringify({
@@ -96,10 +96,10 @@ const setupStateOverseer = (store) => {
         store.dispatch(updateTabInjection(tabId, 'remove-success'));
     });
 
-    stateOverseer.onSliceStateChange((tabId, sliceState) => {
+    stateOverseer.onSliceStateChange(async (tabId, sliceState) => {
         console.info('onSliceStateChange', { tabId, sliceState });
 
-        browser.tabs.sendMessage(tabId, {
+        await browser.tabs.sendMessage(tabId, {
             type: messageTypes.CALL_CLIENT_METHOD,
             payload: {
                 name: 'setSliceState',
@@ -108,10 +108,10 @@ const setupStateOverseer = (store) => {
         });
     });
 
-    stateOverseer.onAuthenticatedChange((authenticated) => {
+    stateOverseer.onAuthenticatedChange(async (authenticated) => {
         console.log('onAuthenticatedChange', authenticated);
 
-        browser.contextMenus.update('logout', {
+        await browser.contextMenus.update('logout', {
             enabled: authenticated,
         });
     });
