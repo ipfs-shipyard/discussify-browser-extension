@@ -1,0 +1,7 @@
+@import "@discussify/styleguide/styles";
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+html {
+    width: 400px;
+}

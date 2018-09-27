@@ -7,6 +7,7 @@ import {
     isTabReady,
     isTabEnabled,
     getTabInjectionStatus,
+    getTabInjectionError,
 } from './store';
 
 const shouldInjectScriptIntoTab = (state, tabId) => {
@@ -41,6 +42,7 @@ const computeBrowserAction = (state, tabId) => {
 
     return {
         status,
+        error: getTabInjectionError(state, tabId),
         count: null, // TODO:
     };
 };
@@ -99,7 +101,7 @@ const createStateOverseer = (store) => {
             handlers.onBrowserActionChange(tabId, browserAction);
         }
 
-        // Check if slice state changed, skipping if the content-
+        // Check if slice state changed, skipping if the extension is not injected
         if (getTabInjectionStatus(state, tabId) === 'inject-success') {
             const sliceState = computeSliceState(state, tabId);
             const previousSliceState = computeSliceState(previousState, tabId);

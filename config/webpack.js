@@ -28,6 +28,10 @@ const buildConfig = (env) => {
                 path.join(__dirname, 'util/webextension-polyfill.js'),
                 path.join(projectDir, 'src/entry-content-script.js'),
             ],
+            'error-popup': [
+                path.join(__dirname, 'util/webextension-polyfill.js'),
+                path.join(projectDir, 'src/entry-error-popup.js'),
+            ],
             authentication: [
                 path.join(__dirname, 'util/webextension-polyfill.js'),
                 path.join(projectDir, 'src/entry-authentication.js'),
@@ -52,11 +56,11 @@ const buildConfig = (env) => {
                 // JS files
                 {
                     test: /\.js$/,
-                    exclude: /node_modules/,
                     use: [
                         {
                             loader: require.resolve('babel-loader'),
                             options: {
+                                babelrc: false,
                                 cacheDirectory: path.join(projectDir, 'node_modules/.cache/babel-loader'),
                                 presets: [
                                     [require.resolve('babel-preset-moxy'), {

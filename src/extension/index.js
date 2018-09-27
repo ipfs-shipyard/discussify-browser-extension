@@ -1,3 +1,4 @@
+import queryString from 'query-string';
 import * as messageTypes from './message-types';
 import { injectScript, removeScript } from './script-injector';
 import { readState, writeState } from './state-storage';
@@ -26,9 +27,10 @@ const setupStore = async () => {
 const setupStateOverseer = (store) => {
     const stateOverseer = createStateOverseer(store);
 
-    stateOverseer.onBrowserActionChange((tabId, { status, count }) => {
-        console.info('onBrowserActionChange', { tabId, status, count });
+    stateOverseer.onBrowserActionChange((tabId, { status, error, count }) => {
+        console.info('onBrowserActionChange', { tabId, status, error, count });
 
+        // Update icon & badge
         let icon;
 
         switch (status) {
@@ -52,6 +54,18 @@ const setupStateOverseer = (store) => {
         } else {
             browser.browserAction.enable();
         }
+
+        // Setup popup based on the error
+        browser.browserAction.setPopup({
+            tabId,
+            popup: error ?
+                `error-popup.html?${queryString.stringify({
+                    tabId,
+                    message: error.message,
+                    code: error.code,
+                })}` :
+                '',
+        });
     });
 
     stateOverseer.onInjectScript(async (tabId, sliceState) => {
@@ -106,6 +120,7 @@ const setupStateOverseer = (store) => {
 const setupMethods = (store) => {
     const methods = {
         setUser: (user) => store.dispatch(setUser(user)),
+        dismissInjectionError: (tabId) => store.dispatch(updateTabInjection(tabId, null, null)),
     };
 
     browser.runtime.onMessage.addListener((request) => {

@@ -1,0 +1,26 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+.app {
+    height: 100%;
+    padding: 3rem;
+
+    & .headline {
+        margin-bottom: 2rem;
+    }
+
+    & .error {
+        margin-bottom: 2rem;
+        padding-left: 1.5rem;
+        border-left: 0.2rem solid color(var(--color-gray) alpha(0.4));
+
+        & .message {
+            @mixin typography-body-2 rem;
+        }
+
+        & .code {
+            @mixin typography-overline rem;
+            color: var(--color-gray);
+        }
+    }
+}
