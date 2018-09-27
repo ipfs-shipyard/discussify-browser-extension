@@ -51,8 +51,29 @@ const computeSliceState = (state) => ({
     user: getUser(state),
 });
 
-const wrapHandlerWithSetImmediate = (handler) =>
-    (...args) => setImmediate(() => handler(...args));
+const wrapHandler = (handler) => {
+    let promise;
+
+    // Wrap the handler so that all promises are returned by them are awaited
+    return (...args) => {
+        // Wait for previous promise
+        promise = Promise.resolve(promise)
+        // Execute the handler, ignoring any errors
+        .then(() => handler(...args))
+        .catch((err) => console.error(err))
+        // Cleanup the promise chain if we are still the latest promise,
+        // This is to avoid memory leaks
+        .finally(() => {
+            if (thisPromise === promise) {
+                promise = null;
+            }
+        });
+
+        const thisPromise = promise;
+
+        return promise;
+    };
+};
 
 const createStateOverseer = (store) => {
     let previousState = initialState;
@@ -118,19 +139,19 @@ const createStateOverseer = (store) => {
 
     return {
         onInjectScript: (handler) => {
-            handlers.onInjectScript = wrapHandlerWithSetImmediate(handler);
+            handlers.onInjectScript = wrapHandler(handler);
         },
         onRemoveScript: (handler) => {
-            handlers.onRemoveScript = wrapHandlerWithSetImmediate(handler);
+            handlers.onRemoveScript = wrapHandler(handler);
         },
         onBrowserActionChange: (handler) => {
-            handlers.onBrowserActionChange = wrapHandlerWithSetImmediate(handler);
+            handlers.onBrowserActionChange = wrapHandler(handler);
         },
         onSliceStateChange: (handler) => {
-            handlers.onSliceStateChange = wrapHandlerWithSetImmediate(handler);
+            handlers.onSliceStateChange = wrapHandler(handler);
         },
         onAuthenticatedChange: (handler) => {
-            handlers.onAuthenticatedChange = wrapHandlerWithSetImmediate(handler);
+            handlers.onAuthenticatedChange = wrapHandler(handler);
         },
     };
 };
