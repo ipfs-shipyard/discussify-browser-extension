@@ -1,4 +1,4 @@
-import { initialTabState } from './store';
+import { initialState, initialTabState } from './store';
 
 // TODO: Add versioning support
 
@@ -18,14 +18,13 @@ const syncStateWithBrowserTabs = async (state) => {
 
         return tabs;
     }, {});
-
-    console.log(state.tabs);
 };
 
 export const writeState = (state) => browser.storage.local.set({ state });
 
 export const readState = async () => {
-    const { state } = await browser.storage.local.get(['state']);
+    const results = await browser.storage.local.get(['state']);
+    const state = results.state || initialState;
 
     // Sync the stored tabs with the ones currently in the browser
     await syncStateWithBrowserTabs(state);

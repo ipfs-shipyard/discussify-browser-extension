@@ -9,14 +9,14 @@ const reducer = combineReducers({
     sidebar: sidebarReducer,
 });
 
-const configureStore = (extensionClient) => {
+const configureStore = (extensionClient, initialState = {}) => {
     const middlewares = [
         thunk.withExtraArgument({ extensionClient }),
         sidebarMiddleware,
         logger,
     ];
 
-    const store = createStore(reducer, {}, applyMiddleware(...middlewares));
+    const store = createStore(reducer, initialState, applyMiddleware(...middlewares));
 
     // Update extension state whenever it changes
     extensionClient.onSliceStateChange((sliceState) => {

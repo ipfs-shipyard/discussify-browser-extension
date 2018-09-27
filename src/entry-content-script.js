@@ -7,7 +7,7 @@ const context = window.__DISCUSSIFY_INJECTION_CONTEXT__;
 const hostEl = document.getElementById(context.hostElementId);
 const rootEl = hostEl.shadowRoot.querySelector('[data-role="root"]');
 const extensionClient = createExtensionClient();
-const store = configureStore(extensionClient);
+const store = configureStore(extensionClient, { extension: context.sliceState });
 
 hostEl.addEventListener(context.destroyEvent, () => {
     destroyApp(rootEl);

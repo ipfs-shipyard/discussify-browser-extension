@@ -12,27 +12,19 @@ import styles from './Fab.css';
 const Iframe = pure(Iframe_);
 
 class Fab extends Component {
-    static getDerivedStateFromProps(props, state) {
-        const authenticated = state.authenticated != null ?
-            state.authenticated :
-            props.initialAuthenticated;
-
-        return {
-            authenticated,
-        };
-    }
-
-    state = {};
+    state = {
+        authenticationOpen: false,
+    };
 
     render() {
-        const { className, onClick } = this.props;
-        const { authenticated } = this.state;
+        const { className, authenticated, onOpen } = this.props;
+        const { authenticationOpen } = this.state;
         const finalClassName = classNames(styles.fab, className);
 
-        if (authenticated) {
+        if (authenticated && !authenticationOpen) {
             return (
                 <div className={ finalClassName }>
-                    <DiscussionFab onClick={ onClick } />
+                    <DiscussionFab onClick={ onOpen } />
                 </div>
             );
         }
@@ -49,7 +41,10 @@ class Fab extends Component {
 
         return (
             <div className={ finalClassName }>
-                <PopoverTrigger popover={ popover }>
+                <PopoverTrigger
+                    popover={ popover }
+                    onOpen={ this.handleAuthenticationOpen }
+                    onClose={ this.handleAuthenticationClose }>
                     { ({
                         isOpen,
                         close,
@@ -66,12 +61,24 @@ class Fab extends Component {
             </div>
         );
     }
+
+    handleAuthenticationOpen = () => {
+        this.setState({ authenticationOpen: true });
+        this.props.onAuthenticationOpen();
+    };
+
+    handleAuthenticationClose = () => {
+        this.setState({ authenticationOpen: false });
+        this.props.onAuthenticationClose();
+    };
 }
 
 Fab.propTypes = {
-    initialAuthenticated: PropTypes.bool,
-    onClick: PropTypes.func,
+    authenticated: PropTypes.bool,
     className: PropTypes.string,
+    onOpen: PropTypes.func.isRequired,
+    onAuthenticationOpen: PropTypes.func.isRequired,
+    onAuthenticationClose: PropTypes.func.isRequired,
 };
 
 export default Fab;

@@ -1,4 +1,5 @@
 import { UPDATE_STATE, isAuthenticated } from '../extension';
+import { isPendingOpen } from './selectors';
 import { open, close } from './actions';
 
 const OPEN_DELAY = 2000;
@@ -18,7 +19,10 @@ const middleware = (store) => {
         // Open the sidebar when the user logs in
         if (!previousAuthenticated && authenticated) {
             clearTimeout(openTimeout);
-            openTimeout = setTimeout(() => store.dispatch(open()), OPEN_DELAY);
+
+            if (isPendingOpen(store.getState())) {
+                openTimeout = setTimeout(() => store.dispatch(open()), OPEN_DELAY);
+            }
         // Close sidebar when the user logs out
         } else if (previousAuthenticated && !authenticated) {
             clearTimeout(openTimeout);

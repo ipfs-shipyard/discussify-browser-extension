@@ -11,8 +11,6 @@ class Sidebar extends Component {
     render() {
         const { className } = this.props;
 
-        console.log('sidebar');
-
         return (
             <div className={ classNames(styles.sidebar, className) }>
                 sidebar

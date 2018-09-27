@@ -29,23 +29,12 @@ const injectContext = async (tabId, sliceState) => {
     const result = await browser.tabs.executeScript(tabId, {
         code: `
             (() => {
-                if (window.__DISCUSSIFY_INJECTION_CONTEXT__) {
-                    return false;
-                }
-
                 window.__DISCUSSIFY_INJECTION_CONTEXT__ = ${serialize(context, { isJSON: true })};
 
                 return true;
             })();
         `,
     });
-
-    if (result[0] === false) {
-        throw Object.assign(
-            new Error('Content script already injected'),
-            { code: 'ALREADY_INJECTED' }
-        );
-    }
 
     if (!result[0]) {
         throw Object.assign(
@@ -99,10 +88,17 @@ export const injectScript = async (tabId, sliceState) => {
 
     assertUrlSupported(tab.url);
 
+    // Check if already injected
+    let injected = await getContextInjectedValue(tabId);
+
+    if (injected) {
+        return injected;
+    }
+
     await injectContext(tabId, sliceState);
     await executeContentScript(tabId);
 
-    const injected = await getContextInjectedValue(tabId);
+    injected = await getContextInjectedValue(tabId);
 
     if (!injected) {
         throw Object.assign(

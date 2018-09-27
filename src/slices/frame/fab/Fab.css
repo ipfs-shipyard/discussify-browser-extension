@@ -15,7 +15,7 @@
 .popoverContent {
     width: 40rem;
     height: 43.4rem;
-    padding: 4em;
+    padding: 3m;
 
     & .iframe {
         width: 100%;
@@ -28,6 +28,6 @@
     .popoverContent {
         width: 32.5rem;
         height: 35.2625rem;
-        padding: 2em;
+        padding: 1em;
     }
 }

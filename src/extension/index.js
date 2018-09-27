@@ -27,15 +27,36 @@ const setupStateOverseer = (store) => {
     const stateOverseer = createStateOverseer(store);
 
     stateOverseer.onBrowserActionChange((tabId, { status, count }) => {
-        console.log('onBrowserActionChange', tabId, status);
+        console.info('onBrowserActionChange', { tabId, status, count });
 
-        browser.browserAction.setBadgeText({
-            text: status[0],
-            tabId,
-        });
+        let icon;
+
+        switch (status) {
+        case 'disabled':
+            icon = 'icons/discussify-gray.svg';
+            break;
+        case 'error':
+            icon = 'icons/discussify-error.svg';
+            break;
+        default:
+            icon = 'icons/discussify-blue.svg';
+        }
+
+        browser.browserAction.setIcon({ tabId, path: icon });
+        browser.browserAction.setBadgeText({ text: count ? count.toString() : '', tabId });
+        browser.browserAction.setBadgeBackgroundColor({ color: '#0a6adb', tabId });
+
+        // Disable if loading to avoid double injections/removals
+        if (status === 'loading') {
+            browser.browserAction.disable();
+        } else {
+            browser.browserAction.enable();
+        }
     });
 
     stateOverseer.onInjectScript(async (tabId, sliceState) => {
+        console.info('onInjectScript', { tabId, sliceState });
+
         store.dispatch(updateTabInjection(tabId, 'inject-pending'));
 
         try {
@@ -48,6 +69,8 @@ const setupStateOverseer = (store) => {
     });
 
     stateOverseer.onRemoveScript(async (tabId, sliceState) => {
+        console.info('onRemoveScript', { tabId, sliceState });
+
         store.dispatch(updateTabInjection(tabId, 'remove-pending'));
 
         try {
@@ -60,7 +83,7 @@ const setupStateOverseer = (store) => {
     });
 
     stateOverseer.onSliceStateChange((tabId, sliceState) => {
-        console.log('onSliceStateChange', tabId);
+        console.info('onSliceStateChange', { tabId, sliceState });
 
         browser.tabs.sendMessage(tabId, {
             type: messageTypes.CALL_CLIENT_METHOD,
@@ -68,6 +91,14 @@ const setupStateOverseer = (store) => {
                 name: 'setSliceState',
                 args: [sliceState],
             },
+        });
+    });
+
+    stateOverseer.onAuthenticatedChange((authenticated) => {
+        console.log('onAuthenticatedChange', authenticated);
+
+        browser.contextMenus.update('logout', {
+            enabled: authenticated,
         });
     });
 };
@@ -118,21 +149,32 @@ const setupBrowserAction = (store) => {
     });
 };
 
-const setupInstallListeners = () => {
-    // TODO:
-    browser.runtime.onInstalled.addListener(({ reason }) => {
-        console.log('onInstalled2', reason);
+const setupContextMenus = async (store) => {
+    await browser.contextMenus.removeAll();
+
+    await browser.contextMenus.create({
+        id: 'logout',
+        title: 'Logout',
+        contexts: ['browser_action'],
+        enabled: false,
+    });
+
+    browser.contextMenus.onClicked.addListener((info) => {
+        if (info.menuItemId === 'logout') {
+            store.dispatch(setUser(null));
+        }
     });
 };
 
 const createExtension = async () => {
     const store = await setupStore();
 
+    await setupContextMenus(store);
+
     setupStateOverseer(store);
     setupTabListeners(store);
     setupMethods(store);
     setupBrowserAction(store);
-    setupInstallListeners(store);
 };
 
 export default createExtension;

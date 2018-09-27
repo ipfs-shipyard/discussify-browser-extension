@@ -7,3 +7,10 @@ export const open = () => ({
 export const close = () => ({
     type: actionTypes.CLOSE,
 });
+
+export const setPendingOpen = (pendingOpen) => ({
+    type: actionTypes.SET_PENDING_OPEN,
+    payload: {
+        pendingOpen,
+    },
+});

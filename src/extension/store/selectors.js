@@ -3,6 +3,8 @@ import { get } from 'lodash';
 export const getTabIds = (state) =>
     Object.keys(state.tabs).map((tabId) => Number(tabId));
 
+export const isAuthenticated = (state) => !!getUser(state);
+
 export const getUser = (state) => state.user;
 
 export const isTabReady = (state, tabId) =>

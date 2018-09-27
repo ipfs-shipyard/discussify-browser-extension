@@ -1,5 +1,8 @@
+import shallowEqual from 'shallow-equal/objects';
 import {
+    initialState,
     getTabIds,
+    isAuthenticated,
     getUser,
     isTabReady,
     isTabEnabled,
@@ -22,16 +25,6 @@ const shouldRemoveScriptFromTab = (state, tabId) => {
            tabInjectionStatus === 'inject-success';
 };
 
-const shouldNotifyBrowserAction = (state, previousState, tabId) =>
-    isTabReady(state, tabId) !== isTabReady(previousState, tabId) ||
-    isTabEnabled(state, tabId) !== isTabEnabled(previousState, tabId) ||
-    getTabInjectionStatus(state, tabId) !== getTabInjectionStatus(previousState, tabId);
-
-const shouldNotifySliceStateChange = (state, previousState, tabId) =>
-    getUser(state) !== getUser(previousState) &&
-    isTabReady(state, tabId) &&
-    isTabEnabled(state, tabId);
-
 const computeBrowserAction = (state, tabId) => {
     const tabInjectionStatus = getTabInjectionStatus(state, tabId);
     let status;
@@ -40,7 +33,7 @@ const computeBrowserAction = (state, tabId) => {
         status = 'error';
     } else if (tabInjectionStatus === 'inject-pending' || tabInjectionStatus === 'remove-pending') {
         status = 'loading';
-    } else if (isTabEnabled(state, tabId)) {
+    } else if (isTabEnabled(state, tabId) && tabInjectionStatus === 'inject-success') {
         status = 'enabled';
     } else {
         status = 'disabled';
@@ -60,41 +53,66 @@ const wrapHandlerWithSetImmediate = (handler) =>
     (...args) => setImmediate(() => handler(...args));
 
 const createStateOverseer = (store) => {
-    let previousState = store.getState();
+    let previousState = initialState;
 
     const handlers = {
         onInjectScript: () => {},
         onRemoveScript: () => {},
         onBrowserActionChange: () => {},
         onSliceStateChange: () => {},
+        onAuthenticatedChange: () => {},
     };
 
     const handleStateChange = () => {
         const state = store.getState();
         const tabIds = getTabIds(state);
 
-        tabIds.forEach((tabId) => checkTabState(state, tabId));
+        checkCommonState(state, previousState);
+        tabIds.forEach((tabId) => checkTabState(state, previousState, tabId));
 
         previousState = state;
     };
 
-    const checkTabState = (state, tabId) => {
+    const checkCommonState = (state, previousState) => {
+        // Check if the authenticated state changed
+        const previousAuthenticated = isAuthenticated(previousState);
+        const authenticated = isAuthenticated(state);
+
+        if (authenticated !== previousAuthenticated) {
+            handlers.onAuthenticatedChange(authenticated);
+        }
+    };
+
+    const checkTabState = (state, previousState, tabId) => {
+        // Check if script should be injected/removed
         if (shouldInjectScriptIntoTab(state, tabId)) {
-            handlers.onInjectScript(tabId);
+            handlers.onInjectScript(tabId, computeSliceState(state, tabId));
         } else if (shouldRemoveScriptFromTab(state, tabId)) {
             handlers.onRemoveScript(tabId);
         }
 
-        if (shouldNotifyBrowserAction(state, previousState, tabId)) {
-            handlers.onBrowserActionChange(tabId, computeBrowserAction(state, tabId));
+        // Check if browser action changed
+        const browserAction = computeBrowserAction(state, tabId);
+        const previousBrowserAction = computeBrowserAction(previousState, tabId);
+
+        if (!shallowEqual(browserAction, previousBrowserAction)) {
+            handlers.onBrowserActionChange(tabId, browserAction);
         }
 
-        if (shouldNotifySliceStateChange(state, previousState, tabId)) {
-            handlers.onSliceStateChange(tabId, computeSliceState(state, tabId));
+        // Check if slice state changed, skipping if the content-
+        if (getTabInjectionStatus(state, tabId) === 'inject-success') {
+            const sliceState = computeSliceState(state, tabId);
+            const previousSliceState = computeSliceState(previousState, tabId);
+
+            if (!shallowEqual(sliceState, previousSliceState)) {
+                handlers.onSliceStateChange(tabId, sliceState);
+            }
         }
     };
 
     store.subscribe(handleStateChange);
+
+    setImmediate(handleStateChange);
 
     return {
         onInjectScript: (handler) => {
@@ -108,6 +126,9 @@ const createStateOverseer = (store) => {
         },
         onSliceStateChange: (handler) => {
             handlers.onSliceStateChange = wrapHandlerWithSetImmediate(handler);
+        },
+        onAuthenticatedChange: (handler) => {
+            handlers.onAuthenticatedChange = wrapHandlerWithSetImmediate(handler);
         },
     };
 };
