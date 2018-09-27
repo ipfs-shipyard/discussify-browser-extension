@@ -2,17 +2,17 @@
 
 Discussify's browser extension.
 
-### Create React App
+## Development
 
-This project was bootstrapped with [create-react-app@1.x.x](https://github.com/facebook/create-react-app) and uses [`react-app-rewire`](https://github.com/timarney/react-app-rewired) to modify configuration without having to eject.
+1. Start the project for development
 
-More specifically, the modifications are:
+2. Install the extension manually in Chrome/Firefox
 
-- Added [PostCSS](https://github.com/postcss/postcss) with [MOXY's preset](https://github.com/moxystudio/postcss-preset-moxy)
-- Activated CSS modules
-- Added [external-svg-sprite-loader](https://github.com/karify/external-svg-sprite-loader) to have SVG sprites
+    Go to `chrome://extensions` in Chrome and click "Load Unpacked". Point to the `dist/` folder of this project. The extension should now appear in the extensions list!
 
-For more information, please read the `create-react-app` documentation.
+    Any changes to the source code will be compiled and the extension should automatically reload, thanks to [webpack-chrome-extension-reloader]( https://github.com/rubenspgcavalcante/webpack-chrome-extension-reloader). If you have any problems with this feature, simply click the reload button on the extension.
+
+
 
 ## Commands
 
@@ -22,7 +22,11 @@ For more information, please read the `create-react-app` documentation.
 $ npm start
 ```
 
-Starts a local web-server for development.
+Starts the project for development.
+
+If this is your first time running the project, please go to `chrome://extensions` in Chrome. Click the "Load Unpacked" button and point to the `dist/` folder of this project. The extension should now appear in the extensions list!
+
+Any changes to the source code will be compiled and the extension should automatically reload, thanks to [webpack-chrome-extension-reloader]( https://github.com/rubenspgcavalcante/webpack-chrome-extension-reloader). If you have any problems with this feature, simply click the reload button on the extension.
 
 ### build
 

@@ -1,0 +1,24 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+.welcomeScreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    & .avatar {
+        font-size: 3rem;
+    }
+
+    & .welcomeMessage {
+        margin-top: 2rem;
+        @mixin typography-h4 rem;
+    }
+
+    & .loadingMessage {
+        margin-top: 0.5rem;
+        color: var(--color-gray);
+        @mixin typography-body-1 rem;
+    }
+}

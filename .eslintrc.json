@@ -8,5 +8,8 @@
         "eslint-config-moxy/addons/es-modules",
         "eslint-config-moxy/addons/react",
         "eslint-config-moxy/addons/jest"
-    ]
+    ],
+    "globals": {
+        "browser": false
+    }
 }

@@ -1,0 +1,23 @@
+.scanScreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: stretch;
+
+    & .instructions {
+        text-align: center;
+        line-height: 1;
+    }
+
+    & .qrCode {
+        margin-top: 2rem;
+        display: flex;
+        flex: 1 1;
+        flex-direction: column;
+        align-items: center;
+
+        & img {
+            max-height: 100%;
+        }
+    }
+}
