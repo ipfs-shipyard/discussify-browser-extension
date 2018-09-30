@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import Iframe from '../shared/components/iframe';
 import styles from './Sidebar.css';
 
 class Sidebar extends Component {
@@ -13,7 +14,7 @@ class Sidebar extends Component {
 
         return (
             <div className={ classNames(styles.sidebar, className) }>
-                sidebar
+                <Iframe src={ browser.runtime.getURL('/sidebar.html') } />
             </div>
         );
     }

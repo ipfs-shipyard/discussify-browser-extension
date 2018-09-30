@@ -8,6 +8,7 @@ import {
     isTabEnabled,
     getTabInjectionStatus,
     getTabInjectionError,
+    isTabSidebarOpen,
 } from './store';
 
 const shouldInjectScriptIntoTab = (state, tabId) => {
@@ -47,8 +48,9 @@ const computeBrowserAction = (state, tabId) => {
     };
 };
 
-const computeSliceState = (state) => ({
+const computeSliceState = (state, tabId) => ({
     user: getUser(state),
+    sidebarOpen: isTabSidebarOpen(state, tabId),
 });
 
 const wrapHandler = (handler) => {

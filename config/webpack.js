@@ -36,9 +36,9 @@ const buildConfig = (env) => {
                 path.join(__dirname, 'util/webextension-polyfill.js'),
                 path.join(projectDir, 'src/entry-authentication.js'),
             ],
-            discussion: [
+            sidebar: [
                 path.join(__dirname, 'util/webextension-polyfill.js'),
-                path.join(projectDir, 'src/entry-discussion.js'),
+                path.join(projectDir, 'src/entry-sidebar.js'),
             ],
         },
         output: {

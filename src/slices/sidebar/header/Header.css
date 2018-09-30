@@ -1,0 +1,33 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+.header {
+    position: relative;
+    padding: 3rem;
+    background-color: var(--color-seashell);
+
+    & .closeIcon {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 2rem;
+        color: var(--color-black);
+        cursor: pointer;
+        fill-opacity: 0.45;
+
+        &:hover {
+            fill-opacity: 1;
+        }
+    }
+
+    & .siteInfo {
+        & .url {
+            @mixin typography-body-2 rem;
+            color: var(--color-gray);
+        }
+
+        & .description {
+            @mixin typography-body-2 rem;
+        }
+    }
+}

@@ -1,26 +1,12 @@
 import { messageTypes } from '../extension';
 
-const getCurrentTabId = async () => {
-    const tab = await browser.tabs.getCurrent();
-
-    return tab.id;
-};
-
-const createExtensionClient = (tabId) => {
+const createExtensionClient = (tabId = null) => {
     const handlers = {
         onSliceStateChange: () => {},
     };
 
     const methods = {
         setSliceState: (state) => handlers.onSliceStateChange(state),
-    };
-
-    const getTabId = async () => {
-        if (tabId == null) {
-            tabId = await getCurrentTabId();
-        }
-
-        return tabId;
     };
 
     const handleOnMessage = (request) => {
@@ -47,20 +33,29 @@ const createExtensionClient = (tabId) => {
                 payload: {
                     name: 'setUser',
                     args: [user],
+                    tabId,
                 },
             }),
 
-        dismissInjectionError: async () => {
-            const tabId = await getTabId();
+        setSidebarOpen: (open) =>
+            browser.runtime.sendMessage({
+                type: messageTypes.CALL_BACKGROUND_METHOD,
+                payload: {
+                    name: 'setSidebarOpen',
+                    args: [open],
+                    tabId,
+                },
+            }),
 
-            return browser.runtime.sendMessage({
+        dismissInjectionError: () =>
+            browser.runtime.sendMessage({
                 type: messageTypes.CALL_BACKGROUND_METHOD,
                 payload: {
                     name: 'dismissInjectionError',
-                    args: [tabId],
+                    args: [],
+                    tabId,
                 },
-            });
-        },
+            }),
 
         onSliceStateChange: (handler) => {
             handlers.onSliceStateChange = handler;

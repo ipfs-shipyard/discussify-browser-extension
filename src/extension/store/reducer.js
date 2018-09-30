@@ -19,6 +19,8 @@ export const initialTabState = {
     injectionStatus: null,
     // The injection error object in case the status is 'inject-error' or `remove-error`
     injectionError: null,
+    // Indicates if the sidebar is open
+    sidebarOpen: false,
 };
 
 const setUser = (state, action) => {
@@ -66,6 +68,7 @@ const replaceTab = (state, action) => {
                 ...addedTabState,
                 ready: true,
                 enabled: removedTabState.enabled,
+                sidebarOpen: removedTabState.sidebarOpen,
             },
         },
     };
@@ -82,6 +85,7 @@ const setTabReady = (state, action) => {
             [tabId]: {
                 ...tabState,
                 ready,
+                sidebarOpen: false,
                 injectionStatus: null,
                 injectionError: null,
             },
@@ -100,6 +104,7 @@ const toggleTabEnabled = (state, action) => {
             [tabId]: {
                 ...tabState,
                 enabled: !tabState.enabled,
+                sidebarOpen: false,
             },
         },
     };
@@ -123,6 +128,22 @@ const updateTabInjection = (state, action) => {
     };
 };
 
+const setTabSidebarOpen = (state, action) => {
+    const { tabId, open } = action.payload;
+    const tabState = state.tabs[tabId] || initialTabState;
+
+    return {
+        ...state,
+        tabs: {
+            ...state.tabs,
+            [tabId]: {
+                ...tabState,
+                sidebarOpen: open,
+            },
+        },
+    };
+};
+
 const reducer = (state = initialState, action) => {
     switch (action.type) {
     case actionTypes.SET_USER:
@@ -139,6 +160,8 @@ const reducer = (state = initialState, action) => {
         return toggleTabEnabled(state, action);
     case actionTypes.UPDATE_TAB_INJECTION:
         return updateTabInjection(state, action);
+    case actionTypes.SET_TAB_SIDEBAR_OPEN:
+        return setTabSidebarOpen(state, action);
     default:
         return state;
     }

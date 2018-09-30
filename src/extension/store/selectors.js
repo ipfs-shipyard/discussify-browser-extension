@@ -18,3 +18,6 @@ export const getTabInjectionStatus = (state, tabId) =>
 
 export const getTabInjectionError = (state, tabId) =>
     get(state.tabs, [tabId, 'injectionError']);
+
+export const isTabSidebarOpen = (state, tabId) =>
+    get(state.tabs, [tabId, 'sidebarOpen'], false);

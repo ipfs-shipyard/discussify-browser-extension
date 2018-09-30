@@ -52,3 +52,11 @@ export const updateTabInjection = (tabId, status, error) => ({
         error,
     },
 });
+
+export const setTabSidebarOpen = (tabId, open) => ({
+    type: actionTypes.SET_TAB_SIDEBAR_OPEN,
+    payload: {
+        tabId,
+        open,
+    },
+});

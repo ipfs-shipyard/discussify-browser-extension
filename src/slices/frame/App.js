@@ -1,77 +1,114 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { isOpen, open, setPendingOpen } from './shared/store/sidebar';
-import { isAuthenticated } from './shared/store/extension';
+import { CSSTransition } from 'react-transition-group';
+import { isAuthenticated, isSidebarOpen, openSidebar, closeSidebar } from './shared/store/extension';
 import Fab from './fab';
 import Sidebar from './sidebar';
 import styles from './App.css';
 
+// Time it takes for the open/close animation
 const ANIMATION_DURATION = 850;
 
-const App = ({
-    authenticated,
-    sidebarOpen,
-    onSidebarOpen,
-    onAuthenticationOpen,
-    onAuthenticationClose,
-}) => (
-    <TransitionGroup className={ styles.app }>
-        { !sidebarOpen && (
-            <CSSTransition
-                key="fab"
-                timeout={ ANIMATION_DURATION }
-                appear
-                classNames={ {
-                    appear: styles.enter,
-                    appearActive: styles.enterActive,
-                    enter: styles.enter,
-                    enterActive: styles.enterActive,
-                    exit: styles.exit,
-                    exitActive: styles.exitActive,
-                } }>
-                <Fab
-                    authenticated={ authenticated }
-                    onOpen={ onSidebarOpen }
-                    onAuthenticationOpen={ onAuthenticationOpen }
-                    onAuthenticationClose={ onAuthenticationClose }
-                    className={ styles.fab } />
-            </CSSTransition>
-        ) }
-        { sidebarOpen && (
-            <CSSTransition
-                key="sidebar"
-                timeout={ ANIMATION_DURATION }
-                classNames={ {
-                    enter: styles.enter,
-                    enterActive: styles.enterActive,
-                    exit: styles.exit,
-                    exitActive: styles.exitActive,
-                } }>
-                <Sidebar className={ styles.sidebar } />
-            </CSSTransition>
-        ) }
-    </TransitionGroup>
-);
+// Time to wait before opening the sidebar after becoming authenticated
+const OPEN_DELAY = 2000;
 
-App.propTypes = {
-    authenticated: PropTypes.bool,
-    sidebarOpen: PropTypes.bool,
-    onSidebarOpen: PropTypes.func.isRequired,
-    onAuthenticationOpen: PropTypes.func.isRequired,
-    onAuthenticationClose: PropTypes.func.isRequired,
-};
+class App extends Component {
+    static propTypes = {
+        authenticated: PropTypes.bool,
+        sidebarOpen: PropTypes.bool,
+        onSidebarOpen: PropTypes.func.isRequired,
+        onSidebarClose: PropTypes.func.isRequired,
+    };
+
+    componentDidUpdate(prevProps) {
+        // Open the sidebar when the user logs in this tab, with a delay
+        if (!prevProps.authenticated && this.props.authenticated) {
+            clearTimeout(this.openTimeout);
+
+            if (this.authenticationOpen) {
+                this.openTimeout = setTimeout(() => this.props.onSidebarOpen(), OPEN_DELAY);
+            }
+        } else if (prevProps.authenticated && !this.props.authenticated) {
+            clearTimeout(this.openTimeout);
+            this.props.onSidebarClose();
+        }
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.openTimeout);
+    }
+
+    render() {
+        const {
+            authenticated,
+            sidebarOpen,
+            onSidebarOpen,
+        } = this.props;
+
+        return (
+            <div className={ styles.app }>
+                <CSSTransition
+                    key="fab"
+                    in={ !sidebarOpen }
+                    appear
+                    timeout={ ANIMATION_DURATION }
+                    classNames={ {
+                        appear: styles.enter,
+                        appearActive: styles.enterActive,
+                        enter: styles.enter,
+                        enterActive: styles.enterActive,
+                        enterDone: styles.enterDone,
+                        exit: styles.exit,
+                        exitActive: styles.exitActive,
+                        exitDone: styles.exitDone,
+                    } }>
+                    <Fab
+                        authenticated={ authenticated }
+                        onOpen={ onSidebarOpen }
+                        onAuthenticationOpen={ this.handleAuthenticationOpen }
+                        onAuthenticationClose={ this.handleAuthenticationClose }
+                        className={ styles.fab } />
+                </CSSTransition>
+
+                <CSSTransition
+                    key="sidebar"
+                    in={ sidebarOpen }
+                    appear
+                    timeout={ ANIMATION_DURATION }
+                    classNames={ {
+                        appear: styles.enter,
+                        appearActive: styles.enterActive,
+                        enter: styles.enter,
+                        enterActive: styles.enterActive,
+                        enterDone: styles.enterDone,
+                        exit: styles.exit,
+                        exitActive: styles.exitActive,
+                        exitDone: styles.exitDone,
+                    } }>
+                    <Sidebar className={ styles.sidebar } />
+                </CSSTransition>
+            </div>
+        );
+    }
+
+    handleAuthenticationOpen = () => {
+        this.authenticationOpen = true;
+    };
+
+    handleAuthenticationClose = () => {
+        this.authenticationOpen = false;
+    };
+}
 
 const mapStateToProps = (state) => ({
     authenticated: isAuthenticated(state),
-    sidebarOpen: isOpen(state),
+    sidebarOpen: isSidebarOpen(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
-    onSidebarOpen: () => dispatch(open()),
-    onAuthenticationOpen: () => dispatch(setPendingOpen(true)),
-    onAuthenticationClose: () => dispatch(setPendingOpen(false)),
+    onSidebarOpen: () => dispatch(openSidebar()),
+    onSidebarClose: () => dispatch(closeSidebar()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

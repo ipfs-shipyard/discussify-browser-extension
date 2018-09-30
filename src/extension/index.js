@@ -11,6 +11,7 @@ import configureStore, {
     setTabReady,
     toggleTabEnabled,
     updateTabInjection,
+    setTabSidebarOpen,
 } from './store';
 
 const setupStore = async () => {
@@ -119,16 +120,18 @@ const setupStateOverseer = (store) => {
 
 const setupMethods = (store) => {
     const methods = {
-        setUser: (user) => store.dispatch(setUser(user)),
+        setUser: (tabId, user) => store.dispatch(setUser(user)),
+        setSidebarOpen: (tabId, open) => store.dispatch(setTabSidebarOpen(tabId, open)),
         dismissInjectionError: (tabId) => store.dispatch(updateTabInjection(tabId, null, null)),
     };
 
-    browser.runtime.onMessage.addListener((request) => {
+    browser.runtime.onMessage.addListener((request, sender) => {
         if (request.type === messageTypes.CALL_BACKGROUND_METHOD) {
             const { name, args } = request.payload;
+            const tabId = request.payload.tabId || sender.tab.id;
 
             if (methods[name]) {
-                methods[name](...args);
+                methods[name](tabId, ...args);
             } else {
                 throw Object.assign(
                     new Error(`Unknown method: ${name}`),

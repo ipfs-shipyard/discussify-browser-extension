@@ -5,8 +5,5 @@ export const updateState = (state) => ({
     payload: { state },
 });
 
-export const openSidebar = () => (dispatch, getState, { extensionClient }) =>
-    extensionClient.setSidebarOpen(true);
-
 export const closeSidebar = () => (dispatch, getState, { extensionClient }) =>
     extensionClient.setSidebarOpen(false);
