@@ -1,6 +1,6 @@
 import retargetEvents from 'react-shadow-dom-retarget-events';
 import createExtensionClient from './extension-client';
-import { renderApp, destroyApp, configureStore } from './slices/frame';
+import { renderApp, destroyApp, configureStore } from './slices/main';
 
 const context = window.__DISCUSSIFY_INJECTION_CONTEXT__;
 

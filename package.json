@@ -12,6 +12,7 @@
     "react-dom": "^16.4.1",
     "react-redux": "^5.0.7",
     "react-shadow-dom-retarget-events": "^1.0.8",
+    "react-textarea-autosize": "^7.0.4",
     "react-transition-group": "^2.4.0",
     "recompose": "^0.30.0",
     "redux": "^4.0.0",

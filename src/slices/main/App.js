@@ -7,8 +7,8 @@ import Fab from './fab';
 import Sidebar from './sidebar';
 import styles from './App.css';
 
-// Time it takes for the open/close animation
-const ANIMATION_DURATION = 850;
+// Timeout for the open/close animation
+const TRANSITION_TIMEOUT = 850;
 
 // Time to wait before opening the sidebar after becoming authenticated
 const OPEN_DELAY = 2000;
@@ -52,7 +52,7 @@ class App extends Component {
                     key="fab"
                     in={ !sidebarOpen }
                     appear
-                    timeout={ ANIMATION_DURATION }
+                    timeout={ TRANSITION_TIMEOUT }
                     classNames={ {
                         appear: styles.enter,
                         appearActive: styles.enterActive,
@@ -75,7 +75,7 @@ class App extends Component {
                     key="sidebar"
                     in={ sidebarOpen }
                     appear
-                    timeout={ ANIMATION_DURATION }
+                    timeout={ TRANSITION_TIMEOUT }
                     classNames={ {
                         appear: styles.enter,
                         appearActive: styles.enterActive,

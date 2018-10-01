@@ -2,9 +2,11 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger';
 import { reducer as extensionReducer, updateState } from './extension';
+import { reducer as discussionReducer } from './discussion';
 
 const reducer = combineReducers({
     extension: extensionReducer,
+    discussion: discussionReducer,
 });
 
 const configureStore = (extensionClient, initialState = {}) => {

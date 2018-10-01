@@ -1,0 +1,34 @@
+@import "@discussify/styleguide/styles/colors";
+
+.bottomBar {
+    position: relative;
+    padding: 3rem;
+    background-color: var(--color-seashell);
+
+    & .submitIcon {
+        position: absolute;
+        top: 50%;
+        right: 3rem;
+        width: 2rem;
+        transform: translateY(-50%);
+        color: var(--color-black);
+        cursor: pointer;
+        fill-opacity: 0;
+
+        &:focus {
+            fill-opacity: 1;
+        }
+    }
+
+    & .textarea {
+        width: calc(100% - 4rem);
+
+        &:focus ~ .submitIcon {
+            fill-opacity: 0.45;
+        }
+
+        &:focus ~ .submitIcon:hover {
+            fill-opacity: 1;
+        }
+    }
+}

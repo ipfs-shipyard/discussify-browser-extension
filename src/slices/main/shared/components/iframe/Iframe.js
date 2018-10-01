@@ -4,7 +4,7 @@ import { CSSTransition } from 'react-transition-group';
 import { CircularLoader } from '@discussify/styleguide';
 import styles from './Iframe.css';
 
-const LOADER_FADE_OUT_TRANSITION_DURATION = 350;
+const LOADER_FADE_OUT_TRANSITION_TIMEOUT = 350;
 
 class Iframe extends Component {
     state = {
@@ -20,7 +20,7 @@ class Iframe extends Component {
                 <CSSTransition
                     in={ !loaded }
                     unmountOnExit
-                    timeout={ LOADER_FADE_OUT_TRANSITION_DURATION }
+                    timeout={ LOADER_FADE_OUT_TRANSITION_TIMEOUT }
                     classNames={ {
                         exit: styles.exit,
                     } }>

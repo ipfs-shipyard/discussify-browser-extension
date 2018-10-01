@@ -1,11 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { CloseIcon } from '@discussify/styleguide';
-import styles from './Header.css';
+import styles from './TopBar.css';
 
-const Header = ({ onClose }) => (
-    <div className={ styles.header }>
-        <CloseIcon className={ styles.closeIcon } onClick={ onClose } />
+const TopBar = ({ className, onClose }) => (
+    <div className={ classNames(styles.topBar, className) }>
+        <CloseIcon
+            interactive
+            onClick={ onClose }
+            className={ styles.closeIcon } />
 
         <div className={ styles.siteInfo }>
             <div className={ styles.url }>theverge.com</div>
@@ -14,8 +18,9 @@ const Header = ({ onClose }) => (
     </div>
 );
 
-Header.propTypes = {
+TopBar.propTypes = {
+    className: PropTypes.string,
     onClose: PropTypes.func.isRequired,
 };
 
-export default Header;
+export default TopBar;

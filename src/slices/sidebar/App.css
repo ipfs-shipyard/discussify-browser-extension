@@ -1,0 +1,10 @@
+.app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.commentsList {
+    overflow: auto;
+    flex: 1 0;
+}

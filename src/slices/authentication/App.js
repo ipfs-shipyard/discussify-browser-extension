@@ -12,7 +12,7 @@ import {
 import { PromptScreen, ScanScreen, ErrorScreen, WelcomeScreen } from './screens';
 import styles from './App.css';
 
-const SCREEN_ANIMATION_DURATION = 350;
+const SCREEN_TRANSITION_TIMEOUT = 350;
 
 export class App extends Component {
     static propTypes = {
@@ -55,7 +55,7 @@ export class App extends Component {
             <TransitionGroup className={ styles.app }>
                 <CSSTransition
                     key={ step }
-                    timeout={ SCREEN_ANIMATION_DURATION }
+                    timeout={ SCREEN_TRANSITION_TIMEOUT }
                     classNames={ {
                         enter: styles.enter,
                         enterActive: styles.enterActive,
