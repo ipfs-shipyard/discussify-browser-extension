@@ -9,7 +9,9 @@ const CommentsList = ({ comments, onRemove, className }) => (
     <div className={ classNames(styles.commentsList, className) }>
         { comments.map((comment) => (
             comment.removed ?
-                <RemovedComment key={ comment.id } /> :
+                <RemovedComment
+                    key={ comment.id }
+                    className={ styles.comment } /> :
                 (
                     <Comment
                         key={ comment.id }

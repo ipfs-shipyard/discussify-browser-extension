@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { TextareaAutosize, SubmitIcon } from '@discussify/styleguide';
@@ -26,7 +25,6 @@ class BottomBar extends Component {
                     value={ commentBody }
                     maxRows={ 10 }
                     onChange={ this.handleTextareaChange }
-                    ref={ this.storeTextareaNode }
                     className={ styles.textarea } />
 
                 <SubmitIcon
@@ -36,10 +34,6 @@ class BottomBar extends Component {
             </div>
         );
     }
-
-    storeTextareaNode = (ref) => {
-        this.textareaNode = findDOMNode(ref);
-    };
 
     handleTextareaChange = (e) => {
         this.setState({ commentBody: e.currentTarget.value });

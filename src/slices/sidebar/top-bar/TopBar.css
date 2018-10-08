@@ -23,18 +23,31 @@
     }
 
     & .info {
-        & .favicon {
-            width: 1.6rem;
-            height: 1.6rem;
-            margin-right: 0.5rem;
-            vertical-align: middle;
-        }
+        & .top {
+            max-width: calc(100% - 3rem);
+            display: flex;
+            align-items: center;
 
-        & .domain {
-            @mixin typography-body-2 rem;
-            @mixin text-ellipsis;
-            vertical-align: middle;
-            color: var(--color-gray);
+            & .favicon {
+                width: 0;
+                height: 0;
+                visibility: hidden;
+                vertical-align: middle;
+            }
+
+            & .domain {
+                @mixin typography-body-2 rem;
+                @mixin text-ellipsis;
+                flex: 1 0;
+                color: var(--color-gray);
+            }
+
+            &.faviconLoaded .favicon {
+                width: 1.6rem;
+                height: 1.6rem;
+                margin-right: 0.5rem;
+                visibility: visible;
+            }
         }
 
         & .overline {
