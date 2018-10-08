@@ -1,34 +1,43 @@
 @import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
 
 .bottomBar {
     position: relative;
     padding: 3rem;
     background-color: var(--color-seashell);
 
+    &:hover .submitIcon {
+        fill-opacity: 0.45;
+    }
+
     & .submitIcon {
         position: absolute;
         top: 50%;
         right: 3rem;
         width: 2rem;
+        height: 2rem;
         transform: translateY(-50%);
         color: var(--color-black);
         cursor: pointer;
         fill-opacity: 0;
 
+        &:hover,
         &:focus {
             fill-opacity: 1;
         }
     }
 
     & .textarea {
-        width: calc(100% - 4rem);
+        width: calc(100% - 5rem);
+        padding: 0;
+        display: block;
+        border: none;
+        outline: none;
+        background-color: transparent;
+        transition: height 0.2s ease;
 
-        &:focus ~ .submitIcon {
-            fill-opacity: 0.45;
-        }
-
-        &:focus ~ .submitIcon:hover {
-            fill-opacity: 1;
+        &::placeholder {
+            color: var(--color-gray);
         }
     }
 }

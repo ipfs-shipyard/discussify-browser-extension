@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { SubmitIcon } from '@discussify/styleguide';
-import Textarea from './textarea';
+import { TextareaAutosize, SubmitIcon } from '@discussify/styleguide';
 import styles from './BottomBar.css';
 
 class BottomBar extends Component {
@@ -22,9 +21,11 @@ class BottomBar extends Component {
 
         return (
             <div className={ classNames(styles.bottomBar, className) }>
-                <Textarea
+                <TextareaAutosize
+                    placeholder="Add comment..."
                     value={ commentBody }
-                    onInput={ this.handleTextareaInput }
+                    maxRows={ 10 }
+                    onChange={ this.handleTextareaChange }
                     ref={ this.storeTextareaNode }
                     className={ styles.textarea } />
 
@@ -40,7 +41,7 @@ class BottomBar extends Component {
         this.textareaNode = findDOMNode(ref);
     };
 
-    handleTextareaInput = (e) => {
+    handleTextareaChange = (e) => {
         this.setState({ commentBody: e.currentTarget.value });
     };
 
