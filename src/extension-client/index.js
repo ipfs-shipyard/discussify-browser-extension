@@ -6,21 +6,23 @@ const createExtensionClient = (tabId = null) => {
     };
 
     const methods = {
-        setSliceState: (state) => handlers.onSliceStateChange(state),
+        setSliceState: (state) => {
+            handlers.onSliceStateChange(state);
+        },
     };
 
     const handleOnMessage = (request) => {
         if (request.type === messageTypes.CALL_CLIENT_METHOD) {
             const { name, args } = request.payload;
 
-            if (methods[name]) {
-                methods[name](...args);
-            } else {
+            if (!methods[name]) {
                 throw Object.assign(
                     new Error(`Unknown method: ${name}`),
                     { code: 'UNKNOWN_METHOD' }
                 );
             }
+
+            return Promise.resolve(methods[name](...args));
         }
     };
 
@@ -33,6 +35,16 @@ const createExtensionClient = (tabId = null) => {
                 payload: {
                     name: 'setUser',
                     args: [user],
+                    tabId,
+                },
+            }),
+
+        fetchMetadata: () =>
+            browser.runtime.sendMessage({
+                type: messageTypes.CALL_BACKGROUND_METHOD,
+                payload: {
+                    name: 'fetchMetadata',
+                    args: [],
                     tabId,
                 },
             }),
@@ -52,6 +64,16 @@ const createExtensionClient = (tabId = null) => {
                 type: messageTypes.CALL_BACKGROUND_METHOD,
                 payload: {
                     name: 'dismissInjectionError',
+                    args: [],
+                    tabId,
+                },
+            }),
+
+        getSliceState: () =>
+            browser.runtime.sendMessage({
+                type: messageTypes.CALL_BACKGROUND_METHOD,
+                payload: {
+                    name: 'getSliceState',
                     args: [],
                     tabId,
                 },

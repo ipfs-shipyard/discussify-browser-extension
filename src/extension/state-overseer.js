@@ -3,12 +3,11 @@ import {
     initialState,
     getTabIds,
     isAuthenticated,
-    getUser,
     isTabReady,
     isTabEnabled,
     getTabInjectionStatus,
     getTabInjectionError,
-    isTabSidebarOpen,
+    getSliceState,
 } from './store';
 
 const shouldInjectScriptIntoTab = (state, tabId) => {
@@ -47,11 +46,6 @@ const computeBrowserAction = (state, tabId) => {
         count: null, // TODO:
     };
 };
-
-const computeSliceState = (state, tabId) => ({
-    user: getUser(state),
-    sidebarOpen: isTabSidebarOpen(state, tabId),
-});
 
 const wrapHandler = (handler) => {
     let promise;
@@ -111,7 +105,7 @@ const createStateOverseer = (store) => {
     const checkTabState = (state, previousState, tabId) => {
         // Check if script should be injected/removed
         if (shouldInjectScriptIntoTab(state, tabId)) {
-            handlers.onInjectScript(tabId, computeSliceState(state, tabId));
+            handlers.onInjectScript(tabId, getSliceState(state, tabId));
         } else if (shouldRemoveScriptFromTab(state, tabId)) {
             handlers.onRemoveScript(tabId);
         }
@@ -125,9 +119,11 @@ const createStateOverseer = (store) => {
         }
 
         // Check if slice state changed, skipping if the extension is not injected
-        if (getTabInjectionStatus(state, tabId) === 'inject-success') {
-            const sliceState = computeSliceState(state, tabId);
-            const previousSliceState = computeSliceState(previousState, tabId);
+        const tabsInjectionStatus = getTabInjectionStatus(state, tabId);
+
+        if (tabsInjectionStatus === 'inject-pending' || tabsInjectionStatus === 'inject-success') {
+            const sliceState = getSliceState(state, tabId);
+            const previousSliceState = getSliceState(previousState, tabId);
 
             if (!shallowEqual(sliceState, previousSliceState)) {
                 handlers.onSliceStateChange(tabId, sliceState);

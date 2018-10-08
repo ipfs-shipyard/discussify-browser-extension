@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { CSSTransition } from 'react-transition-group';
-import { isAuthenticated, isSidebarOpen, openSidebar, closeSidebar } from './shared/store/extension';
+import { isAuthenticated, isSidebarOpen, fetchMetadata, openSidebar, closeSidebar } from './shared/store/extension';
 import Fab from './fab';
 import Sidebar from './sidebar';
 import styles from './App.css';
@@ -17,9 +17,14 @@ class App extends Component {
     static propTypes = {
         authenticated: PropTypes.bool,
         sidebarOpen: PropTypes.bool,
+        onInit: PropTypes.func.isRequired,
         onSidebarOpen: PropTypes.func.isRequired,
         onSidebarClose: PropTypes.func.isRequired,
     };
+
+    componentDidMount() {
+        this.props.onInit();
+    }
 
     componentDidUpdate(prevProps) {
         // Open the sidebar when the user logs in this tab, with a delay
@@ -107,6 +112,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
+    onInit: () => dispatch(fetchMetadata()),
     onSidebarOpen: () => dispatch(openSidebar()),
     onSidebarClose: () => dispatch(closeSidebar()),
 });

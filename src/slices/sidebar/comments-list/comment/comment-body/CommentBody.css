@@ -1,0 +1,47 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+.commentBody {
+    position: relative;
+    padding: 1.5rem;
+    background-color: color(var(--color-science-blue) alpha(0.1));
+    border-radius: 0.8rem 0.8rem 0.8rem 0;
+
+    & .message {
+        @mixin typography-body-2 rem;
+        margin: 0;
+        white-space: pre-line;
+    }
+
+    & .actions {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        padding: 1rem;
+        display: flex; /* Remove extra space because of inline-block of children */
+        opacity: 0;
+        background-color: color(var(--color-science-blue) lightness(95));
+        border-radius: 0.8rem;
+        transition: opacity 0.2s ease;
+
+        & .icon {
+            width: 1.6rem;
+            height: 1.6rem;
+            color: var(--color-science-blue);
+            fill-opacity: 0.5;
+
+            &:hover,
+            &:focus {
+                fill-opacity: 1;
+            }
+
+            &:not(:last-child) {
+                margin-right: 1rem;
+            }
+        }
+    }
+
+    &:hover .actions {
+        opacity: 1;
+    }
+}

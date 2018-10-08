@@ -17,7 +17,7 @@ const App = ({ error, onDismiss }) => {
                 { code && <div className={ styles.code }>{ code }</div> }
             </div>
 
-            <TextButton onClick={ onDismiss }>Dismiss</TextButton>
+            <TextButton variant="primary" onClick={ onDismiss }>Dismiss</TextButton>
         </div>
     );
 };

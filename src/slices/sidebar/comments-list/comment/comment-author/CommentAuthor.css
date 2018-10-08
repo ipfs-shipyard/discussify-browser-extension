@@ -1,0 +1,8 @@
+@import "@discussify/styleguide/styles/mixins/typography";
+
+.commentAuthor {
+    & .name {
+        @mixin typography-caption rem;
+        margin-left: 1.5rem;
+    }
+}

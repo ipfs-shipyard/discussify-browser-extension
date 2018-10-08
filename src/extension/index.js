@@ -3,15 +3,19 @@ import * as messageTypes from './message-types';
 import { injectScript, removeScript } from './script-injector';
 import { readState, writeState } from './state-storage';
 import createStateOverseer from './state-overseer';
+import getTabMetadata from './tab-metadata';
 import configureStore, {
     setUser,
     addTab,
     replaceTab,
     removeTab,
     setTabReady,
+    unsetTabReady,
     toggleTabEnabled,
     updateTabInjection,
+    setTabMetadata,
     setTabSidebarOpen,
+    getSliceState,
 } from './store';
 
 const setupStore = async () => {
@@ -116,13 +120,29 @@ const setupStateOverseer = (store) => {
             enabled: authenticated,
         });
     });
+
+    return stateOverseer;
 };
 
 const setupMethods = (store) => {
     const methods = {
-        setUser: (tabId, user) => store.dispatch(setUser(user)),
-        setSidebarOpen: (tabId, open) => store.dispatch(setTabSidebarOpen(tabId, open)),
-        dismissInjectionError: (tabId) => store.dispatch(updateTabInjection(tabId, null, null)),
+        getSliceState: (tabId) => (
+            getSliceState(store.getState(), tabId)
+        ),
+        setUser: (tabId, user) => {
+            store.dispatch(setUser(user));
+        },
+        fetchMetadata: async (tabId) => {
+            const metadata = await getTabMetadata(tabId);
+
+            store.dispatch(setTabMetadata(tabId, metadata));
+        },
+        setSidebarOpen: (tabId, open) => {
+            store.dispatch(setTabSidebarOpen(tabId, open));
+        },
+        dismissInjectionError: (tabId) => {
+            store.dispatch(updateTabInjection(tabId, null, null));
+        },
     };
 
     browser.runtime.onMessage.addListener((request, sender) => {
@@ -130,14 +150,14 @@ const setupMethods = (store) => {
             const { name, args } = request.payload;
             const tabId = request.payload.tabId || sender.tab.id;
 
-            if (methods[name]) {
-                methods[name](tabId, ...args);
-            } else {
+            if (!methods[name]) {
                 throw Object.assign(
                     new Error(`Unknown method: ${name}`),
                     { code: 'UNKNOWN_METHOD' }
                 );
             }
+
+            return Promise.resolve(methods[name](tabId, ...args));
         }
     });
 };
@@ -152,11 +172,11 @@ const setupTabListeners = (store) => {
     browser.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
         store.dispatch(replaceTab(addedTabId, removedTabId));
     });
-    browser.tabs.onUpdated.addListener((tabId, info) => {
+    browser.tabs.onUpdated.addListener((tabId, info, tab) => {
         if (info.status === 'loading') {
-            store.dispatch(setTabReady(tabId, false));
+            store.dispatch(unsetTabReady(tabId));
         } else if (info.status === 'complete') {
-            store.dispatch(setTabReady(tabId, true));
+            store.dispatch(setTabReady(tabId, tab.url));
         }
     });
 };

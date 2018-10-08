@@ -21,6 +21,10 @@ export const initialTabState = {
     injectionError: null,
     // Indicates if the sidebar is open
     sidebarOpen: false,
+    // The current URL of the tab
+    url: null,
+    // The metadata the tab, an object with the title, description and favicon
+    metadata: null,
 };
 
 const setUser = (state, action) => {
@@ -75,7 +79,7 @@ const replaceTab = (state, action) => {
 };
 
 const setTabReady = (state, action) => {
-    const { tabId, ready } = action.payload;
+    const { tabId, url } = action.payload;
     const tabState = state.tabs[tabId] || initialTabState;
 
     return {
@@ -84,10 +88,49 @@ const setTabReady = (state, action) => {
             ...state.tabs,
             [tabId]: {
                 ...tabState,
-                ready,
+                ready: true,
                 sidebarOpen: false,
                 injectionStatus: null,
                 injectionError: null,
+                url,
+                metadata: null,
+            },
+        },
+    };
+};
+
+const unsetTabReady = (state, action) => {
+    const { tabId } = action.payload;
+    const tabState = state.tabs[tabId] || initialTabState;
+
+    return {
+        ...state,
+        tabs: {
+            ...state.tabs,
+            [tabId]: {
+                ...tabState,
+                ready: false,
+                sidebarOpen: false,
+                injectionStatus: null,
+                injectionError: null,
+                url: null,
+                metadata: null,
+            },
+        },
+    };
+};
+
+const setTabMetadata = (state, action) => {
+    const { tabId, metadata } = action.payload;
+    const tabState = state.tabs[tabId] || initialTabState;
+
+    return {
+        ...state,
+        tabs: {
+            ...state.tabs,
+            [tabId]: {
+                ...tabState,
+                metadata,
             },
         },
     };
@@ -156,6 +199,10 @@ const reducer = (state = initialState, action) => {
         return replaceTab(state, action);
     case actionTypes.SET_TAB_READY:
         return setTabReady(state, action);
+    case actionTypes.UNSET_TAB_READY:
+        return unsetTabReady(state, action);
+    case actionTypes.SET_TAB_METADATA:
+        return setTabMetadata(state, action);
     case actionTypes.TOGGLE_TAB_ENABLED:
         return toggleTabEnabled(state, action);
     case actionTypes.UPDATE_TAB_INJECTION:

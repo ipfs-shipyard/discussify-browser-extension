@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { Avatar, TimeAgo, TextButton, EditIcon, RemoveIcon, ReplyIcon } from '@discussify/styleguide';
+import { TimeAgo, TextButton, ReplyIcon } from '@discussify/styleguide';
+import CommentAuthor from './comment-author';
+import CommentBody from './comment-body';
 import styles from './Comment.css';
 
 class Comment extends Component {
@@ -10,64 +12,87 @@ class Comment extends Component {
     };
 
     render() {
-        const { comment, canEdit, canReply, className } = this.props;
+        const { comment, owner, className } = this.props;
         const { editing } = this.state;
 
         return (
             <div className={ classNames(styles.comment, className) }>
-                <div className={ styles.content }>
-                    <pre className={ styles.body }>{ comment.body }</pre>
-                    <div className={ styles.actions }>
-                        <EditIcon interactive className={ styles.icon } />
-                        <RemoveIcon interactive className={ styles.icon } />
-                    </div>
-                </div>
+                <CommentBody
+                    body={ comment.body }
+                    owner={ owner }
+                    editing={ editing }
+                    onEdit={ this.handleBodyEdit }
+                    onRemove={ this.handleBodyRemove } />
 
                 <div className={ styles.bottomBar }>
-                    <div className={ styles.author }>
-                        <Avatar name={ comment.author.name } image={ comment.author.avatar } />
-                        <span className={ styles.name }>
-                            { comment.author.name }
-                            { canEdit && ' (You)' }
-                        </span>
-                    </div>
+                    <CommentAuthor
+                        author={ comment.author }
+                        owner={ owner }
+                        className={ styles.author } />
 
-                    <div className={ styles.date }>
-                        <TimeAgo
-                            date={ comment.createdAt }
-                            format="tiny"
-                            className={ styles.date } />
-                        <span className={ styles.separator }>•</span>
-                    </div>
+                    { !editing && (
+                        <div className={ styles.date }>
+                            <TimeAgo
+                                date={ comment.createdAt }
+                                format="tiny"
+                                className={ styles.date } />
+                            <span className={ styles.separator }>•</span>
+                        </div>
 
-                    { (canReply || editing) && (
-                        <div className={ styles.actions }>
-                            { (canReply && !editing) && (
+                    ) }
+
+                    <div className={ styles.actions }>
+                        { !editing && (
+                            <TextButton
+                                variant="primary"
+                                icon={ <ReplyIcon /> }
+                                className={ styles.button }>
+                                Reply
+                            </TextButton>
+                        ) }
+                        { editing && (
+                            <Fragment>
                                 <TextButton
-                                    icon={ <ReplyIcon /> }
-                                    className={ styles.button }>
-                                    Reply
+                                    variant="secondary"
+                                    className={ styles.button }
+                                    onClick={ this.handleCancelClick }>
+                                    Cancel
                                 </TextButton>
-                            ) }
-                            { editing && (
                                 <TextButton
+                                    variant="primary"
                                     className={ styles.button }>
                                     Save
                                 </TextButton>
-                            ) }
-                        </div>
-                    ) }
+                            </Fragment>
+                        ) }
+                    </div>
                 </div>
             </div>
         );
     }
+
+    handleBodyEdit = () => {
+        this.setState({ editing: true });
+    };
+
+    handleBodyRemove = () => {
+        const { onRemove, comment } = this.props;
+
+        onRemove && onRemove(comment.id);
+    };
+
+    handleCancelClick = () => {
+        this.setState({ editing: false });
+    };
 }
 
 Comment.propTypes = {
     comment: PropTypes.object.isRequired,
-    canEdit: PropTypes.boolean,
-    canReply: PropTypes.boolean,
+    owner: PropTypes.bool,
     className: PropTypes.string,
+    onReply: PropTypes.func,
+    onEdit: PropTypes.func,
+    onRemove: PropTypes.func, // TODO: import requiredIf from 'react-required-if';
 };
 
 export default Comment;

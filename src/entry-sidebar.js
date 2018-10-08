@@ -3,6 +3,10 @@ import { renderApp, configureStore } from './slices/sidebar';
 
 const rootEl = document.getElementById('root');
 const extensionClient = createExtensionClient();
-const store = configureStore(extensionClient);
 
-renderApp(rootEl, store);
+extensionClient.getSliceState()
+.then((sliceState) => {
+    const store = configureStore(extensionClient, { extension: sliceState });
+
+    renderApp(rootEl, store);
+});

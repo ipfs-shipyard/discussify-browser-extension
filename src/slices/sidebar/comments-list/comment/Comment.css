@@ -4,48 +4,6 @@
 .comment {
     background-color: var(--color-white);
 
-    & .content {
-        position: relative;
-        padding: 1.5rem;
-        background-color: color(var(--color-science-blue) alpha(0.1));
-        border-radius: 0.8rem 0.8rem 0.8rem 0;
-
-        & .body {
-            @mixin typography-body-2 rem;
-            margin: 0;
-            white-space: pre-line;
-        }
-
-        & .actions {
-            position: absolute;
-            right: 1rem;
-            bottom: 1rem;
-            display: flex; /* Remove extra space because of inline-block of children */
-            opacity: 0;
-            transition: opacity 0.2s ease;
-
-            & .icon {
-                width: auto;
-                height: 1.5rem;
-                color: var(--color-science-blue);
-                fill-opacity: 0.5;
-
-                &:hover,
-                &:focus {
-                    fill-opacity: 1;
-                }
-
-                &:not(:last-child) {
-                    margin-right: 0.5rem;
-                }
-            }
-        }
-
-        &:hover .actions {
-            opacity: 1;
-        }
-    }
-
     & .bottomBar {
         margin-top: 1.5rem;
         display: flex;
@@ -53,16 +11,11 @@
 
         & .author {
             flex: 1 0;
-
-            & .name {
-                @mixin typography-caption rem;
-                margin-left: 1.3rem;
-            }
         }
 
         & .date {
             @mixin typography-overline rem;
-            color: var(--color-gray);
+            color: color(var(--color-black) alpha(0.3));
 
             & .separator {
                 margin: 0 0.8rem;
@@ -77,7 +30,7 @@
             display: flex; /* Remove extra space because of inline-block of children */
 
             & .button:not(:last-child) {
-                margin-right: 1rem;
+                margin-right: 2rem;
             }
         }
     }

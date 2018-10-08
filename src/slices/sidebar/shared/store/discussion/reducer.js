@@ -17,14 +17,32 @@ const initialState = {
     comments: [comment],
 };
 
-const addComment = (state, action) => ({
+const createComment = (state, action) => ({
+    ...state,
     comments: [...state.comments, action.payload.comment],
 });
 
+const removeComment = (state, action) => {
+    const { id } = action.payload;
+
+    return {
+        ...state,
+        comments: state.comments.map((comment) => comment.id === id ?
+            {
+                ...comment,
+                removed: true,
+            } :
+            comment,
+        ),
+    };
+};
+
 const reducer = (state = initialState, action) => {
     switch (action.type) {
-    case actionTypes.ADD_COMMENT:
-        return addComment(state, action);
+    case actionTypes.CREATE_COMMENT:
+        return createComment(state, action);
+    case actionTypes.REMOVE_COMMENT:
+        return removeComment(state, action);
     default:
         return state;
     }

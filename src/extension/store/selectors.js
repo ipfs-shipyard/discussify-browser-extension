@@ -19,5 +19,18 @@ export const getTabInjectionStatus = (state, tabId) =>
 export const getTabInjectionError = (state, tabId) =>
     get(state.tabs, [tabId, 'injectionError']);
 
+export const getTabUrl = (state, tabId) =>
+    get(state.tabs, [tabId, 'url'], false);
+
+export const getTabMetadata = (state, tabId) =>
+    get(state.tabs, [tabId, 'metadata'], false);
+
 export const isTabSidebarOpen = (state, tabId) =>
     get(state.tabs, [tabId, 'sidebarOpen'], false);
+
+export const getSliceState = (state, tabId) => ({
+    user: getUser(state),
+    sidebarOpen: isTabSidebarOpen(state, tabId),
+    url: getTabUrl(state, tabId),
+    metadata: getTabMetadata(state, tabId),
+});

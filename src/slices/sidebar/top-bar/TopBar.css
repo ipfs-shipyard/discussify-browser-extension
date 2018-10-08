@@ -1,5 +1,6 @@
 @import "@discussify/styleguide/styles/colors";
 @import "@discussify/styleguide/styles/mixins/typography";
+@import "@discussify/styleguide/styles/mixins/text";
 
 .topBar {
     position: relative;
@@ -21,14 +22,24 @@
         }
     }
 
-    & .siteInfo {
-        & .url {
+    & .info {
+        & .favicon {
+            width: 1.6rem;
+            height: 1.6rem;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        & .domain {
             @mixin typography-body-2 rem;
+            @mixin text-ellipsis;
+            vertical-align: middle;
             color: var(--color-gray);
         }
 
-        & .description {
+        & .overline {
             @mixin typography-body-2 rem;
+            @mixin text-ellipsis;
         }
     }
 }

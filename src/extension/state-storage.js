@@ -1,6 +1,7 @@
 import { initialState, initialTabState } from './store';
 
 // TODO: Add versioning support
+// TODO: Review "syncStateWithBrowserTabs"
 
 const syncStateWithBrowserTabs = async (state) => {
     const browserTabs = await browser.tabs.query({});
@@ -10,10 +11,13 @@ const syncStateWithBrowserTabs = async (state) => {
             ...initialTabState,
             ...state.tabs[browserTab.id],
             ready: browserTab.status === 'complete',
+            url: browserTab.url,
             // Remove injection status & errors because they might become out-of-sync,
             // e.g.: user disabled extension and navigated to a supported protocol
             injectionStatus: null,
             injectionError: null,
+            // The same goes for the metadata..
+            metadata: null,
         };
 
         return tabs;

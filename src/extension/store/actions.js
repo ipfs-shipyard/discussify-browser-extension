@@ -29,11 +29,18 @@ export const replaceTab = (addedTabId, removedTabId) => ({
     },
 });
 
-export const setTabReady = (tabId, ready) => ({
+export const setTabReady = (tabId, url) => ({
     type: actionTypes.SET_TAB_READY,
     payload: {
         tabId,
-        ready,
+        url,
+    },
+});
+
+export const unsetTabReady = (tabId) => ({
+    type: actionTypes.UNSET_TAB_READY,
+    payload: {
+        tabId,
     },
 });
 
@@ -50,6 +57,14 @@ export const updateTabInjection = (tabId, status, error) => ({
         tabId,
         status,
         error,
+    },
+});
+
+export const setTabMetadata = (tabId, metadata) => ({
+    type: actionTypes.SET_TAB_METADATA,
+    payload: {
+        tabId,
+        metadata,
     },
 });
 

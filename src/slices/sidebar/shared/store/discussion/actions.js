@@ -1,16 +1,8 @@
 import * as actionTypes from './action-types';
 import { getUser } from '../extension';
+import cleanupBody from './util/cleanup-body';
 
-const cleanupBody = (body) =>
-    body
-    // Remove leading & trailing spaces
-    .trim()
-    // Remove leading spaces from empty lines
-    .replace(/^[ \t]+/gm, '')
-    // Avoid more than two consecutive empty lines
-    .replace(/^\n\n\n+/gm, '\n\n');
-
-export const addComment = (body) => (dispatch, getState) => {
+export const createComment = (body) => (dispatch, getState) => {
     body = cleanupBody(body);
 
     if (!body) {
@@ -27,9 +19,16 @@ export const addComment = (body) => (dispatch, getState) => {
     };
 
     dispatch({
-        type: actionTypes.ADD_COMMENT,
+        type: actionTypes.CREATE_COMMENT,
         payload: {
             comment,
         },
     });
 };
+
+export const removeComment = (id) => ({
+    type: actionTypes.REMOVE_COMMENT,
+    payload: {
+        id,
+    },
+});

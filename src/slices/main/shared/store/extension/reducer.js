@@ -3,6 +3,8 @@ import * as actionTypes from './action-types';
 const initialState = {
     user: null,
     sidebarOpen: false,
+    url: null,
+    metadata: null,
 };
 
 const updateState = (state, action) => action.payload.state;
