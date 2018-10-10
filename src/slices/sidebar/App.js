@@ -1,14 +1,23 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { getUrl, getMetadata, closeSidebar } from './shared/store/extension';
-import { getComments, createComment, removeComment } from './shared/store/discussion';
+import { getUser, getUrl, getMetadata, closeSidebar } from './shared/store/extension';
+import { getComments, createComment, updateComment, removeComment } from './shared/store/discussion';
 import TopBar from './top-bar';
 import BottomBar from './bottom-bar';
 import CommentsList from './comments-list';
 import styles from './App.css';
 
-const App = ({ url, metadata, comments, onSidebarClose, onCommentCreate, onCommentRemove }) => (
+const App = ({
+    user,
+    url,
+    metadata,
+    comments,
+    onSidebarClose,
+    onCommentCreate,
+    onCommentUpdate,
+    onCommentRemove,
+}) => (
     <div className={ styles.app }>
         <TopBar
             url={ url }
@@ -16,8 +25,10 @@ const App = ({ url, metadata, comments, onSidebarClose, onCommentCreate, onComme
             onClose={ onSidebarClose } />
 
         <CommentsList
+            user={ user }
             comments={ comments }
             onRemove={ onCommentRemove }
+            onUpdate={ onCommentUpdate }
             className={ styles.commentsList } />
 
         <BottomBar
@@ -26,15 +37,18 @@ const App = ({ url, metadata, comments, onSidebarClose, onCommentCreate, onComme
 );
 
 App.propTypes = {
+    user: PropTypes.object,
     url: PropTypes.string.isRequired,
     metadata: PropTypes.object,
     comments: PropTypes.object.isRequired,
     onSidebarClose: PropTypes.func.isRequired,
     onCommentCreate: PropTypes.func.isRequired,
+    onCommentUpdate: PropTypes.func.isRequired,
     onCommentRemove: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
+    user: getUser(state),
     url: getUrl(state),
     metadata: getMetadata(state),
     comments: getComments(state),
@@ -43,6 +57,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
     onSidebarClose: () => dispatch(closeSidebar()),
     onCommentCreate: (body) => dispatch(createComment(body)),
+    onCommentUpdate: (id, body) => dispatch(updateComment(id, body)),
     onCommentRemove: (id) => dispatch(removeComment(id)),
 });
 

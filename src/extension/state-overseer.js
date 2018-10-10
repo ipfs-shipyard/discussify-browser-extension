@@ -32,9 +32,7 @@ const computeBrowserAction = (state, tabId) => {
 
     if (tabInjectionStatus === 'inject-error' || tabInjectionStatus === 'remove-error') {
         status = 'error';
-    } else if (tabInjectionStatus === 'inject-pending' || tabInjectionStatus === 'remove-pending') {
-        status = 'loading';
-    } else if (isTabEnabled(state, tabId) && tabInjectionStatus === 'inject-success') {
+    } else if (isTabEnabled(state, tabId) && (tabInjectionStatus === 'inject-success' || tabInjectionStatus === 'inject-pending')) {
         status = 'enabled';
     } else {
         status = 'disabled';

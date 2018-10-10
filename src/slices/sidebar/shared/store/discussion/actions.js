@@ -26,6 +26,14 @@ export const createComment = (body) => (dispatch, getState) => {
     });
 };
 
+export const updateComment = (id, body) => ({
+    type: actionTypes.UPDATE_COMMENT,
+    payload: {
+        id,
+        body,
+    },
+});
+
 export const removeComment = (id) => ({
     type: actionTypes.REMOVE_COMMENT,
     payload: {

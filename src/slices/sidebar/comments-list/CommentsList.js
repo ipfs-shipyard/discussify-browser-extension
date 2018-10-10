@@ -5,7 +5,7 @@ import Comment from './comment';
 import RemovedComment from './removed-comment';
 import styles from './CommentsList.css';
 
-const CommentsList = ({ comments, onRemove, className }) => (
+const CommentsList = ({ user, comments, onUpdate, onRemove, className }) => (
     <div className={ classNames(styles.commentsList, className) }>
         { comments.map((comment) => (
             comment.removed ?
@@ -16,8 +16,9 @@ const CommentsList = ({ comments, onRemove, className }) => (
                     <Comment
                         key={ comment.id }
                         comment={ comment }
-                        owner
+                        owner={ user && user.did === comment.author.did }
                         onRemove={ onRemove }
+                        onUpdate={ onUpdate }
                         className={ styles.comment } />
                 )
         )) }
@@ -25,7 +26,9 @@ const CommentsList = ({ comments, onRemove, className }) => (
 );
 
 CommentsList.propTypes = {
+    user: PropTypes.object,
     comments: PropTypes.array.isRequired,
+    onUpdate: PropTypes.func.isRequired,
     onRemove: PropTypes.func.isRequired,
     className: PropTypes.string,
 };

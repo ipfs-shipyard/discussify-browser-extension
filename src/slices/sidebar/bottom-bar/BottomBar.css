@@ -3,41 +3,57 @@
 
 .bottomBar {
     position: relative;
-    padding: 3rem;
     background-color: var(--color-seashell);
 
-    &:hover .submitIcon {
-        fill-opacity: 0.45;
+    &:hover {
+        & .submit .submitIcon {
+            fill-opacity: 0.45;
+        }
     }
 
-    & .submitIcon {
+    & .submit {
         position: absolute;
-        top: 50%;
-        right: 3rem;
-        width: 2rem;
-        height: 2rem;
-        transform: translateY(-50%);
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 8rem;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
         color: var(--color-black);
         cursor: pointer;
         fill-opacity: 0;
 
-        &:hover,
-        &:focus {
+        & .submitIcon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            fill-opacity: 0;
+        }
+
+        &:hover .submitIcon,
+        &:focus .submitIcon {
             fill-opacity: 1;
         }
     }
 
-    & .textarea {
-        width: calc(100% - 5rem);
-        padding: 0;
-        display: block;
-        border: none;
-        outline: none;
-        background-color: transparent;
-        transition: height 0.2s ease;
+    & .textareaWrapper {
+        width: calc(100% - 8rem);
+        padding: 3rem 0 3rem 3rem;
+        cursor: text;
 
-        &::placeholder {
-            color: var(--color-gray);
+        & .textarea {
+            width: 100%;
+            padding: 0;
+            display: block; /* Remove extra space at the bottom */
+            border: none;
+            background-color: transparent;
+
+            &::placeholder {
+                color: var(--color-gray);
+            }
         }
     }
 }

@@ -1,53 +1,48 @@
 import React, { Component } from 'react';
+import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { TextareaAutosize, SubmitIcon } from '@discussify/styleguide';
 import styles from './BottomBar.css';
 
-class BottomBar extends Component {
+export default class BottomBar extends Component {
     static propTypes = {
         className: PropTypes.string,
         onNewComment: PropTypes.func.isRequired,
     };
 
-    state = {
-        commentBody: '',
-    };
-
     render() {
-        const { commentBody } = this.state;
         const { className } = this.props;
 
         return (
             <div className={ classNames(styles.bottomBar, className) }>
-                <TextareaAutosize
-                    placeholder="Add comment..."
-                    value={ commentBody }
-                    maxRows={ 10 }
-                    onChange={ this.handleTextareaChange }
-                    className={ styles.textarea } />
+                <div className={ styles.textareaWrapper } onClick={ this.handleTextareaWrapperClick }>
+                    <TextareaAutosize
+                        ref={ this.storeTextareaAutosizeRef }
+                        placeholder="Add comment..."
+                        maxRows={ 10 }
+                        className={ styles.textarea } />
+                </div>
 
-                <SubmitIcon
-                    interactive
-                    onClick={ this.handleSubmit }
-                    className={ styles.submitIcon } />
+                <button className={ styles.submit } onClick={ this.handleSubmitClick }>
+                    <SubmitIcon className={ styles.submitIcon } />
+                </button>
             </div>
         );
     }
 
-    handleTextareaChange = (e) => {
-        this.setState({ commentBody: e.currentTarget.value });
+    storeTextareaAutosizeRef = (ref) => {
+        this.textareaAutosize = ref;
     };
 
-    handleSubmit = () => {
-        this.props.onNewComment(this.state.commentBody);
-        this.setState({ commentBody: '' });
+    handleSubmitClick = () => {
+        const textareaNode = findDOMNode(this.textareaAutosize);
+
+        this.props.onNewComment(textareaNode.value);
+        textareaNode.value = '';
+    };
+
+    handleTextareaWrapperClick = () => {
+        findDOMNode(this.textareaAutosize).focus();
     };
 }
-
-BottomBar.propTypes = {
-    className: PropTypes.string,
-    onNewComment: PropTypes.func.isRequired,
-};
-
-export default BottomBar;

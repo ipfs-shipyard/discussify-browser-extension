@@ -19,10 +19,18 @@ const getInfo = (url, metadata) => {
         return null;
     }
 
+    const favicon = metadata.favicon;
+    const domain = parsedUrl.host || 'N/A';
+
+    // Use description if the title seems similar to the domain
+    const overline = domain.startsWith(metadata.title) ?
+        metadata.description || metadata.title :
+        metadata.title || metadata.description;
+
     return {
-        favicon: metadata.favicon,
-        domain: parsedUrl.host || 'N/A',
-        overline: metadata.title || metadata.description,
+        favicon,
+        domain,
+        overline,
     };
 };
 

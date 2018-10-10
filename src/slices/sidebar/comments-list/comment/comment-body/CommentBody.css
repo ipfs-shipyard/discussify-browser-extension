@@ -3,14 +3,26 @@
 
 .commentBody {
     position: relative;
-    padding: 1.5rem;
-    background-color: color(var(--color-science-blue) alpha(0.1));
-    border-radius: 0.8rem 0.8rem 0.8rem 0;
 
     & .message {
-        @mixin typography-body-2 rem;
         margin: 0;
+        padding: 1.5rem;
+        border: 1px solid transparent;
+        background-color: color(var(--color-science-blue) alpha(0.1));
+        border-radius: 0.8rem 0.8rem 0.8rem 0;
+        @mixin typography-body-2 rem;
         white-space: pre-line;
+    }
+
+    & .textarea {
+        width: 100%;
+        padding: 1.5rem;
+        display: block; /* Remove extra space at the bottom */
+        border: none;
+        border: 1px solid var(--color-gray);
+        background-color: var(--color-white);
+        border-radius: 0.8rem 0.8rem 0.8rem 0;
+        @mixin typography-body-2 rem;
     }
 
     & .actions {

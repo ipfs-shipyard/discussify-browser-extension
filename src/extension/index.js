@@ -15,6 +15,7 @@ import configureStore, {
     updateTabInjection,
     setTabMetadata,
     setTabSidebarOpen,
+    getTabInjectionStatus,
     getSliceState,
 } from './store';
 
@@ -52,13 +53,6 @@ const setupStateOverseer = (store) => {
         await browser.browserAction.setIcon({ tabId, path: icon });
         await browser.browserAction.setBadgeText({ text: count ? count.toString() : '', tabId });
         await browser.browserAction.setBadgeBackgroundColor({ color: '#0a6adb', tabId });
-
-        // Disable if loading to avoid double injections/removals
-        if (status === 'loading') {
-            await browser.browserAction.disable();
-        } else {
-            await browser.browserAction.enable();
-        }
 
         // Setup popup based on the error
         await browser.browserAction.setPopup({
@@ -183,6 +177,13 @@ const setupTabListeners = (store) => {
 
 const setupBrowserAction = (store) => {
     browser.browserAction.onClicked.addListener((tab) => {
+        const tabInjectionStatus = getTabInjectionStatus(store.getState(), tab.id);
+
+        // Ignore any clicks while we are injecting or removing
+        if (tabInjectionStatus === 'inject-pending' || tabInjectionStatus === 'remove-pending') {
+            return;
+        }
+
         store.dispatch(toggleTabEnabled(tab.id));
     });
 };
