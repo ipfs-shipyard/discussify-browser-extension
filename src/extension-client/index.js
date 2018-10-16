@@ -1,90 +1,65 @@
-import { messageTypes } from '../extension';
+import { SET_CLIENT_STATE } from '../extension-background/message-types';
+import createMethods from './methods';
 
-const createExtensionClient = (tabId = null) => {
-    const handlers = {
-        onSliceStateChange: () => {},
+const registerListener = (listenersSet, fn) => {
+    listenersSet.add(fn);
+
+    return () => listenersSet.delete(fn);
+};
+
+const callListeners = (listenersSet, ...args) => {
+    listenersSet.forEach((fn) => fn(...args));
+};
+
+const createExtensionClient = (options) => {
+    options = {
+        initialState: null,
+        tabId: null,
+        ...options,
     };
 
-    const methods = {
-        setSliceState: (state) => {
-            handlers.onSliceStateChange(state);
-        },
+    let state = options.initialState;
+
+    const methods = createMethods(options.tabId);
+
+    const listeners = {
+        onStateChange: new Set(),
     };
 
-    const handleOnMessage = (request) => {
-        if (request.type === messageTypes.CALL_CLIENT_METHOD) {
-            const { name, args } = request.payload;
+    const handleMessage = (request) => {
+        if (request.type === SET_CLIENT_STATE) {
+            const { state: newState } = request.payload;
 
-            if (!methods[name]) {
-                throw Object.assign(
-                    new Error(`Unknown method: ${name}`),
-                    { code: 'UNKNOWN_METHOD' }
-                );
-            }
+            state = {
+                ...state,
+                ...newState,
+            };
 
-            return Promise.resolve(methods[name](...args));
+            console.log('onStateChange', location.host, state);
+            callListeners(listeners.onStateChange, state);
         }
     };
 
-    browser.runtime.onMessage.addListener(handleOnMessage);
+    browser.runtime.onMessage.addListener(handleMessage);
 
     return {
-        setUser: (user) =>
-            browser.runtime.sendMessage({
-                type: messageTypes.CALL_BACKGROUND_METHOD,
-                payload: {
-                    name: 'setUser',
-                    args: [user],
-                    tabId,
-                },
-            }),
+        ...methods,
 
-        fetchMetadata: () =>
-            browser.runtime.sendMessage({
-                type: messageTypes.CALL_BACKGROUND_METHOD,
-                payload: {
-                    name: 'fetchMetadata',
-                    args: [],
-                    tabId,
-                },
-            }),
+        syncState: async () => {
+            state = await methods.syncState();
 
-        setSidebarOpen: (open) =>
-            browser.runtime.sendMessage({
-                type: messageTypes.CALL_BACKGROUND_METHOD,
-                payload: {
-                    name: 'setSidebarOpen',
-                    args: [open],
-                    tabId,
-                },
-            }),
+            console.log('onStateChange from sync', location.host, state);
+            callListeners(listeners.onStateChange, state);
 
-        dismissInjectionError: () =>
-            browser.runtime.sendMessage({
-                type: messageTypes.CALL_BACKGROUND_METHOD,
-                payload: {
-                    name: 'dismissInjectionError',
-                    args: [],
-                    tabId,
-                },
-            }),
-
-        getSliceState: () =>
-            browser.runtime.sendMessage({
-                type: messageTypes.CALL_BACKGROUND_METHOD,
-                payload: {
-                    name: 'getSliceState',
-                    args: [],
-                    tabId,
-                },
-            }),
-
-        onSliceStateChange: (handler) => {
-            handlers.onSliceStateChange = handler;
+            return state;
         },
 
+        getState: () => state,
+
+        onStateChange: (fn) => registerListener(listeners.onStateChange, fn),
+
         destroy: () => {
-            browser.runtime.onMessage.removeListener(handleOnMessage);
+            browser.runtime.onMessage.removeListener(handleMessage);
         },
     };
 };

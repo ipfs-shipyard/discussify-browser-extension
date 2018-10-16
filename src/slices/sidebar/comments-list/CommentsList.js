@@ -7,7 +7,7 @@ import styles from './CommentsList.css';
 
 const CommentsList = ({ user, comments, onUpdate, onRemove, className }) => (
     <div className={ classNames(styles.commentsList, className) }>
-        { comments.map((comment) => (
+        { comments && comments.map((comment) => (
             comment.removed ?
                 <RemovedComment
                     key={ comment.id }
@@ -27,7 +27,7 @@ const CommentsList = ({ user, comments, onUpdate, onRemove, className }) => (
 
 CommentsList.propTypes = {
     user: PropTypes.object,
-    comments: PropTypes.array.isRequired,
+    comments: PropTypes.array,
     onUpdate: PropTypes.func.isRequired,
     onRemove: PropTypes.func.isRequired,
     className: PropTypes.string,

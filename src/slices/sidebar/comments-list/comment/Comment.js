@@ -113,6 +113,8 @@ export default class Comment extends Component {
 
         clearTimeout(this.triggerClickTimeout);
         this.triggerClickTimeout = setTimeout(() => {
+            this.triggerClickTimeout = null;
+
             const buttonFocused = document.activeElement === button;
 
             buttonFocused && button.click();
@@ -120,16 +122,21 @@ export default class Comment extends Component {
     };
 
     handleCancelClick = () => {
-        clearTimeout(this.triggerClickTimeout);
+        if (this.triggerClickTimeout) {
+            return;
+        }
+
         this.setState({ editing: false });
     };
 
     handleSaveClick = () => {
-        clearTimeout(this.triggerClickTimeout);
-        this.setState({ editing: false });
+        if (this.triggerClickTimeout) {
+            return;
+        }
 
         const newBody = this.commentBody.getTextareaValue();
 
+        this.setState({ editing: false });
         this.props.onUpdate && this.props.onUpdate(this.props.comment.id, newBody);
     };
 }

@@ -4,9 +4,13 @@ import classNames from 'classnames';
 import { Button } from '@discussify/styleguide';
 import styles from './ErrorScreen.css';
 
-const ErrorScreen = ({ onRetry, className }) => (
+const ErrorScreen = ({ error, className, onRetry }) => (
     <div className={ classNames(styles.errorScreen, className) }>
-        <div className={ styles.message }>Oops, we were unable to log you in.</div>
+        <div className={ styles.message }>
+            <div className={ styles.text }>Oops, we were unable to log you in.</div>
+            { error && error.message && <div className={ styles.errorText }>{ error.message }</div> }
+        </div>
+
         <Button
             variant="primary"
             fullWidth
@@ -17,6 +21,7 @@ const ErrorScreen = ({ onRetry, className }) => (
 );
 
 ErrorScreen.propTypes = {
+    error: PropTypes.object,
     onRetry: PropTypes.func.isRequired,
     className: PropTypes.string,
 };

@@ -5,7 +5,7 @@ import App from './App';
 
 const renderApp = (rootEl, error, extensionClient) => {
     const handleDismiss = async () => {
-        await extensionClient.dismissInjectionError();
+        await extensionClient.tab.dismissInjectionError();
         window.close();
     };
 

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { ConfirmModal, ModalTrigger, TextareaAutosize, EditIcon, RemoveIcon } from '@discussify/styleguide';
 import styles from './CommentBody.css';
 
-const TEXTAREA_TRANSITION_DURATION = 200; // Update this value if the textarea transition changes in the CSS
+export const TEXTAREA_TRANSITION_DURATION = 200; // Update this value if the textarea transition changes in the CSS
 
 export default class CommentBody extends Component {
     static propTypes = {
@@ -75,5 +75,3 @@ export default class CommentBody extends Component {
         this.textareaAutosize = ref;
     };
 }
-
-export { TEXTAREA_TRANSITION_DURATION };

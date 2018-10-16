@@ -1,8 +1,6 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { getUser, getUrl, getMetadata, closeSidebar } from './shared/store/extension';
-import { getComments, createComment, updateComment, removeComment } from './shared/store/discussion';
+import { connectExtension } from '../../react-extension-client';
 import TopBar from './top-bar';
 import BottomBar from './bottom-bar';
 import CommentsList from './comments-list';
@@ -10,7 +8,6 @@ import styles from './App.css';
 
 const App = ({
     user,
-    url,
     metadata,
     comments,
     onSidebarClose,
@@ -20,7 +17,6 @@ const App = ({
 }) => (
     <div className={ styles.app }>
         <TopBar
-            url={ url }
             metadata={ metadata }
             onClose={ onSidebarClose } />
 
@@ -38,8 +34,7 @@ const App = ({
 
 App.propTypes = {
     user: PropTypes.object,
-    url: PropTypes.string.isRequired,
-    metadata: PropTypes.object,
+    metadata: PropTypes.object.isRequired,
     comments: PropTypes.object.isRequired,
     onSidebarClose: PropTypes.func.isRequired,
     onCommentCreate: PropTypes.func.isRequired,
@@ -48,17 +43,16 @@ App.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-    user: getUser(state),
-    url: getUrl(state),
-    metadata: getMetadata(state),
-    comments: getComments(state),
+    user: state.session.user,
+    metadata: state.tab.metadata,
+    comments: state.discussion.comments,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-    onSidebarClose: () => dispatch(closeSidebar()),
-    onCommentCreate: (body) => dispatch(createComment(body)),
-    onCommentUpdate: (id, body) => dispatch(updateComment(id, body)),
-    onCommentRemove: (id) => dispatch(removeComment(id)),
+const mapMethodsToProps = (methods) => ({
+    onSidebarClose: () => methods.tab.closeSidebar(),
+    onCommentCreate: (body) => methods.discussion.createComment(body),
+    onCommentUpdate: (id, body) => methods.discussion.updateComment(id, body),
+    onCommentRemove: (id) => methods.discussion.removeComment(id),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connectExtension(mapStateToProps, mapMethodsToProps)(App);

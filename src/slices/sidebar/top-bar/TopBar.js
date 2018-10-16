@@ -4,21 +4,8 @@ import classNames from 'classnames';
 import { CloseIcon } from '@discussify/styleguide';
 import styles from './TopBar.css';
 
-const getInfo = (url, metadata) => {
-    if (!metadata) {
-        return null;
-    }
-
-    let parsedUrl;
-
-    try {
-        parsedUrl = new URL(url);
-    } catch (err) {
-        console.warn('Failed to parse metadata URL', metadata.url);
-
-        return null;
-    }
-
+const getInfo = (metadata) => {
+    const parsedUrl = new URL(metadata.canonicalUrl);
     const favicon = metadata.favicon;
     const domain = parsedUrl.host || 'N/A';
 
@@ -36,7 +23,6 @@ const getInfo = (url, metadata) => {
 
 export default class TopBar extends Component {
     static propTypes = {
-        url: PropTypes.string,
         metadata: PropTypes.object,
         className: PropTypes.string,
         onClose: PropTypes.func.isRequired,
@@ -47,9 +33,9 @@ export default class TopBar extends Component {
     };
 
     render() {
-        const { url, metadata, className, onClose } = this.props;
+        const { metadata, className, onClose } = this.props;
         const { faviconLoaded } = this.state;
-        const info = getInfo(url, metadata);
+        const info = metadata && getInfo(metadata);
 
         return (
             <div className={ classNames(styles.topBar, className) }>

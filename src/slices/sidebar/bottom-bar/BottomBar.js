@@ -5,6 +5,8 @@ import classNames from 'classnames';
 import { TextareaAutosize, SubmitIcon } from '@discussify/styleguide';
 import styles from './BottomBar.css';
 
+// TODO: focus textarea should make submit icon visible
+
 export default class BottomBar extends Component {
     static propTypes = {
         className: PropTypes.string,

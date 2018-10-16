@@ -1,18 +1,17 @@
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
-import { Provider } from 'react-redux';
 import { Modal } from '@discussify/styleguide';
-import configureStore from './shared/store';
+import { ExtensionProvider } from '../../react-extension-client';
 import './index.css';
 import App from './App';
 
-const renderApp = (rootEl, store) => {
+const renderApp = (rootEl, extensionClient) => {
     Modal.setAppElement(rootEl);
 
     render(
-        <Provider store={ store }>
+        <ExtensionProvider extensionClient={ extensionClient }>
             <App />
-        </Provider>,
+        </ExtensionProvider>,
         rootEl
     );
 };
@@ -21,4 +20,4 @@ const destroyApp = (rootEl) => {
     unmountComponentAtNode(rootEl);
 };
 
-export { renderApp, destroyApp, configureStore };
+export { renderApp, destroyApp };
