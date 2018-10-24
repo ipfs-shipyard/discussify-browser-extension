@@ -99,7 +99,6 @@ export const cancelAuthenticate = () => (dispatch, getState) => {
     clearTimeout(timeoutId);
 
     // Cancel uport requestCredentials, if any
-    // This will cause the authenticate promise to fail and a "CANCEL_AUTHENTICATE" will be dispatched
     cancelFn && cancelFn();
 
     dispatch({ type: actionTypes.CANCEL_AUTHENTICATE });

@@ -6,10 +6,10 @@ export const getTabIds = (state) =>
 export const getTabState = (state, tabId) => state.tabs[tabId];
 
 export const isTabReady = (state, tabId) =>
-    get(state.tabs, [tabId, 'ready'], false);
+    get(state.tabs, [tabId, 'ready']);
 
 export const isTabEnabled = (state, tabId) =>
-    get(state.tabs, [tabId, 'enabled'], false);
+    get(state.tabs, [tabId, 'enabled']);
 
 export const getTabInjectionStatus = (state, tabId) =>
     get(state.tabs, [tabId, 'injectionStatus']);
@@ -27,6 +27,6 @@ export const getTabDiscussionId = (state, tabId) =>
     get(state.tabs, [tabId, 'metadata', 'discussionId']);
 
 export const isTabSidebarOpen = (state, tabId) =>
-    get(state.tabs, [tabId, 'sidebarOpen'], false);
+    get(state.tabs, [tabId, 'sidebarOpen']);
 
 export const getSerializedTabs = (state) => state.tabs;

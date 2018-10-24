@@ -12,8 +12,8 @@ export default class Comment extends Component {
         owner: PropTypes.bool,
         className: PropTypes.string,
         onReply: PropTypes.func.isRequired,
-        onUpdate: PropTypes.func,
-        onRemove: PropTypes.func, // TODO: import requiredIf from 'react-required-if';
+        onUpdate: PropTypes.func.isRequired,
+        onRemove: PropTypes.func.isRequired,
     };
 
     state = {
@@ -97,7 +97,7 @@ export default class Comment extends Component {
     };
 
     handleBodyRemove = () => {
-        this.props.onRemove && this.props.onRemove(this.props.comment.id);
+        this.props.onRemove(this.props.comment.id);
     };
 
     handleActionMouseDown = (event) => {
@@ -137,6 +137,6 @@ export default class Comment extends Component {
         const newBody = this.commentBody.getTextareaValue();
 
         this.setState({ editing: false });
-        this.props.onUpdate && this.props.onUpdate(this.props.comment.id, newBody);
+        this.props.onUpdate(this.props.comment.id, newBody);
     };
 }

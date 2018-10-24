@@ -1,7 +1,7 @@
 @import "@discussify/styleguide/styles/colors";
 @import "@discussify/styleguide/styles/mixins/typography";
 
-.removedComment {
+.commentPlaceholder {
     padding: 1.5rem;
     display: flex;
     align-items: center;
@@ -10,15 +10,4 @@
     color: color(var(--color-black) alpha(0.3));
     @mixin typography-body-2 rem, no-line-height;
     line-height: 1;
-
-    & .removeIcon {
-        width: 1.4rem;
-        height: 1.4rem;
-        margin-right: 1rem;
-    }
-
-    & .deletedText {
-        flex: 1 0;
-        vertical-align: middle;
-    }
 }

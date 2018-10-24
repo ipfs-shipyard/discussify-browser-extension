@@ -5,6 +5,6 @@
 }
 
 .commentsList {
-    overflow: auto;
+    overflow-y: auto;
     flex: 1 0;
 }

@@ -107,52 +107,50 @@ const checkUserState = (listeners, state, previousState) => {
 
 const checkTabState = (listeners, state, previousState, tabId) => {
     // Short-circuit if the tab hasn't changed
-    if (previousState && getTabState(state, tabId) === getTabState(previousState, tabId)) {
-        return;
-    }
+    if (!previousState || getTabState(state, tabId) !== getTabState(previousState, tabId)) {
+        // Check if script should be injected/removed
+        const injectScript = shouldInjectScriptIntoTab(state, tabId);
 
-    // Check if script should be injected/removed
-    const injectScript = shouldInjectScriptIntoTab(state, tabId);
+        if (injectScript) {
+            const previousInjectScript = previousState && shouldInjectScriptIntoTab(previousState, tabId);
 
-    if (injectScript) {
-        const previousInjectScript = previousState && shouldInjectScriptIntoTab(previousState, tabId);
+            if (injectScript !== previousInjectScript) {
+                callListeners(listeners.onInjectOrRemoveScript, tabId, 'inject', buildClientState(state, tabId));
+            }
+        } else {
+            const removeScript = shouldRemoveScriptFromTab(state, tabId);
+            const previousRemoveScript = previousState && shouldRemoveScriptFromTab(previousState, tabId);
 
-        if (injectScript !== previousInjectScript) {
-            callListeners(listeners.onInjectOrRemoveScript, tabId, 'inject', buildClientState(state, tabId));
+            if (removeScript && removeScript !== previousRemoveScript) {
+                callListeners(listeners.onInjectOrRemoveScript, tabId, 'remove');
+            }
         }
-    } else {
-        const removeScript = shouldRemoveScriptFromTab(state, tabId);
-        const previousRemoveScript = previousState && shouldRemoveScriptFromTab(previousState, tabId);
 
-        if (removeScript && removeScript !== previousRemoveScript) {
-            callListeners(listeners.onInjectOrRemoveScript, tabId, 'remove');
+        // Check if browser action changed
+        const browserAction = buildTabBrowserAction(state, tabId);
+        const previousBrowserAction = previousState && buildTabBrowserAction(previousState, tabId);
+
+        if (!shallowEqual(browserAction, previousBrowserAction)) {
+            callListeners(listeners.onBrowserActionChange, tabId, browserAction);
         }
-    }
 
-    // Check if browser action changed
-    const browserAction = buildTabBrowserAction(state, tabId);
-    const previousBrowserAction = previousState && buildTabBrowserAction(previousState, tabId);
+        // Check if the metadata should be fetched
+        const url = getTabUrlForMetadata(state, tabId);
+        const previousUrl = previousState && getTabUrlForMetadata(previousState, tabId);
 
-    if (!shallowEqual(browserAction, previousBrowserAction)) {
-        callListeners(listeners.onBrowserActionChange, tabId, browserAction);
-    }
+        if (url && url !== previousUrl) {
+            callListeners(listeners.onUpdateMetadata, tabId, url);
+        }
 
-    // Check if the metadata should be fetched
-    const url = getTabUrlForMetadata(state, tabId);
-    const previousUrl = previousState && getTabUrlForMetadata(previousState, tabId);
+        // Check if we should start/stop the discussion
+        const hasDiscussion = shouldTabHaveDiscussion(state, tabId);
+        const previousHasDiscussion = previousState && shouldTabHaveDiscussion(previousState, tabId);
 
-    if (url && url !== previousUrl) {
-        callListeners(listeners.onUpdateMetadata, tabId, url);
-    }
-
-    // Check if we should start/stop the discussion
-    const hasDiscussion = shouldTabHaveDiscussion(state, tabId);
-    const previousHasDiscussion = previousState && shouldTabHaveDiscussion(previousState, tabId);
-
-    if (hasDiscussion && !previousHasDiscussion) {
-        callListeners(listeners.onStartOrStopDiscussion, tabId, getTabDiscussionId(state, tabId), 'start');
-    } else if (!hasDiscussion && previousHasDiscussion) {
-        callListeners(listeners.onStartOrStopDiscussion, tabId, getTabDiscussionId(previousState, tabId), 'stop');
+        if (hasDiscussion && !previousHasDiscussion) {
+            callListeners(listeners.onStartOrStopDiscussion, tabId, getTabDiscussionId(state, tabId), 'start');
+        } else if (!hasDiscussion && previousHasDiscussion) {
+            callListeners(listeners.onStartOrStopDiscussion, tabId, getTabDiscussionId(previousState, tabId), 'stop');
+        }
     }
 
     // Check if client state changed, skipping if the extension is not injected

@@ -1,10 +1,10 @@
 @import "@discussify/styleguide/styles/colors";
 
-.commentsList {
+.commentsTree {
     padding: 3rem;
     background-color: var(--color-white);
 
-    & .comment:not(:last-child) {
+    & .node:not(:last-child) {
         margin-bottom: 3rem;
     }
 }

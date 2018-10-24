@@ -1,26 +1,33 @@
+import PeerStarApp from 'peer-star-app';
+import { random } from 'lodash';
 import * as actionTypes from './action-types';
-import sanitizeBody from './util/sanitize-body';
 import { getUser } from '../session';
-import { getDiscussionDependantsCount, hasDiscussion } from './selectors';
+import { getDiscussionDependantsCount, hasDiscussion, getCommentCid, hasComment, isCommentLoading } from './selectors';
+import sanitizeBody from './util/sanitize-body';
+import commentsCrdt from './util/comments-crdt';
+import { retrieveComment, storeComment } from './util/comments-store';
 
-const getCollaboration = async (discussionId, peerStarApp) => {
+PeerStarApp.collaborationTypes.define('discussify-comments', commentsCrdt);
+
+const getCollaboration = async (peerStarApp, discussionId) => {
     await peerStarApp.start();
 
-    return peerStarApp.collaborate(`discussion-${discussionId}`, '2pset');
+    return peerStarApp.collaborate(`discussion-${discussionId}`, 'discussify-comments');
 };
 
 export const startDiscussion = (discussionId, tabId) => async (dispatch, getState, { peerStarApp }) => {
-    const collaboration = await getCollaboration(discussionId, peerStarApp);
-    const dependantsCount = getDiscussionDependantsCount(getState(), tabId);
+    const collaboration = await getCollaboration(peerStarApp, discussionId);
 
     // Listen to changes if this is the first dependant
+    const dependantsCount = getDiscussionDependantsCount(getState(), tabId);
+
     if (!dependantsCount) {
         collaboration.on('state changed', () => {
             dispatch({
-                type: actionTypes.UPDATE_COMMENTS,
+                type: actionTypes.UPDATE_CRDT_VALUE,
                 payload: {
                     discussionId,
-                    comments: Array.from(collaboration.shared.value()),
+                    crdtValue: collaboration.shared.value(),
                 },
             });
         });
@@ -31,7 +38,7 @@ export const startDiscussion = (discussionId, tabId) => async (dispatch, getStat
         payload: {
             discussionId,
             tabId,
-            comments: Array.from(collaboration.shared.value()),
+            crdtValue: collaboration.shared.value(),
         },
     });
 };
@@ -49,13 +56,14 @@ export const stopDiscussion = (discussionId, tabId) => async (dispatch, getState
 
     // Stop the collaboration if there's no more dependants
     if (!dependantsCount) {
-        const collaboration = await getCollaboration(discussionId, peerStarApp);
+        const collaboration = await getCollaboration(peerStarApp, discussionId);
 
+        // TODO
         // await collaboration.stop();
     }
 };
 
-export const createComment = (discussionId, body) => async (dispatch, getState, { peerStarApp }) => {
+export const createComment = (discussionId, previousCommentId, body) => async (dispatch, getState, { peerStarApp }) => {
     if (!hasDiscussion(getState(), discussionId)) {
         throw new Error(`Discussion with id ${discussionId} does not exist`);
     }
@@ -67,26 +75,111 @@ export const createComment = (discussionId, body) => async (dispatch, getState, 
         return;
     }
 
-    const comment = {
-        id: Math.random().toString(),
+    const collaboration = await getCollaboration(peerStarApp, discussionId);
+
+    const cid = await storeComment(peerStarApp.ipfs, {
         author: user,
         body: sanitizedBody,
-        createdAt: (new Date()).toISOString(),
-    };
+        timestamp: Date.now(),
+        nonce: random(0, 10 ** 20),
+    });
 
-    await peerStarApp.start();
-
-    const collaboration = await peerStarApp.collaborate(`discussion-${discussionId}`, 'gset');
-
-    console.log('adding', comment);
-
-    collaboration.shared.add(comment);
+    collaboration.shared.create({
+        id: cid,
+        previousId: previousCommentId,
+        cid,
+    });
 };
 
-export const updateComment = (discussionId, commentId, body) => ({
+export const updateComment = (discussionId, commentId, body) => async (dispatch, getState, { peerStarApp }) => {
+    const user = getUser(getState());
 
-});
+    if (!user) {
+        return;
+    }
 
-export const removeComment = (discussionId, commentId) => ({
+    if (!hasComment(getState(), discussionId, commentId)) {
+        throw new Error(`Unknown comment with id ${commentId}`);
+    }
 
-});
+    const collaboration = await getCollaboration(peerStarApp, discussionId);
+
+    const cid = await storeComment(peerStarApp.ipfs, {
+        author: user,
+        body,
+        timestamp: Date.now(),
+    });
+
+    collaboration.shared.update(commentId, cid);
+};
+
+export const removeComment = (discussionId, commentId) => async (dispatch, getState, { peerStarApp }) => {
+    const user = getUser(getState());
+
+    if (!user) {
+        return;
+    }
+
+    if (!hasComment(getState(), discussionId, commentId)) {
+        throw new Error(`Unknown comment with id ${commentId}`);
+    }
+
+    const collaboration = await getCollaboration(peerStarApp, discussionId);
+
+    const cid = await storeComment(peerStarApp.ipfs, {
+        author: user,
+        body: null,
+        timestamp: Date.now(),
+    });
+
+    collaboration.shared.update(commentId, cid);
+};
+
+export const loadComment = (discussionId, commentId) => async (dispatch, getState, { peerStarApp }) => {
+    if (!hasComment(getState(), discussionId, commentId)) {
+        throw new Error(`Unknown comment with id ${commentId}`);
+    }
+
+    if (isCommentLoading(getState(), discussionId, commentId)) {
+        return;
+    }
+
+    const cid = getCommentCid(getState(), discussionId, commentId);
+
+    // TODO: timeout
+    dispatch({
+        type: actionTypes.LOAD_COMMENT_START,
+        payload: {
+            discussionId,
+            cid,
+        },
+    });
+
+    let comment;
+
+    try {
+        await peerStarApp.start();
+
+        comment = await retrieveComment(peerStarApp.ipfs, cid);
+    } catch (error) {
+        dispatch({
+            type: actionTypes.LOAD_COMMENT_ERROR,
+            payload: {
+                discussionId,
+                cid,
+                error,
+            },
+        });
+
+        throw error;
+    }
+
+    dispatch({
+        type: actionTypes.LOAD_COMMENT_OK,
+        payload: {
+            discussionId,
+            cid,
+            comment,
+        },
+    });
+};

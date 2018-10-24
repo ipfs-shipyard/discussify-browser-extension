@@ -1,13 +1,13 @@
 import getClientState from './util/client-state';
 import { authenticate, unauthenticate, cancelAuthenticate } from './store/session';
 import { getTabDiscussionId, dismissTabInjectionError, openSidebar, closeSidebar } from './store/tabs';
-import { createComment } from './store/discussions';
+import { createComment, updateComment, removeComment, loadComment } from './store/discussions';
 
 const createMethods = (store) => ({
     getState: (tabId) => getClientState(store.getState(), tabId),
 
     session: {
-        authenticate: async () => {
+        authenticate: () => {
             store.dispatch(authenticate());
         },
         cancelAuthenticate: () => {
@@ -31,16 +31,30 @@ const createMethods = (store) => ({
     },
 
     discussion: {
-        createComment: async (tabId, comment) => {
+        createComment: (tabId, previousCommentId, body) => {
             const discussionId = getTabDiscussionId(store.getState(), tabId);
 
-            store.dispatch(createComment(discussionId, comment));
-        },
-        removeComment: (tabId, commentId) => {
-
+            store.dispatch(createComment(discussionId, previousCommentId, body));
         },
         updateComment: (tabId, commentId, body) => {
+            const discussionId = getTabDiscussionId(store.getState(), tabId);
 
+            store.dispatch(updateComment(discussionId, commentId, body));
+        },
+        removeComment: (tabId, commentId) => {
+            const discussionId = getTabDiscussionId(store.getState(), tabId);
+
+            store.dispatch(removeComment(discussionId, commentId));
+        },
+        loadComment: (tabId, commentId) => {
+            const discussionId = getTabDiscussionId(store.getState(), tabId);
+
+            store.dispatch(loadComment(discussionId, commentId));
+        },
+        loadCommentHistory: (tabId, commentId) => {
+            const discussionId = getTabDiscussionId(store.getState(), tabId);
+
+            // store.dispatch(loadCommentHistory(discussionId, commentId));
         },
     },
 });

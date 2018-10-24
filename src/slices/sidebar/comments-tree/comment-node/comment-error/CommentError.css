@@ -1,0 +1,18 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+.commentError {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    border: 1px dashed color(var(--color-black) alpha(0.3));
+    border-radius: 0.8rem;
+    color: color(var(--color-black) alpha(0.3));
+    @mixin typography-body-2 rem, no-line-height;
+    line-height: 1;
+
+    & .errorText {
+        flex: 1 0;
+        vertical-align: middle;
+    }
+}

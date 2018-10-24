@@ -10,7 +10,7 @@ const createConnect = (Context) => (mapStateToProps, mapMethodsToProps) => (Wrap
                 <Context.Consumer>
                     { ({ extensionClient, state }) => {
                         if (!state) {
-                            return null;
+                            return <span />;
                         }
 
                         const props = {
