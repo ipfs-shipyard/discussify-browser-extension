@@ -1,13 +1,16 @@
 import PeerStarApp from 'peer-star-app';
-import { random } from 'lodash';
 import * as actionTypes from './action-types';
 import { getUser } from '../session';
 import { getDiscussionDependantsCount, hasDiscussion, getCommentCid, hasComment, isCommentLoading } from './selectors';
 import sanitizeBody from './util/sanitize-body';
 import commentsCrdt from './util/comments-crdt';
-import { retrieveComment, storeComment } from './util/comments-store';
+import { retrieveComments, storeComment } from './util/comments-store';
 
 PeerStarApp.collaborationTypes.define('discussify-comments', commentsCrdt);
+
+// TODO: add timeouts to async actions
+// TODO: handle errors
+// TODO: conntrol concurrency of load comments?
 
 const getCollaboration = async (peerStarApp, discussionId) => {
     await peerStarApp.start();
@@ -77,11 +80,21 @@ export const createComment = (discussionId, previousCommentId, body) => async (d
 
     const collaboration = await getCollaboration(peerStarApp, discussionId);
 
-    const cid = await storeComment(peerStarApp.ipfs, {
+    const comment = {
         author: user,
         body: sanitizedBody,
         timestamp: Date.now(),
-        nonce: random(0, 10 ** 20),
+    };
+
+    const cid = await storeComment(peerStarApp.ipfs, comment);
+
+    dispatch({
+        type: actionTypes.SET_LOADED_COMMENT,
+        payload: {
+            discussionId,
+            cid,
+            comment,
+        },
     });
 
     collaboration.shared.create({
@@ -93,8 +106,9 @@ export const createComment = (discussionId, previousCommentId, body) => async (d
 
 export const updateComment = (discussionId, commentId, body) => async (dispatch, getState, { peerStarApp }) => {
     const user = getUser(getState());
+    const sanitizedBody = sanitizeBody(body);
 
-    if (!user) {
+    if (!user || !sanitizedBody) {
         return;
     }
 
@@ -104,10 +118,21 @@ export const updateComment = (discussionId, commentId, body) => async (dispatch,
 
     const collaboration = await getCollaboration(peerStarApp, discussionId);
 
-    const cid = await storeComment(peerStarApp.ipfs, {
+    const comment = {
         author: user,
         body,
         timestamp: Date.now(),
+    };
+
+    const cid = await storeComment(peerStarApp.ipfs, comment);
+
+    dispatch({
+        type: actionTypes.SET_LOADED_COMMENT,
+        payload: {
+            discussionId,
+            cid,
+            comment,
+        },
     });
 
     collaboration.shared.update(commentId, cid);
@@ -126,60 +151,58 @@ export const removeComment = (discussionId, commentId) => async (dispatch, getSt
 
     const collaboration = await getCollaboration(peerStarApp, discussionId);
 
-    const cid = await storeComment(peerStarApp.ipfs, {
+    const comment = {
         author: user,
         body: null,
         timestamp: Date.now(),
+    };
+
+    const cid = await storeComment(peerStarApp.ipfs, comment);
+
+    dispatch({
+        type: actionTypes.SET_LOADED_COMMENT,
+        payload: {
+            discussionId,
+            cid,
+            comment,
+        },
     });
 
     collaboration.shared.update(commentId, cid);
 };
 
-export const loadComment = (discussionId, commentId) => async (dispatch, getState, { peerStarApp }) => {
-    if (!hasComment(getState(), discussionId, commentId)) {
-        throw new Error(`Unknown comment with id ${commentId}`);
+export const loadComments = (discussionId, commentIds) => async (dispatch, getState, { peerStarApp }) => {
+    const state = getState();
+
+    if (!hasDiscussion(state, discussionId)) {
+        throw new Error(`Discussion with id ${discussionId} does not exist`);
     }
 
-    if (isCommentLoading(getState(), discussionId, commentId)) {
-        return;
-    }
+    const cids = commentIds
+    .map((commentId) =>
+        !isCommentLoading(state, discussionId, commentId) &&
+        getCommentCid(state, discussionId, commentId)
+    )
+    .filter(Boolean);
 
-    const cid = getCommentCid(getState(), discussionId, commentId);
-
-    // TODO: timeout
     dispatch({
-        type: actionTypes.LOAD_COMMENT_START,
+        type: actionTypes.LOAD_COMMENTS_START,
         payload: {
             discussionId,
-            cid,
+            commentIds,
+            cids,
         },
     });
 
-    let comment;
-
-    try {
-        await peerStarApp.start();
-
-        comment = await retrieveComment(peerStarApp.ipfs, cid);
-    } catch (error) {
-        dispatch({
-            type: actionTypes.LOAD_COMMENT_ERROR,
-            payload: {
-                discussionId,
-                cid,
-                error,
-            },
-        });
-
-        throw error;
-    }
+    const result = await retrieveComments(peerStarApp.ipfs, cids);
 
     dispatch({
-        type: actionTypes.LOAD_COMMENT_OK,
+        type: actionTypes.LOAD_COMMENTS_DONE,
         payload: {
             discussionId,
-            cid,
-            comment,
+            commentIds,
+            cids,
+            result,
         },
     });
 };

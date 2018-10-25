@@ -42,8 +42,6 @@ const markTabAsReady = (state, action) => {
     const { tabId, url } = action.payload;
     const tabState = state[tabId] || initialTabState;
 
-    console.log(url);
-
     return {
         ...state,
         [tabId]: {

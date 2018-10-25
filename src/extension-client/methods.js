@@ -12,7 +12,7 @@ const callBackgroundMethod = (tabId, name, ...args) => (
 );
 
 const createMethods = (tabId) => ({
-    syncState: () => callBackgroundMethod(tabId, 'getState'),
+    getState: () => callBackgroundMethod(tabId, 'getState'),
 
     user: {
         set: (user) => callBackgroundMethod(tabId, 'user.set', user),
@@ -34,7 +34,7 @@ const createMethods = (tabId) => ({
         createComment: (previousCommentId, body) => callBackgroundMethod(tabId, 'discussion.createComment', previousCommentId, body),
         updateComment: (commentId, body) => callBackgroundMethod(tabId, 'discussion.updateComment', commentId, body),
         removeComment: (commentId) => callBackgroundMethod(tabId, 'discussion.removeComment', commentId),
-        loadComment: (commentId) => callBackgroundMethod(tabId, 'discussion.loadComment', commentId),
+        loadComments: (commentIds) => callBackgroundMethod(tabId, 'discussion.loadComments', commentIds),
         loadCommentHistory: (commentId) => callBackgroundMethod(tabId, 'discussion.loadCommentHistory', commentId),
     },
 });

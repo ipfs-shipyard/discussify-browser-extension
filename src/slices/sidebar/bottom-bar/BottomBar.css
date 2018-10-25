@@ -5,9 +5,15 @@
     position: relative;
     background-color: var(--color-seashell);
 
-    &:hover {
-        & .submit .submitIcon {
-            fill-opacity: 0.45;
+    & .textarea {
+        width: calc(100% - 8rem);
+        padding: 3rem 0 3rem 3rem;
+        display: block; /* Remove extra space at the bottom */
+        border: none;
+        background-color: transparent;
+
+        &::placeholder {
+            color: var(--color-gray);
         }
     }
 
@@ -27,7 +33,7 @@
 
         & .submitIcon {
             position: absolute;
-            top: 50%;
+            top: calc(3rem + 1.2rem);
             left: 50%;
             transform: translate(-50%, -50%);
             fill-opacity: 0;
@@ -39,21 +45,9 @@
         }
     }
 
-    & .textareaWrapper {
-        width: calc(100% - 8rem);
-        padding: 3rem 0 3rem 3rem;
-        cursor: text;
-
-        & .textarea {
-            width: 100%;
-            padding: 0;
-            display: block; /* Remove extra space at the bottom */
-            border: none;
-            background-color: transparent;
-
-            &::placeholder {
-                color: var(--color-gray);
-            }
-        }
+    &:hover .submit .submitIcon,
+    & .textarea:focus ~ .submit .submitIcon,
+    & .textarea:valid ~ .submit .submitIcon {
+        fill-opacity: 0.45;
     }
 }

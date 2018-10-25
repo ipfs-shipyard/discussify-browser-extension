@@ -1,8 +1,12 @@
 @import "@discussify/styleguide/styles/mixins/typography";
 
 .commentAuthor {
+    display: flex;
+    align-items: center;
+
     & .name {
         @mixin typography-caption rem;
         margin-left: 1.5rem;
+        flex: 1 1;
     }
 }

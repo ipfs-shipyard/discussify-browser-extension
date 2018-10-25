@@ -1,7 +1,7 @@
 @import "@discussify/styleguide/styles/colors";
 @import "@discussify/styleguide/styles/mixins/typography";
 
-.commentBody {
+.content {
     position: relative;
 
     & .message {
@@ -55,5 +55,6 @@
 
     &:hover .actions {
         opacity: 1;
+        transition: opacity 0.2s ease;
     }
 }

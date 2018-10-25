@@ -43,12 +43,12 @@ class App extends Component {
                 <CommentsTree
                     user={ user }
                     commentsTree={ commentsTree }
-                    onRemove={ onCommentRemove }
                     onUpdate={ onCommentUpdate }
+                    onRemove={ onCommentRemove }
                     onReply={ onCommentReply }
                     onLoad={ onCommentLoad }
                     onLoadHistory={ onCommentLoadHistory }
-                    className={ styles.commentsList } />
+                    className={ styles.commentsTree } />
 
                 <BottomBar
                     onNewComment={ this.handleNewComment } />
@@ -76,7 +76,7 @@ const mapMethodsToProps = (methods) => ({
     onCommentUpdate: (id, body) => methods.discussion.updateComment(id, body),
     onCommentRemove: (id) => methods.discussion.removeComment(id),
     onCommentReply: (parentId, previousId, comment) => methods.discussion.replyComment(parentId, previousId, comment),
-    onCommentLoad: (id) => methods.discussion.loadComment(id),
+    onCommentLoad: (ids) => methods.discussion.loadComments(ids),
     onCommentLoadHistory: (id) => methods.discussion.loadCommentHistory(id),
 });
 

@@ -3,14 +3,14 @@ import { findDOMNode } from 'react-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { ConfirmModal, ModalTrigger, TextareaAutosize, EditIcon, RemoveIcon } from '@discussify/styleguide';
-import styles from './CommentBody.css';
+import styles from './Content.css';
 
 export const TEXTAREA_TRANSITION_DURATION = 200; // Update this value if the textarea transition changes in the CSS
 
-export default class CommentBody extends Component {
+export default class Content extends Component {
     static propTypes = {
-        body: PropTypes.string,
-        owner: PropTypes.bool,
+        comment: PropTypes.object.isRequired,
+        myself: PropTypes.bool,
         editing: PropTypes.bool,
         onEdit: PropTypes.func,
         onRemove: PropTypes.func,
@@ -24,9 +24,9 @@ export default class CommentBody extends Component {
     }
 
     render() {
-        const { body, owner, editing, onEdit, onRemove, className } = this.props;
+        const { comment, myself, editing, onEdit, onRemove, className } = this.props;
 
-        const confirmModal = owner && (
+        const confirmModal = myself && (
             <ConfirmModal
                 message="Are you sure you want to delete the comment?"
                 confirmText="Yes, delete"
@@ -35,16 +35,16 @@ export default class CommentBody extends Component {
         );
 
         return (
-            <div className={ classNames(styles.commentBody, className) }>
-                { owner && editing ?
+            <div className={ classNames(styles.content, className) }>
+                { editing ?
                     <TextareaAutosize
                         ref={ this.storeTextareaAutosizeRef }
-                        defaultValue={ body }
+                        defaultValue={ comment.body }
                         maxRows={ 10 }
                         className={ styles.textarea } /> :
-                    <pre className={ styles.message }>{ body }</pre>
+                    <pre className={ styles.message }>{ comment.body }</pre>
                 }
-                { owner && !editing && (
+                { !editing && myself && (
                     <div className={ styles.actions }>
                         <EditIcon
                             interactive

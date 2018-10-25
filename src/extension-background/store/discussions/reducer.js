@@ -1,4 +1,4 @@
-import { omit } from 'lodash';
+import { omit, mapValues } from 'lodash';
 import serializeError from 'serialize-error';
 import * as actionTypes from './action-types';
 
@@ -65,29 +65,46 @@ const updateCrdtValue = (state, action) => {
     };
 };
 
-const loadComment = (state, action) => {
-    const { discussionId, cid } = action.payload;
+const setLoadedComment = (state, action) => {
+    const { discussionId, cid, comment } = action.payload;
     const discussionState = state[discussionId] || initialDiscussionState;
-    const commentState = discussionState.comments[discussionId] || initialDiscussionCommentState;
+    const commentState = discussionState.comments[cid] || initialDiscussionCommentState;
+
+    return {
+        ...state,
+        [discussionId]: {
+            ...discussionState,
+            comments: {
+                ...discussionState.comments,
+                [cid]: {
+                    ...commentState,
+                    loading: false,
+                    error: null,
+                    data: comment,
+                },
+            },
+        },
+    };
+};
+
+const loadComments = (state, action) => {
+    const { discussionId } = action.payload;
+    const discussionState = state[discussionId] || initialDiscussionState;
 
     switch (action.type) {
-    case actionTypes.LOAD_COMMENT_START: {
-        return {
-            ...state,
-            [discussionId]: {
-                ...discussionState,
-                comments: {
-                    ...discussionState.comments,
-                    [cid]: {
-                        ...commentState,
-                        loading: true,
-                    },
-                },
-            },
-        };
-    }
-    case actionTypes.LOAD_COMMENT_OK: {
-        const { comment } = action.payload;
+    case actionTypes.LOAD_COMMENTS_START: {
+        const { cids } = action.payload;
+
+        const comments = cids.reduce((comments, cid) => {
+            const commentState = discussionState.comments[cid] || initialDiscussionCommentState;
+
+            comments[cid] = {
+                ...commentState,
+                loading: true,
+            };
+
+            return comments;
+        }, {});
 
         return {
             ...state,
@@ -95,18 +112,36 @@ const loadComment = (state, action) => {
                 ...discussionState,
                 comments: {
                     ...discussionState.comments,
-                    [cid]: {
-                        ...commentState,
-                        loading: false,
-                        data: comment,
-                        error: null,
-                    },
+                    ...comments,
                 },
             },
         };
     }
-    case actionTypes.LOAD_COMMENT_ERROR: {
-        const { error } = action.payload;
+    case actionTypes.LOAD_COMMENTS_DONE: {
+        const { result } = action.payload;
+
+        const comments = mapValues(result, (item, cid) => {
+            const commentState = discussionState.comments[cid] || initialDiscussionCommentState;
+
+            if (item.type === 'error') {
+                return {
+                    ...commentState,
+                    loading: false,
+                    data: null,
+                    error: serializeError(item.error),
+                };
+            }
+            if (item.type === 'ok') {
+                return {
+                    ...commentState,
+                    loading: false,
+                    data: item.comment,
+                    error: null,
+                };
+            }
+
+            return commentState;
+        });
 
         return {
             ...state,
@@ -114,12 +149,7 @@ const loadComment = (state, action) => {
                 ...discussionState,
                 comments: {
                     ...discussionState.comments,
-                    [cid]: {
-                        ...commentState,
-                        loading: false,
-                        data: null,
-                        error: serializeError(error),
-                    },
+                    ...comments,
                 },
             },
         };
@@ -137,10 +167,11 @@ const reducer = (state = initialState, action) => {
         return disconnectDiscussion(state, action);
     case actionTypes.UPDATE_CRDT_VALUE:
         return updateCrdtValue(state, action);
-    case actionTypes.LOAD_COMMENT_START:
-    case actionTypes.LOAD_COMMENT_OK:
-    case actionTypes.LOAD_COMMENT_ERROR:
-        return loadComment(state, action);
+    case actionTypes.SET_LOADED_COMMENT:
+        return setLoadedComment(state, action);
+    case actionTypes.LOAD_COMMENTS_START:
+    case actionTypes.LOAD_COMMENTS_DONE:
+        return loadComments(state, action);
     default:
         return state;
     }

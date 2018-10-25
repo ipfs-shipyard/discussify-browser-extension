@@ -12,8 +12,6 @@ Discussify's browser extension.
 
     Any changes to the source code will be compiled and the extension should automatically reload, thanks to [webpack-chrome-extension-reloader]( https://github.com/rubenspgcavalcante/webpack-chrome-extension-reloader). If you have any problems with this feature, simply click the reload button on the extension.
 
-
-
 ## Commands
 
 ### start

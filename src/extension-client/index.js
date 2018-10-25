@@ -45,13 +45,19 @@ const createExtensionClient = (options) => {
     return {
         ...methods,
 
-        syncState: async () => {
-            state = await methods.syncState();
+        ensureState: async () => {
+            if (state) {
+                return;
+            }
 
-            console.log('onStateChange from sync', location.host, state);
-            callListeners(listeners.onStateChange, state);
+            const newState = await methods.getState();
 
-            return state;
+            if (!state) {
+                console.log('onStateChange from ensureState', location.host, state);
+
+                state = newState;
+                callListeners(listeners.onStateChange, newState);
+            }
         },
 
         getState: () => state,

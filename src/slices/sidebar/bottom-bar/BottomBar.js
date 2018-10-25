@@ -16,15 +16,17 @@ export default class BottomBar extends Component {
     render() {
         const { className } = this.props;
 
+        // Note that `required` + `pattern` is just for being able to style the textarea when not empty
+        // See https://stackoverflow.com/a/38636426
         return (
             <div className={ classNames(styles.bottomBar, className) }>
-                <div className={ styles.textareaWrapper } onClick={ this.handleTextareaWrapperClick }>
-                    <TextareaAutosize
-                        ref={ this.storeTextareaAutosizeRef }
-                        placeholder="Add comment..."
-                        maxRows={ 10 }
-                        className={ styles.textarea } />
-                </div>
+                <TextareaAutosize
+                    ref={ this.storeTextareaAutosizeRef }
+                    placeholder="Add comment..."
+                    maxRows={ 10 }
+                    required
+                    pattern=".*?\S.*"
+                    className={ styles.textarea } />
 
                 <button className={ styles.submit } onClick={ this.handleSubmitClick }>
                     <SubmitIcon className={ styles.submitIcon } />
@@ -42,9 +44,5 @@ export default class BottomBar extends Component {
 
         this.props.onNewComment(textareaNode.value);
         textareaNode.value = '';
-    };
-
-    handleTextareaWrapperClick = () => {
-        findDOMNode(this.textareaAutosize).focus();
     };
 }

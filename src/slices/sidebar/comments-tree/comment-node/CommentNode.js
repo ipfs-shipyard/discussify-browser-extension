@@ -1,66 +1,113 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import CommentPlaceholder from './comment-placeholder';
-import CommentError from './comment-error';
-import CommentRemoved from './comment-removed';
-import Comment from './comment';
-
-const shouldLoadComment = (commentNode) => {
-    const { loading, data, error } = commentNode.comment;
-
-    return !loading && !data && !error;
-};
+import CommentLoading from './comment-loading';
+import CommentLoaded from './comment-loaded';
+import CommentErrored from './comment-errored';
 
 export default class CommentNode extends Component {
     static propTypes = {
         commentNode: PropTypes.object.isRequired,
         user: PropTypes.object,
         className: PropTypes.string,
-        onReply: PropTypes.func.isRequired,
         onUpdate: PropTypes.func.isRequired,
         onRemove: PropTypes.func.isRequired,
+        onReply: PropTypes.func.isRequired,
         onLoad: PropTypes.func.isRequired,
         onLoadHistory: PropTypes.func.isRequired,
     };
 
+    state = {
+        editing: false,
+    };
+
     componentDidMount() {
-        if (shouldLoadComment(this.props.commentNode)) {
+        if (this.shouldLoadComment()) {
             this.props.onLoad(this.props.commentNode.id);
         }
     }
 
     componentDidUpdate(prevProps) {
-        if (shouldLoadComment(this.props.commentNode) && !shouldLoadComment(prevProps.commentNode)) {
+        if (this.shouldLoadComment(prevProps)) {
             this.props.onLoad(this.props.commentNode.id);
+        }
+
+        if (this.shouldResetEditing(prevProps)) {
+            this.setState({ editing: false });
         }
     }
 
     render() {
-        const { commentNode, user, onReply, onUpdate, onRemove, onLoadHistory, className } = this.props;
+        const { editing } = this.state;
+        const { commentNode, user, className } = this.props;
         const { comment } = commentNode;
 
         if (!comment.data && !comment.error) {
-            return <CommentPlaceholder className={ className } />;
+            return <CommentLoading className={ className } />;
         }
 
         if (comment.error) {
-            return <CommentError className={ className } />;
+            return <CommentErrored onRetry={ this.handleLoadRetry } className={ className } />;
         }
 
-        if (!comment.data.body) {
-            return <CommentRemoved onLoadHistory={ onLoadHistory } className={ className } />;
-        }
-
-        const owner = user ? user.did === comment.data.author.did : false;
+        const myself = user ? user.did === comment.data.author.did : false;
 
         return (
-            <Comment
+            <CommentLoaded
                 comment={ comment.data }
-                owner={ owner }
-                onReply={ onReply }
-                onUpdate={ onUpdate }
-                onRemove={ onRemove }
+                myself={ myself }
+                editing={ editing }
+                onEditStart={ this.handleEditStart }
+                onEditSave={ this.handleEditSave }
+                onEditCancel={ this.handleEditCancel }
+                onRemove={ this.handleRemove }
+                onReply={ this.handleReplyStart }
+                onLoadHistory={ this.handleLoadHistory }
                 className={ className } />
         );
     }
+
+    shouldLoadComment = (prevProps) => {
+        const { comment } = this.props.commentNode;
+        const { comment: previousComment } = prevProps ? prevProps.commentNode : {};
+
+        const loadComment = !comment.loading && !comment.data && !comment.error;
+        const loadPreviousComment = !!previousComment && (!previousComment.loading && !previousComment.data && !previousComment.error);
+
+        return loadComment && !loadPreviousComment;
+    };
+
+    shouldResetEditing = (prevProps) => {
+        const { cid } = this.props.commentNode;
+        const { cid: previousCid } = prevProps ? prevProps.commentNode : {};
+
+        return this.state.editing && cid !== previousCid;
+    };
+
+    handleEditStart = () => {
+        this.setState({ editing: true });
+    };
+
+    handleEditCancel = () => {
+        this.setState({ editing: false });
+    };
+
+    handleEditSave = (newBody) => {
+        this.props.onUpdate(this.props.commentNode.id, newBody);
+    };
+
+    handleRemove = () => {
+        this.props.onRemove(this.props.commentNode.id);
+    };
+
+    handleReplyStart = () => {
+        // TODO:
+    };
+
+    handleLoadRetry = () => {
+        this.props.onLoad(this.props.commentNode.id);
+    };
+
+    handleLoadHistory = () => {
+        this.props.onLoadHistory(this.props.commentNode.id);
+    };
 }

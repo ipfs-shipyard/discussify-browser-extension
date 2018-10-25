@@ -35,7 +35,6 @@ export const getCommentData = (state, discussionId, commentId) => {
     }
 
     return {
-        id: crdtEntry.id,
         author: data.author,
         body: data.body,
         createdAt: crdtEntry.createdAt,
@@ -47,7 +46,7 @@ export const getCommentsTree = (state, discussionId) => {
     const crdtValue = get(state.discussions, [discussionId, 'crdtValue']);
 
     if (!crdtValue) {
-        return [];
+        return;
     }
 
     const { ids, entries } = crdtValue;
@@ -55,15 +54,16 @@ export const getCommentsTree = (state, discussionId) => {
     const rootNode = [];
 
     ids.forEach((commentId) => {
-        const entry = entries[commentId];
+        const crdtEntry = entries[commentId];
 
         // Construct this tree node
         const node = {
             id: commentId,
+            cid: crdtEntry.cid,
             comment: {
-                loading: isCommentLoading(state, discussionId, commentId),
-                error: getCommentError(state, discussionId, commentId),
-                data: getCommentData(state, discussionId, commentId),
+                loading: isCommentLoading(state, discussionId, commentId) || false,
+                error: getCommentError(state, discussionId, commentId) || null,
+                data: getCommentData(state, discussionId, commentId) || null,
             },
             children: [],
         };
@@ -71,7 +71,7 @@ export const getCommentsTree = (state, discussionId) => {
         nodesMap.set(commentId, node);
 
         // Add it to the correct parent node
-        const { parentId } = entry;
+        const { parentId } = crdtEntry;
 
         if (parentId) {
             const parentNode = nodesMap.get(parentId);

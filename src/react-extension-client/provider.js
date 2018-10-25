@@ -49,9 +49,7 @@ const createProvider = (Context) => {
             this.offStateChange && this.offStateChange();
             this.offStateChange = extensionClient.onStateChange(this.handleStateChange);
 
-            if (!extensionClient.getState()) {
-                extensionClient.syncState();
-            }
+            extensionClient.ensureState();
         }
 
         handleStateChange = (state) => {

@@ -188,7 +188,7 @@ const createStateOverseer = (store) => {
 
         previousState = state;
     };
-    const throttledHandleStateChange = throttle(handleStateChange, 25, { leading: false });
+    const throttledHandleStateChange = throttle(handleStateChange, 50);
 
     store.subscribe(throttledHandleStateChange);
 

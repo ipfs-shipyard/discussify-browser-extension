@@ -1,7 +1,7 @@
 import getClientState from './util/client-state';
 import { authenticate, unauthenticate, cancelAuthenticate } from './store/session';
 import { getTabDiscussionId, dismissTabInjectionError, openSidebar, closeSidebar } from './store/tabs';
-import { createComment, updateComment, removeComment, loadComment } from './store/discussions';
+import { createComment, updateComment, removeComment, loadComments } from './store/discussions';
 
 const createMethods = (store) => ({
     getState: (tabId) => getClientState(store.getState(), tabId),
@@ -46,10 +46,10 @@ const createMethods = (store) => ({
 
             store.dispatch(removeComment(discussionId, commentId));
         },
-        loadComment: (tabId, commentId) => {
+        loadComments: (tabId, commentIds) => {
             const discussionId = getTabDiscussionId(store.getState(), tabId);
 
-            store.dispatch(loadComment(discussionId, commentId));
+            store.dispatch(loadComments(discussionId, commentIds));
         },
         loadCommentHistory: (tabId, commentId) => {
             const discussionId = getTabDiscussionId(store.getState(), tabId);

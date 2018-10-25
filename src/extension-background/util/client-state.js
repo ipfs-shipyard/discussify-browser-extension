@@ -16,6 +16,7 @@ const buildClientState = (state, tabId) => {
             metadata: getTabMetadata(state, tabId),
         },
         discussion: {
+            id: discussionId,
             commentsTree: getCommentsTree(state, discussionId),
         },
     };

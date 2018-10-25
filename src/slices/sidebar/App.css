@@ -2,9 +2,8 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-}
 
-.commentsList {
-    overflow-y: auto;
-    flex: 1 0;
+    & .commentsTree {
+        flex: 1 0;
+    }
 }
