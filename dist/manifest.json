@@ -3,7 +3,7 @@
     "name": "Discussify",
     "short_name": "Discussify",
     "description": "Discuss the web",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "homepage_url": "https://discussify.io/",
     "permissions": [
         "<all_urls>",
