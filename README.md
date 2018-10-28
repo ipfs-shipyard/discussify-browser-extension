@@ -6,7 +6,7 @@ Discussify's browser extension.
 
 ## Installation
 
-Choose one of the installations below. Note that you will need to have a self-sovereign identity on [uPort](https://www.uport.me/) to sign into into the app.
+Choose one of the installations below. Note that you will need to have a self-sovereign identity on [uPort](https://www.uport.me/) to sign in into the app.
 
 ### Pre-alpha
 
