@@ -82,4 +82,4 @@ Checks if the project has any linting errors.
 
 ## Contributing
 
-If you want to contribute for the project, we encourage you to read over the [discussify](https://github.com/ipfs-shipyard/discussify) repository README.
+If you want to contribute for the project, we encourage you to read over the [pm-discussify](https://github.com/ipfs-shipyard/pm-discussify) repository README.
