@@ -1,0 +1,10 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+.commentLoaded {
+    min-width: 350px;
+
+    & .bottomBar {
+        margin-top: 1.5rem;
+    }
+}

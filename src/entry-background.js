@@ -1,3 +1,3 @@
-import createExtension from './extension';
+import createExtensionBackground from './extension-background';
 
-createExtension();
+createExtensionBackground();

@@ -1,0 +1,40 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+@import "@discussify/styleguide/styles/mixins/text";
+
+.pageInfo {
+    & .top {
+        max-width: calc(100% - 3rem);
+        display: flex;
+        align-items: center;
+
+        & .favicon {
+            width: 0;
+            height: 0;
+            visibility: hidden;
+            vertical-align: middle;
+        }
+
+        & .domain {
+            @mixin typography-body-1 rem;
+            @mixin text-ellipsis;
+            flex: 1 0;
+            color: color(var(--color-black) alpha(0.5));
+            font-size: 1.4rem;
+        }
+
+        &.faviconLoaded .favicon {
+            width: 1.6rem;
+            height: 1.6rem;
+            margin-right: 0.5rem;
+            visibility: visible;
+        }
+    }
+
+    & .overline {
+        @mixin typography-body-1 rem;
+        @mixin text-ellipsis;
+        color: color(var(--color-black) alpha(0.8));
+        font-size: 1.4rem;
+    }
+}

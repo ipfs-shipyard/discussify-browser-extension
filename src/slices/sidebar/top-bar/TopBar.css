@@ -1,0 +1,26 @@
+@import "@discussify/styleguide/styles/colors";
+
+.topBar {
+    position: relative;
+    padding: 3rem;
+    background-color: var(--color-seashell);
+
+    & .closeIcon {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 2rem;
+        color: var(--color-black);
+        cursor: pointer;
+        fill-opacity: 0.5;
+
+        &:hover,
+        &:focus {
+            fill-opacity: 1;
+        }
+    }
+
+    & .peersInfo {
+        margin-top: 2rem;
+    }
+}

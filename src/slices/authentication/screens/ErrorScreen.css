@@ -11,6 +11,15 @@
         flex: 1 0 auto;
         flex-direction: column;
         justify-content: center;
-        @mixin typography-body-1 rem;
+        align-items: center;
+
+        & .text {
+            @mixin typography-body-1 rem;
+        }
+
+        & .errorText {
+            margin-top: 1rem;
+            @mixin typography-body-2 rem;
+        }
     }
 }

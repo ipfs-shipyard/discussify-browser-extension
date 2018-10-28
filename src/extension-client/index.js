@@ -1,73 +1,71 @@
-import { messageTypes } from '../extension';
+import { SET_CLIENT_STATE } from '../extension-background/message-types';
+import createMethods from './methods';
 
-const getCurrentTabId = async () => {
-    const tab = await browser.tabs.getCurrent();
+const registerListener = (listenersSet, fn) => {
+    listenersSet.add(fn);
 
-    return tab.id;
+    return () => listenersSet.delete(fn);
 };
 
-const createExtensionClient = (tabId) => {
-    const handlers = {
-        onSliceStateChange: () => {},
+const callListeners = (listenersSet, ...args) => {
+    listenersSet.forEach((fn) => fn(...args));
+};
+
+const createExtensionClient = (options) => {
+    options = {
+        initialState: null,
+        tabId: null,
+        ...options,
     };
 
-    const methods = {
-        setSliceState: (state) => handlers.onSliceStateChange(state),
+    let state = options.initialState;
+
+    const methods = createMethods(options.tabId);
+
+    const listeners = {
+        onStateChange: new Set(),
     };
 
-    const getTabId = async () => {
-        if (tabId == null) {
-            tabId = await getCurrentTabId();
+    const handleMessage = (request) => {
+        if (request.type === SET_CLIENT_STATE) {
+            const { state: newState } = request.payload;
+
+            state = {
+                ...state,
+                ...newState,
+            };
+
+            console.log('onStateChange', location.host, state);
+            callListeners(listeners.onStateChange, state);
         }
-
-        return tabId;
     };
 
-    const handleOnMessage = (request) => {
-        if (request.type === messageTypes.CALL_CLIENT_METHOD) {
-            const { name, args } = request.payload;
-
-            if (methods[name]) {
-                methods[name](...args);
-            } else {
-                throw Object.assign(
-                    new Error(`Unknown method: ${name}`),
-                    { code: 'UNKNOWN_METHOD' }
-                );
-            }
-        }
-    };
-
-    browser.runtime.onMessage.addListener(handleOnMessage);
+    browser.runtime.onMessage.addListener(handleMessage);
 
     return {
-        setUser: (user) =>
-            browser.runtime.sendMessage({
-                type: messageTypes.CALL_BACKGROUND_METHOD,
-                payload: {
-                    name: 'setUser',
-                    args: [user],
-                },
-            }),
+        ...methods,
 
-        dismissInjectionError: async () => {
-            const tabId = await getTabId();
+        ensureState: async () => {
+            if (state) {
+                return;
+            }
 
-            return browser.runtime.sendMessage({
-                type: messageTypes.CALL_BACKGROUND_METHOD,
-                payload: {
-                    name: 'dismissInjectionError',
-                    args: [tabId],
-                },
-            });
+            const newState = await methods.getState();
+
+            if (!state) {
+                console.log('onStateChange from ensureState', location.host, newState);
+
+                state = newState;
+                callListeners(listeners.onStateChange, newState);
+            }
         },
 
-        onSliceStateChange: (handler) => {
-            handlers.onSliceStateChange = handler;
-        },
+        getState: () => state,
+
+        onStateChange: (fn) => registerListener(listeners.onStateChange, fn),
 
         destroy: () => {
-            browser.runtime.onMessage.removeListener(handleOnMessage);
+            browser.runtime.onMessage.removeListener(handleMessage);
         },
     };
 };

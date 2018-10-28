@@ -1,18 +1,11 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import {
-    getUser,
-    getPromptError,
-    getPromptQrCodeUri,
-    authenticate,
-    resetAuthenticate,
-} from './shared/store';
-import { PromptScreen, ScanScreen, ErrorScreen, WelcomeScreen } from './screens';
+import { connectExtension } from '../../react-extension-client';
+import { InitialScreen, ScanScreen, ErrorScreen, WelcomeScreen } from './screens';
 import styles from './App.css';
 
-const SCREEN_ANIMATION_DURATION = 350;
+const SCREEN_TRANSITION_TIMEOUT = 350;
 
 export class App extends Component {
     static propTypes = {
@@ -20,7 +13,6 @@ export class App extends Component {
         qrCodeUri: PropTypes.string,
         error: PropTypes.object,
         onAuthenticate: PropTypes.func,
-        onResetAuthenticate: PropTypes.func,
     };
 
     static getDerivedStateFromProps(props) {
@@ -30,11 +22,11 @@ export class App extends Component {
         if (user) {
             step = 'welcome';
         } else if (error) {
-            step = 'qrCodeUri';
+            step = 'error';
         } else if (qrCodeUri) {
             step = 'scan';
         } else {
-            step = 'prompt';
+            step = 'initial';
         }
 
         return {
@@ -44,10 +36,6 @@ export class App extends Component {
 
     state = {};
 
-    componentWillUnmount() {
-        this.props.onResetAuthenticate();
-    }
-
     render() {
         const { step } = this.state;
 
@@ -55,7 +43,7 @@ export class App extends Component {
             <TransitionGroup className={ styles.app }>
                 <CSSTransition
                     key={ step }
-                    timeout={ SCREEN_ANIMATION_DURATION }
+                    timeout={ SCREEN_TRANSITION_TIMEOUT }
                     classNames={ {
                         enter: styles.enter,
                         enterActive: styles.enterActive,
@@ -70,7 +58,7 @@ export class App extends Component {
 
     renderScreen() {
         const { step } = this.state;
-        const { user, qrCodeUri, onAuthenticate } = this.props;
+        const { user, error, qrCodeUri, onAuthenticate } = this.props;
 
         switch (step) {
         case 'welcome':
@@ -79,7 +67,7 @@ export class App extends Component {
             );
         case 'error':
             return (
-                <ErrorScreen onRetry={ onAuthenticate } className={ styles.screen } />
+                <ErrorScreen error={ error } onRetry={ onAuthenticate } className={ styles.screen } />
             );
         case 'scan':
             return (
@@ -87,21 +75,20 @@ export class App extends Component {
             );
         default:
             return (
-                <PromptScreen onAuthenticate={ onAuthenticate } className={ styles.screen } />
+                <InitialScreen onAuthenticate={ onAuthenticate } className={ styles.screen } />
             );
         }
     }
 }
 
 const mapStateToProps = (state) => ({
-    user: getUser(state),
-    qrCodeUri: getPromptQrCodeUri(state),
-    error: getPromptError(state),
+    user: state.session.user,
+    qrCodeUri: state.session.qrCodeUri,
+    error: state.session.error,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-    onAuthenticate: () => dispatch(authenticate()),
-    onResetAuthenticate: () => dispatch(resetAuthenticate()),
+const mapMethodsToProps = (methods) => ({
+    onAuthenticate: () => methods.session.authenticate(),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connectExtension(mapStateToProps, mapMethodsToProps)(App);

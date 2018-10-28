@@ -1,0 +1,14 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+.error {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    & .title {
+        @mixin typography-h4 rem;
+        color: color(var(--color-black) alpha(0.2));
+    }
+}

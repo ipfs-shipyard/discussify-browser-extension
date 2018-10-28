@@ -1,0 +1,9 @@
+.app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    & .discussionComments {
+        flex: 1 0;
+    }
+}

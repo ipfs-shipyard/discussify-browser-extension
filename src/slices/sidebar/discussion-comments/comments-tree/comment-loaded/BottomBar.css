@@ -1,0 +1,35 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+.commentBottomBar {
+    display: flex;
+    align-items: center;
+    line-height: 1;
+
+    & .author {
+        margin-right: 1rem;
+        flex: 1 0;
+    }
+
+    & .info {
+        @mixin typography-overline rem, no-line-height;
+        color: color(var(--color-black) alpha(0.3));
+
+        & .status {
+            margin-right: 0.3rem;
+        }
+
+        & .separator {
+            margin: 0 1rem;
+        }
+    }
+
+    & .actions {
+        /* Remove extra margin because the child elements are buttons */
+        display: inline-flex;
+
+        & .button:not(:last-child) {
+            margin-right: 1rem;
+        }
+    }
+}

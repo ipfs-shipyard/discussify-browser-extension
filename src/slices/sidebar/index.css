@@ -1,0 +1,16 @@
+@import "@discussify/styleguide/styles";
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
+:global(#root) {
+    position: relative;
+    height: 100%;
+}
