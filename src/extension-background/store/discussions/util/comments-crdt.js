@@ -123,7 +123,7 @@ export default {
 
         // Iterate over the `afterIds` by order, starting with the initial ones, in order to
         // build a an array of ids ordered by casuality
-        const orderedIds = [];
+        const sequence = [];
         const stack = [...afterIdsMap.initial];
 
         while (stack.length) {
@@ -131,11 +131,11 @@ export default {
             const afterIds = afterIdsMap[id] || [];
 
             stack.push(...afterIds);
-            orderedIds.push(id);
+            sequence.push(id);
         }
 
         return {
-            ids: orderedIds,
+            sequence,
             entries: state,
         };
     },

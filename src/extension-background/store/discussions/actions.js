@@ -1,69 +1,119 @@
-import PeerStarApp from 'peer-star-app';
 import * as actionTypes from './action-types';
 import { getUser } from '../session';
-import { getDiscussionDependantsCount, hasDiscussion, getCommentCid, hasComment, isCommentLoading } from './selectors';
-import sanitizeBody from './util/sanitize-body';
+import { hasDiscussion, isDiscussionStarted, isDiscussionStarting, getCommentCid, hasComment, isCommentLoading } from './selectors';
+import { getCommentsCollaborationName } from './util/collaboration-names';
+import { getCollaboration, startCollaboration, stopCollaboration, registerCollaborationType } from '../../util/peer-star-collaborations';
 import commentsCrdt from './util/comments-crdt';
 import { retrieveComments, storeComment } from './util/comments-store';
+import sanitizeBody from './util/sanitize-body';
 
-PeerStarApp.collaborationTypes.define('discussify-comments', commentsCrdt);
+const COMMENTS_CRDT_TYPE = 'discussify-comments';
+const STOP_COLLABORATION_TIMEOUT = 30000;
 
-// TODO: add timeouts to async actions
-// TODO: handle errors
-// TODO: conntrol concurrency of load comments?
+registerCollaborationType(COMMENTS_CRDT_TYPE, commentsCrdt);
 
-const getCollaboration = async (peerStarApp, discussionId) => {
-    await peerStarApp.start();
+export const createDiscussion = (discussionId, tabId) => (dispatch) => {
+    dispatch({
+        type: actionTypes.CREATE_DISCUSSION,
+        payload: {
+            discussionId,
+            tabId,
+        },
+    });
 
-    return peerStarApp.collaborate(`discussion-${discussionId}`, 'discussify-comments');
+    dispatch(startDiscussion(discussionId));
 };
 
-export const startDiscussion = (discussionId, tabId) => async (dispatch, getState, { peerStarApp }) => {
-    const collaboration = await getCollaboration(peerStarApp, discussionId);
+export const destroyDiscussion = (discussionId, tabId) => (dispatch, getState) => {
+    if (!hasDiscussion(getState(), discussionId)) {
+        throw new Error(`Discussion with id ${discussionId} does not exist`);
+    }
 
-    // Listen to changes if this is the first dependant
-    const dependantsCount = getDiscussionDependantsCount(getState(), tabId);
+    dispatch({
+        type: actionTypes.DESTROY_DISCUSSION,
+        payload: {
+            discussionId,
+            tabId,
+        },
+    });
 
-    if (!dependantsCount) {
-        collaboration.on('state changed', () => {
-            dispatch({
-                type: actionTypes.UPDATE_CRDT_VALUE,
-                payload: {
-                    discussionId,
-                    crdtValue: collaboration.shared.value(),
-                },
-            });
+    // Destroy the collaboration if the discussion is gone
+    if (!hasDiscussion(getState(), discussionId)) {
+        setTimeout(() => {
+            if (!hasDiscussion(getState(), discussionId)) {
+                stopCollaboration(getCommentsCollaborationName(discussionId));
+            }
+        }, STOP_COLLABORATION_TIMEOUT);
+    }
+};
+
+export const startDiscussion = (discussionId) => async (dispatch, getState, { peerStarApp }) => {
+    if (!hasDiscussion(getState(), discussionId)) {
+        throw new Error(`Discussion with id ${discussionId} does not exist`);
+    }
+
+    if (isDiscussionStarted(getState(), discussionId) || isDiscussionStarting(getState(), discussionId)) {
+        return;
+    }
+
+    // Create the collaboration, starting the discussion
+    dispatch({
+        type: actionTypes.START_DISCUSSION_START,
+        payload: {
+            discussionId,
+        },
+    });
+
+    let collaboration;
+
+    try {
+        collaboration = await startCollaboration(
+            peerStarApp,
+            getCommentsCollaborationName(discussionId),
+            COMMENTS_CRDT_TYPE
+        );
+    } catch (error) {
+        dispatch({
+            type: actionTypes.START_DISCUSSION_ERROR,
+            payload: {
+                discussionId,
+                error,
+            },
         });
+
+        throw error;
     }
 
     dispatch({
-        type: actionTypes.START_DISCUSSION,
+        type: actionTypes.START_DISCUSSION_OK,
         payload: {
             discussionId,
-            tabId,
-            crdtValue: collaboration.shared.value(),
-        },
-    });
-};
-
-export const stopDiscussion = (discussionId, tabId) => async (dispatch, getState, { peerStarApp }) => {
-    dispatch({
-        type: actionTypes.STOP_DISCUSSION,
-        payload: {
-            discussionId,
-            tabId,
+            sharedValue: collaboration.shared.value(),
+            peersCount: collaboration.peers().size,
         },
     });
 
-    const dependantsCount = getDiscussionDependantsCount(getState(), discussionId);
+    // Listen to when the state changes
+    collaboration.on('state changed', () => {
+        dispatch({
+            type: actionTypes.UPDATE_SHARED_VALUE,
+            payload: {
+                discussionId,
+                sharedValue: collaboration.shared.value(),
+            },
+        });
+    });
 
-    // Stop the collaboration if there's no more dependants
-    if (!dependantsCount) {
-        const collaboration = await getCollaboration(peerStarApp, discussionId);
-
-        // TODO
-        // await collaboration.stop();
-    }
+    // Listen to when the peers change
+    collaboration.on('membership changed', () => {
+        dispatch({
+            type: actionTypes.UPDATE_PEERS_COUNT,
+            payload: {
+                discussionId,
+                peersCount: collaboration.peers().size,
+            },
+        });
+    });
 };
 
 export const createComment = (discussionId, previousCommentId, body) => async (dispatch, getState, { peerStarApp }) => {
@@ -78,8 +128,6 @@ export const createComment = (discussionId, previousCommentId, body) => async (d
         return;
     }
 
-    const collaboration = await getCollaboration(peerStarApp, discussionId);
-
     const comment = {
         author: user,
         body: sanitizedBody,
@@ -89,7 +137,7 @@ export const createComment = (discussionId, previousCommentId, body) => async (d
     const cid = await storeComment(peerStarApp.ipfs, comment);
 
     dispatch({
-        type: actionTypes.SET_LOADED_COMMENT,
+        type: actionTypes.SET_COMMENT,
         payload: {
             discussionId,
             cid,
@@ -97,11 +145,16 @@ export const createComment = (discussionId, previousCommentId, body) => async (d
         },
     });
 
-    collaboration.shared.create({
+    const collaboration = await getCollaboration(getCommentsCollaborationName(discussionId));
+
+    collaboration && collaboration.shared.create({
         id: cid,
         previousId: previousCommentId,
         cid,
     });
+
+    // Return the CID so that the clients can scroll to the new comment
+    return cid;
 };
 
 export const updateComment = (discussionId, commentId, body) => async (dispatch, getState, { peerStarApp }) => {
@@ -116,8 +169,6 @@ export const updateComment = (discussionId, commentId, body) => async (dispatch,
         throw new Error(`Unknown comment with id ${commentId}`);
     }
 
-    const collaboration = await getCollaboration(peerStarApp, discussionId);
-
     const comment = {
         author: user,
         body,
@@ -127,7 +178,7 @@ export const updateComment = (discussionId, commentId, body) => async (dispatch,
     const cid = await storeComment(peerStarApp.ipfs, comment);
 
     dispatch({
-        type: actionTypes.SET_LOADED_COMMENT,
+        type: actionTypes.SET_COMMENT,
         payload: {
             discussionId,
             cid,
@@ -135,7 +186,9 @@ export const updateComment = (discussionId, commentId, body) => async (dispatch,
         },
     });
 
-    collaboration.shared.update(commentId, cid);
+    const collaboration = await getCollaboration(getCommentsCollaborationName(discussionId));
+
+    collaboration && collaboration.shared.update(commentId, cid);
 };
 
 export const removeComment = (discussionId, commentId) => async (dispatch, getState, { peerStarApp }) => {
@@ -149,8 +202,6 @@ export const removeComment = (discussionId, commentId) => async (dispatch, getSt
         throw new Error(`Unknown comment with id ${commentId}`);
     }
 
-    const collaboration = await getCollaboration(peerStarApp, discussionId);
-
     const comment = {
         author: user,
         body: null,
@@ -160,7 +211,7 @@ export const removeComment = (discussionId, commentId) => async (dispatch, getSt
     const cid = await storeComment(peerStarApp.ipfs, comment);
 
     dispatch({
-        type: actionTypes.SET_LOADED_COMMENT,
+        type: actionTypes.SET_COMMENT,
         payload: {
             discussionId,
             cid,
@@ -168,7 +219,9 @@ export const removeComment = (discussionId, commentId) => async (dispatch, getSt
         },
     });
 
-    collaboration.shared.update(commentId, cid);
+    const collaboration = await getCollaboration(getCommentsCollaborationName(discussionId));
+
+    collaboration && collaboration.shared.update(commentId, cid);
 };
 
 export const loadComments = (discussionId, commentIds) => async (dispatch, getState, { peerStarApp }) => {

@@ -8,7 +8,7 @@ import createStateOverseer from './state-overseer';
 import createMethods from './methods';
 import configureStore from './store';
 import { unauthenticate } from './store/session';
-import { startDiscussion, stopDiscussion } from './store/discussions';
+import { createDiscussion, destroyDiscussion } from './store/discussions';
 import {
     addTab,
     removeTab,
@@ -123,13 +123,13 @@ const setupStateOverseer = (store) => {
         }
     });
 
-    stateOverseer.onStartOrStopDiscussion(async (tabId, discussionId, startOrStop) => {
-        console.log('onStartOrStopDiscussion', { tabId, startOrStop });
+    stateOverseer.onCreateOrDestroyDiscussion(async (tabId, discussionId, createOrDestroy) => {
+        console.log('onCreateOrDestroyDiscussion', { tabId, createOrDestroy });
 
-        if (startOrStop === 'start') {
-            await store.dispatch(startDiscussion(discussionId, tabId));
+        if (createOrDestroy === 'create') {
+            await store.dispatch(createDiscussion(discussionId, tabId));
         } else {
-            await store.dispatch(stopDiscussion(discussionId, tabId));
+            await store.dispatch(destroyDiscussion(discussionId, tabId));
         }
     });
 
@@ -178,10 +178,6 @@ const setupTabListeners = (store) => {
             store.dispatch(markTabAsReady(tabId, tab.url));
         }
     });
-
-    // TODO: listen to url change
-    // store.dispatch(changeTabUrl(tabId, tab.url));
-    // store.dispatch(setTabMetadata(tabId, await buildTabMetadata(tabId)));
 };
 
 const setupBrowserAction = (store) => {

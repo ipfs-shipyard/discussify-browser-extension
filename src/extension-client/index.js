@@ -53,7 +53,7 @@ const createExtensionClient = (options) => {
             const newState = await methods.getState();
 
             if (!state) {
-                console.log('onStateChange from ensureState', location.host, state);
+                console.log('onStateChange from ensureState', location.host, newState);
 
                 state = newState;
                 callListeners(listeners.onStateChange, newState);

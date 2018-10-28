@@ -1,6 +1,4 @@
 @import "@discussify/styleguide/styles/colors";
-@import "@discussify/styleguide/styles/mixins/typography";
-@import "@discussify/styleguide/styles/mixins/text";
 
 .topBar {
     position: relative;
@@ -14,7 +12,7 @@
         width: 2rem;
         color: var(--color-black);
         cursor: pointer;
-        fill-opacity: 0.45;
+        fill-opacity: 0.5;
 
         &:hover,
         &:focus {
@@ -22,37 +20,7 @@
         }
     }
 
-    & .info {
-        & .top {
-            max-width: calc(100% - 3rem);
-            display: flex;
-            align-items: center;
-
-            & .favicon {
-                width: 0;
-                height: 0;
-                visibility: hidden;
-                vertical-align: middle;
-            }
-
-            & .domain {
-                @mixin typography-body-2 rem;
-                @mixin text-ellipsis;
-                flex: 1 0;
-                color: var(--color-gray);
-            }
-
-            &.faviconLoaded .favicon {
-                width: 1.6rem;
-                height: 1.6rem;
-                margin-right: 0.5rem;
-                visibility: visible;
-            }
-        }
-
-        & .overline {
-            @mixin typography-body-2 rem;
-            @mixin text-ellipsis;
-        }
+    & .peersInfo {
+        margin-top: 2rem;
     }
 }

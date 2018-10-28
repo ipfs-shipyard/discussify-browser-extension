@@ -34,7 +34,7 @@ const createMethods = (store) => ({
         createComment: (tabId, previousCommentId, body) => {
             const discussionId = getTabDiscussionId(store.getState(), tabId);
 
-            store.dispatch(createComment(discussionId, previousCommentId, body));
+            return store.dispatch(createComment(discussionId, previousCommentId, body));
         },
         updateComment: (tabId, commentId, body) => {
             const discussionId = getTabDiscussionId(store.getState(), tabId);

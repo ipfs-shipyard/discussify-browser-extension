@@ -15,6 +15,10 @@
         &::placeholder {
             color: var(--color-gray);
         }
+
+        &[disabled] {
+            cursor: not-allowed;
+        }
     }
 
     & .submit {
@@ -39,15 +43,19 @@
             fill-opacity: 0;
         }
 
-        &:hover .submitIcon,
+        &:hover:not([disabled]) .submitIcon,
         &:focus .submitIcon {
             fill-opacity: 1;
         }
+
+        &:disabled {
+            cursor: not-allowed;
+        }
     }
 
-    &:hover .submit .submitIcon,
-    & .textarea:focus ~ .submit .submitIcon,
-    & .textarea:valid ~ .submit .submitIcon {
+    &:hover .submit:not([disabled]) .submitIcon,
+    & .textarea:focus ~ .submit:not([disabled]) .submitIcon,
+    & .textarea:valid ~ .submit:not([disabled]) .submitIcon {
         fill-opacity: 0.45;
     }
 }

@@ -2,7 +2,7 @@
 @import "@discussify/styleguide/styles/mixins/typography";
 
 .commentLoading {
-    min-width: 350px;
+    min-width: 35rem;
     background-color: var(--color-white);
 
     & .content {
@@ -64,7 +64,7 @@
             }
 
             & .dummyNameText {
-                max-width: 140px;
+                max-width: 14rem;
                 margin-left: 1.5rem;
                 flex: 1 1;
             }

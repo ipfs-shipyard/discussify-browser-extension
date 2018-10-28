@@ -4,14 +4,14 @@ import { last } from 'lodash';
 import { connectExtension } from '../../react-extension-client';
 import TopBar from './top-bar';
 import BottomBar from './bottom-bar';
-import CommentsTree from './comments-tree';
+import DiscussionComments from './discussion-comments';
 import styles from './App.css';
 
 class App extends Component {
     static propTypes = {
         user: PropTypes.object,
         metadata: PropTypes.object.isRequired,
-        commentsTree: PropTypes.object.isRequired,
+        discussion: PropTypes.object.isRequired,
         onSidebarClose: PropTypes.func.isRequired,
         onCommentCreate: PropTypes.func.isRequired,
         onCommentUpdate: PropTypes.func.isRequired,
@@ -21,11 +21,16 @@ class App extends Component {
         onCommentLoadHistory: PropTypes.func.isRequired,
     };
 
+    state = {
+        newCommentId: null,
+    };
+
     render() {
+        const { newCommentId } = this.state;
         const {
             user,
             metadata,
-            commentsTree,
+            discussion,
             onSidebarClose,
             onCommentUpdate,
             onCommentRemove,
@@ -38,36 +43,43 @@ class App extends Component {
             <div className={ styles.app }>
                 <TopBar
                     metadata={ metadata }
+                    peersCount={ discussion.peersCount }
                     onClose={ onSidebarClose } />
 
-                <CommentsTree
+                <DiscussionComments
+                    key={ discussion.id }
                     user={ user }
-                    commentsTree={ commentsTree }
+                    error={ discussion.error }
+                    commentsTree={ discussion.commentsTree }
+                    scrollToCommentId={ newCommentId }
                     onUpdate={ onCommentUpdate }
                     onRemove={ onCommentRemove }
                     onReply={ onCommentReply }
                     onLoad={ onCommentLoad }
                     onLoadHistory={ onCommentLoadHistory }
-                    className={ styles.commentsTree } />
+                    className={ styles.discussionComments } />
 
                 <BottomBar
+                    disabled={ !discussion.error && !discussion.commentsTree }
                     onNewComment={ this.handleNewComment } />
             </div>
         );
     }
 
-    handleNewComment = (body) => {
-        const lastComment = last(this.props.commentsTree);
+    handleNewComment = async (body) => {
+        const lastComment = last(this.props.discussion.commentsTree);
         const previousId = lastComment && lastComment.id;
 
-        this.props.onCommentCreate(previousId, body);
+        const newCommentId = await this.props.onCommentCreate(previousId, body);
+
+        this.setState({ newCommentId });
     };
 }
 
 const mapStateToProps = (state) => ({
     user: state.session.user,
     metadata: state.tab.metadata,
-    commentsTree: state.discussion.commentsTree,
+    discussion: state.discussion,
 });
 
 const mapMethodsToProps = (methods) => ({

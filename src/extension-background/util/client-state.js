@@ -1,8 +1,8 @@
 import { getUser, getError, getQrCodeUri } from '../store/session';
 import { isTabSidebarOpen, getTabDiscussionId, getTabMetadata } from '../store/tabs';
-import { getCommentsTree } from '../store/discussions';
+import { getDiscussionError, getCommentsTree, getDiscussionPeersCount } from '../store/discussions';
 
-const buildClientState = (state, tabId) => {
+const getClientState = (state, tabId) => {
     const discussionId = getTabDiscussionId(state, tabId);
 
     return {
@@ -17,9 +17,11 @@ const buildClientState = (state, tabId) => {
         },
         discussion: {
             id: discussionId,
+            error: getDiscussionError(state, discussionId),
             commentsTree: getCommentsTree(state, discussionId),
+            peersCount: getDiscussionPeersCount(state, discussionId),
         },
     };
 };
 
-export default buildClientState;
+export default getClientState;

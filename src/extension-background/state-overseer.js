@@ -1,6 +1,6 @@
 import shallowEqual from 'shallowequal';
 import { reduce, size, throttle } from 'lodash';
-import buildClientState from './util/client-state';
+import getClientState from './util/client-state';
 import { isAuthenticated } from './store/session';
 import {
     getTabIds,
@@ -45,7 +45,7 @@ const shouldRemoveScriptFromTab = (state, tabId) => {
            injectionStatus === 'inject-success';
 };
 
-const buildTabBrowserAction = (state, tabId) => {
+const getTabBrowserAction = (state, tabId) => {
     const tabInjectionStatus = getTabInjectionStatus(state, tabId);
     let status;
 
@@ -81,7 +81,7 @@ const shouldTabHaveDiscussion = (state, tabId) => {
            (tabInjectionStatus === 'inject-pending' || tabInjectionStatus === 'inject-success');
 };
 
-const buildClientStateDiff = (clientState, previousClientState) => {
+const getClientStateDiff = (clientState, previousClientState) => {
     const diff = reduce(clientState, (diff, value, key) => {
         const previousValue = previousClientState && previousClientState[key];
 
@@ -115,7 +115,7 @@ const checkTabState = (listeners, state, previousState, tabId) => {
             const previousInjectScript = previousState && shouldInjectScriptIntoTab(previousState, tabId);
 
             if (injectScript !== previousInjectScript) {
-                callListeners(listeners.onInjectOrRemoveScript, tabId, 'inject', buildClientState(state, tabId));
+                callListeners(listeners.onInjectOrRemoveScript, tabId, 'inject', getClientState(state, tabId));
             }
         } else {
             const removeScript = shouldRemoveScriptFromTab(state, tabId);
@@ -127,8 +127,8 @@ const checkTabState = (listeners, state, previousState, tabId) => {
         }
 
         // Check if browser action changed
-        const browserAction = buildTabBrowserAction(state, tabId);
-        const previousBrowserAction = previousState && buildTabBrowserAction(previousState, tabId);
+        const browserAction = getTabBrowserAction(state, tabId);
+        const previousBrowserAction = previousState && getTabBrowserAction(previousState, tabId);
 
         if (!shallowEqual(browserAction, previousBrowserAction)) {
             callListeners(listeners.onBrowserActionChange, tabId, browserAction);
@@ -142,14 +142,14 @@ const checkTabState = (listeners, state, previousState, tabId) => {
             callListeners(listeners.onUpdateMetadata, tabId, url);
         }
 
-        // Check if we should start/stop the discussion
+        // Check if we should create/destroy the discussion
         const hasDiscussion = shouldTabHaveDiscussion(state, tabId);
         const previousHasDiscussion = previousState && shouldTabHaveDiscussion(previousState, tabId);
 
         if (hasDiscussion && !previousHasDiscussion) {
-            callListeners(listeners.onStartOrStopDiscussion, tabId, getTabDiscussionId(state, tabId), 'start');
+            callListeners(listeners.onCreateOrDestroyDiscussion, tabId, getTabDiscussionId(state, tabId), 'create');
         } else if (!hasDiscussion && previousHasDiscussion) {
-            callListeners(listeners.onStartOrStopDiscussion, tabId, getTabDiscussionId(previousState, tabId), 'stop');
+            callListeners(listeners.onCreateOrDestroyDiscussion, tabId, getTabDiscussionId(previousState, tabId), 'destroy');
         }
     }
 
@@ -157,9 +157,9 @@ const checkTabState = (listeners, state, previousState, tabId) => {
     const tabsInjectionStatus = getTabInjectionStatus(state, tabId);
 
     if (tabsInjectionStatus === 'inject-pending' || tabsInjectionStatus === 'inject-success') {
-        const clientState = buildClientState(state, tabId);
-        const previousClientState = buildClientState(previousState, tabId);
-        const diffClientState = buildClientStateDiff(clientState, previousClientState);
+        const clientState = getClientState(state, tabId);
+        const previousClientState = getClientState(previousState, tabId);
+        const diffClientState = getClientStateDiff(clientState, previousClientState);
 
         if (diffClientState) {
             callListeners(listeners.onClientStateChange, tabId, diffClientState);
@@ -175,7 +175,7 @@ const createStateOverseer = (store) => {
         onBrowserActionChange: new Set(),
         onAuthenticatedChange: new Set(),
         onUpdateMetadata: new Set(),
-        onStartOrStopDiscussion: new Set(),
+        onCreateOrDestroyDiscussion: new Set(),
         onClientStateChange: new Set(),
     };
 
@@ -188,7 +188,7 @@ const createStateOverseer = (store) => {
 
         previousState = state;
     };
-    const throttledHandleStateChange = throttle(handleStateChange, 50);
+    const throttledHandleStateChange = throttle(handleStateChange, 50, { leading: false });
 
     store.subscribe(throttledHandleStateChange);
 
@@ -199,7 +199,7 @@ const createStateOverseer = (store) => {
         onInjectOrRemoveScript: (fn) => registerListener(listeners.onInjectOrRemoveScript, fn),
         onBrowserActionChange: (fn) => registerListener(listeners.onBrowserActionChange, fn),
         onUpdateMetadata: (fn) => registerListener(listeners.onUpdateMetadata, fn),
-        onStartOrStopDiscussion: (fn) => registerListener(listeners.onStartOrStopDiscussion, fn),
+        onCreateOrDestroyDiscussion: (fn) => registerListener(listeners.onCreateOrDestroyDiscussion, fn),
         onClientStateChange: (fn) => registerListener(listeners.onClientStateChange, fn),
     };
 };

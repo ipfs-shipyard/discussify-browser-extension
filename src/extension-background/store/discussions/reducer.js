@@ -5,8 +5,11 @@ import * as actionTypes from './action-types';
 const initialState = {};
 
 const initialDiscussionState = {
-    dependants: [],
-    crdtValue: [],
+    tabIds: [],
+    starting: false,
+    error: null,
+    sharedValue: null,
+    peersCount: null,
     comments: {},
 };
 
@@ -16,30 +19,29 @@ const initialDiscussionCommentState = {
     data: null,
 };
 
-const connectDiscussion = (state, action) => {
-    const { discussionId, tabId, crdtValue } = action.payload;
+const createDiscussion = (state, action) => {
+    const { discussionId, tabId } = action.payload;
     const discussionState = state[discussionId] || initialDiscussionState;
 
     return {
         ...state,
         [discussionId]: {
             ...discussionState,
-            crdtValue,
-            dependants: discussionState.dependants.includes(tabId) ?
-                discussionState.dependants :
-                [...discussionState.dependants, tabId],
+            tabIds: discussionState.tabIds.includes(tabId) ?
+                discussionState.tabIds :
+                [...discussionState.tabIds, tabId],
         },
     };
 };
 
-const disconnectDiscussion = (state, action) => {
+const destroyDiscussion = (state, action) => {
     const { discussionId, tabId } = action.payload;
     const discussionState = state[discussionId] || initialDiscussionState;
 
-    const dependants = discussionState.dependants.filter((dependant) => dependant !== tabId);
+    const tabIds = discussionState.tabIds.filter((tabId_) => tabId_ !== tabId);
 
-    // Remove discussion if there's no more dependants
-    if (!dependants.length) {
+    // Remove discussion if there's no more tabIds
+    if (!tabIds.length) {
         return omit(state, discussionId);
     }
 
@@ -47,25 +49,88 @@ const disconnectDiscussion = (state, action) => {
         ...state,
         [discussionId]: {
             ...discussionState,
-            dependants,
+            tabIds,
         },
     };
 };
 
-const updateCrdtValue = (state, action) => {
-    const { discussionId, crdtValue } = action.payload;
+const startDiscussion = (state, action) => {
+    const { discussionId } = action.payload;
+    const discussionState = state[discussionId] || initialDiscussionState;
+
+    switch (action.type) {
+    case actionTypes.START_DISCUSSION_START: {
+        return {
+            ...state,
+            [discussionId]: {
+                ...discussionState,
+                starting: true,
+                error: null,
+                sharedValue: null,
+                peersCount: null,
+            },
+        };
+    }
+    case actionTypes.START_DISCUSSION_OK: {
+        const { sharedValue, peersCount } = action.payload;
+
+        return {
+            ...state,
+            [discussionId]: {
+                ...discussionState,
+                starting: false,
+                error: null,
+                sharedValue,
+                peersCount,
+            },
+        };
+    }
+    case actionTypes.START_DISCUSSION_ERROR: {
+        const { error } = action.payload;
+
+        return {
+            ...state,
+            [discussionId]: {
+                ...discussionState,
+                starting: false,
+                error: serializeError(error),
+                sharedValue: null,
+                peersCount: null,
+            },
+        };
+    }
+    default:
+        return state;
+    }
+};
+
+const updateSharedValue = (state, action) => {
+    const { discussionId, sharedValue } = action.payload;
     const discussionState = state[discussionId] || initialDiscussionState;
 
     return {
         ...state,
         [discussionId]: {
             ...discussionState,
-            crdtValue,
+            sharedValue,
         },
     };
 };
 
-const setLoadedComment = (state, action) => {
+const updatePeersCount = (state, action) => {
+    const { discussionId, peersCount } = action.payload;
+    const discussionState = state[discussionId] || initialDiscussionState;
+
+    return {
+        ...state,
+        [discussionId]: {
+            ...discussionState,
+            peersCount,
+        },
+    };
+};
+
+const setComment = (state, action) => {
     const { discussionId, cid, comment } = action.payload;
     const discussionState = state[discussionId] || initialDiscussionState;
     const commentState = discussionState.comments[cid] || initialDiscussionCommentState;
@@ -161,14 +226,20 @@ const loadComments = (state, action) => {
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
-    case actionTypes.START_DISCUSSION:
-        return connectDiscussion(state, action);
-    case actionTypes.STOP_DISCUSSION:
-        return disconnectDiscussion(state, action);
-    case actionTypes.UPDATE_CRDT_VALUE:
-        return updateCrdtValue(state, action);
-    case actionTypes.SET_LOADED_COMMENT:
-        return setLoadedComment(state, action);
+    case actionTypes.CREATE_DISCUSSION:
+        return createDiscussion(state, action);
+    case actionTypes.DESTROY_DISCUSSION:
+        return destroyDiscussion(state, action);
+    case actionTypes.START_DISCUSSION_START:
+    case actionTypes.START_DISCUSSION_OK:
+    case actionTypes.START_DISCUSSION_ERROR:
+        return startDiscussion(state, action);
+    case actionTypes.UPDATE_SHARED_VALUE:
+        return updateSharedValue(state, action);
+    case actionTypes.UPDATE_PEERS_COUNT:
+        return updatePeersCount(state, action);
+    case actionTypes.SET_COMMENT:
+        return setComment(state, action);
     case actionTypes.LOAD_COMMENTS_START:
     case actionTypes.LOAD_COMMENTS_DONE:
         return loadComments(state, action);

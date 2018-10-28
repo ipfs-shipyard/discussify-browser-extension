@@ -1,0 +1,26 @@
+@import "@discussify/styleguide/styles/colors";
+@import "@discussify/styleguide/styles/mixins/typography";
+@import "@discussify/styleguide/styles/mixins/text";
+
+.peersInfo {
+    display: inline-flex;
+    align-items: center;
+
+    & .dot {
+        width: 0.8rem;
+        height: 0.8rem;
+        border: 1px solid var(--color-white);
+        background-color: color(var(--color-black) alpha(0.3));
+        border-radius: 50%;
+
+        &.connected {
+            background-color: #a3fb4E;
+        }
+    }
+
+    & .text {
+        @mixin typography-overline rem;
+        margin-left: 1rem;
+        color: color(var(--color-black) alpha(0.3));
+    }
+}

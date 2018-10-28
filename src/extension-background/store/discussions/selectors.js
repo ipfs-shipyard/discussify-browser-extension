@@ -1,18 +1,28 @@
 import { get } from 'lodash';
 
-export const hasDiscussion = (state, discussionId) => !!state.discussions[discussionId];
+export const hasDiscussion = (state, discussionId) =>
+    !!state.discussions[discussionId];
 
-export const isDependantOnDiscussion = (state, discussionId, tabId) =>
-    get(state.discussions, [discussionId], []).includes(tabId);
+export const isDiscussionStarted = (state, discussionId) =>
+    !!getDiscussionSharedValue(state, discussionId);
 
-export const getDiscussionDependantsCount = (state, discussionId) =>
-    get(state.discussions, [discussionId, 'dependants'], []).length;
+export const isDiscussionStarting = (state, discussionId) =>
+    get(state.discussions, [discussionId, 'starting']);
+
+export const getDiscussionError = (state, discussionId) =>
+    get(state.discussions, [discussionId, 'error']);
+
+export const getDiscussionSharedValue = (state, discussionId) =>
+    get(state.discussions, [discussionId, 'sharedValue']);
+
+export const getDiscussionPeersCount = (state, discussionId) =>
+    get(state.discussions, [discussionId, 'peersCount']);
 
 export const hasComment = (state, discussionId, commentId) =>
-    !!get(state.discussions, [discussionId, 'crdtValue', 'entries', commentId]);
+    !!get(state.discussions, [discussionId, 'sharedValue', 'entries', commentId]);
 
 export const getCommentCid = (state, discussionId, commentId) =>
-    get(state.discussions, [discussionId, 'crdtValue', 'entries', commentId, 'cid']);
+    get(state.discussions, [discussionId, 'sharedValue', 'entries', commentId, 'cid']);
 
 export const isCommentLoading = (state, discussionId, commentId) => {
     const cid = getCommentCid(state, discussionId, commentId);
@@ -27,12 +37,14 @@ export const getCommentError = (state, discussionId, commentId) => {
 };
 
 export const getCommentData = (state, discussionId, commentId) => {
-    const crdtEntry = get(state.discussions, [discussionId, 'crdtValue', 'entries', commentId]);
-    const data = crdtEntry && get(state.discussions, [discussionId, 'comments', crdtEntry.cid, 'data']);
+    const cid = getCommentCid(state, discussionId, commentId);
+    const data = get(state.discussions, [discussionId, 'comments', cid, 'data']);
 
-    if (!crdtEntry || !data) {
+    if (!cid || !data) {
         return;
     }
+
+    const crdtEntry = get(state.discussions, [discussionId, 'sharedValue', 'entries', commentId]);
 
     return {
         author: data.author,
@@ -43,17 +55,17 @@ export const getCommentData = (state, discussionId, commentId) => {
 };
 
 export const getCommentsTree = (state, discussionId) => {
-    const crdtValue = get(state.discussions, [discussionId, 'crdtValue']);
+    const sharedValue = get(state.discussions, [discussionId, 'sharedValue']);
 
-    if (!crdtValue) {
+    if (!sharedValue) {
         return;
     }
 
-    const { ids, entries } = crdtValue;
+    const { sequence, entries } = sharedValue;
     const nodesMap = new Map();
     const rootNode = [];
 
-    ids.forEach((commentId) => {
+    sequence.forEach((commentId) => {
         const crdtEntry = entries[commentId];
 
         // Construct this tree node
@@ -87,4 +99,4 @@ export const getCommentsTree = (state, discussionId) => {
     return rootNode;
 };
 
-export const getSerializedDiscussions = () => {};
+export const getSerializedDiscussions = () => undefined;

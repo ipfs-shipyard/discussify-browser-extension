@@ -28,8 +28,8 @@ export default class Content extends Component {
 
         const confirmModal = myself && (
             <ConfirmModal
-                message="Are you sure you want to delete the comment?"
-                confirmText="Yes, delete"
+                message="Are you sure you want to remove the comment?"
+                confirmText="Yes, remove"
                 cancelText="No, cancel"
                 onConfirm={ onRemove } />
         );

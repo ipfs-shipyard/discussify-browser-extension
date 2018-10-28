@@ -41,7 +41,7 @@ export default class CommentNode extends Component {
         const { commentNode, user, className } = this.props;
         const { comment } = commentNode;
 
-        if (!comment.data && !comment.error) {
+        if (comment.loading || (!comment.error && !comment.data)) {
             return <CommentLoading className={ className } />;
         }
 
@@ -66,7 +66,7 @@ export default class CommentNode extends Component {
         );
     }
 
-    shouldLoadComment = (prevProps) => {
+    shouldLoadComment(prevProps) {
         const { comment } = this.props.commentNode;
         const { comment: previousComment } = prevProps ? prevProps.commentNode : {};
 
@@ -74,14 +74,14 @@ export default class CommentNode extends Component {
         const loadPreviousComment = !!previousComment && (!previousComment.loading && !previousComment.data && !previousComment.error);
 
         return loadComment && !loadPreviousComment;
-    };
+    }
 
-    shouldResetEditing = (prevProps) => {
+    shouldResetEditing(prevProps) {
         const { cid } = this.props.commentNode;
         const { cid: previousCid } = prevProps ? prevProps.commentNode : {};
 
         return this.state.editing && cid !== previousCid;
-    };
+    }
 
     handleEditStart = () => {
         this.setState({ editing: true });

@@ -1,6 +1,10 @@
-export const START_DISCUSSION = 'discussion/START_DISCUSSION';
-export const STOP_DISCUSSION = 'discussion/STOP_DISCUSSION';
-export const UPDATE_CRDT_VALUE = 'discussion/UPDATE_CRDT_VALUE';
-export const SET_LOADED_COMMENT = 'discussion/SET_LOADED_COMMENT';
+export const CREATE_DISCUSSION = 'discussion/CREATE_DISCUSSION';
+export const DESTROY_DISCUSSION = 'discussion/DESTROY_DISCUSSION';
+export const START_DISCUSSION_START = 'discussion/START_DISCUSSION_START';
+export const START_DISCUSSION_OK = 'discussion/START_DISCUSSION_OK';
+export const START_DISCUSSION_ERROR = 'discussion/START_DISCUSSION_ERROR';
+export const UPDATE_SHARED_VALUE = 'discussion/UPDATE_SHARED_VALUE';
+export const UPDATE_PEERS_COUNT = 'discussion/UPDATE_PEERS_COUNT';
+export const SET_COMMENT = 'discussion/SET_COMMENT';
 export const LOAD_COMMENTS_START = 'discussion/LOAD_COMMENTS_START';
 export const LOAD_COMMENTS_DONE = 'discussion/LOAD_COMMENTS_DONE';

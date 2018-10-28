@@ -1,5 +1,5 @@
-export const retrieveComment = async (peerStarApp, cid) => {
-    const data = await peerStarApp.object.data(cid);
+export const retrieveComment = async (ipfs, cid) => {
+    const data = await ipfs.object.data(cid);
 
     return JSON.parse(data.toString());
 };

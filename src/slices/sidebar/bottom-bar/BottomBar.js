@@ -10,25 +10,28 @@ import styles from './BottomBar.css';
 export default class BottomBar extends Component {
     static propTypes = {
         className: PropTypes.string,
+        disabled: PropTypes.bool,
         onNewComment: PropTypes.func.isRequired,
     };
 
     render() {
-        const { className } = this.props;
+        const { disabled, className } = this.props;
 
         // Note that `required` + `pattern` is just for being able to style the textarea when not empty
         // See https://stackoverflow.com/a/38636426
         return (
-            <div className={ classNames(styles.bottomBar, className) }>
+            <div className={ classNames(styles.bottomBar, disabled && styles.disabled, className) }>
                 <TextareaAutosize
                     ref={ this.storeTextareaAutosizeRef }
                     placeholder="Add comment..."
                     maxRows={ 10 }
+                    disabled={ disabled }
                     required
                     pattern=".*?\S.*"
+                    onKeyPress={ this.handleKeyPress }
                     className={ styles.textarea } />
 
-                <button className={ styles.submit } onClick={ this.handleSubmitClick }>
+                <button className={ styles.submit } disabled={ disabled } onClick={ this.handleSubmitClick }>
                     <SubmitIcon className={ styles.submitIcon } />
                 </button>
             </div>
@@ -37,6 +40,14 @@ export default class BottomBar extends Component {
 
     storeTextareaAutosizeRef = (ref) => {
         this.textareaAutosize = ref;
+    };
+
+    handleKeyPress = (event) => {
+        // Create new comments when pressing enter without shift
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            this.handleSubmitClick();
+        }
     };
 
     handleSubmitClick = () => {

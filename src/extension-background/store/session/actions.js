@@ -13,9 +13,7 @@ const AUTHENTICATE_TIMEOUT = 5 * 60 * 1000;
 
 export const authenticate = () => async (dispatch, getState) => {
     // Skip if already authenticating
-    const alreadyAuthenticating = isAuthenticating(getState());
-
-    if (alreadyAuthenticating) {
+    if (isAuthenticating(getState())) {
         return;
     }
 

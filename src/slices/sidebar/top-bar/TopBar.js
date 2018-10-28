@@ -1,69 +1,29 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { CloseIcon } from '@discussify/styleguide';
+import PageInfo from './page-info';
+import PeersInfo from './peers-info';
 import styles from './TopBar.css';
 
-const getInfo = (metadata) => {
-    const parsedUrl = new URL(metadata.canonicalUrl);
-    const favicon = metadata.favicon;
-    const domain = parsedUrl.host || 'N/A';
+const TopBar = ({ metadata, peersCount, onClose, className }) => (
+    <div className={ classNames(styles.topBar, className) }>
+        <CloseIcon
+            interactive
+            onClick={ onClose }
+            className={ styles.closeIcon } />
 
-    // Use description if the title seems similar to the domain
-    const overline = domain.startsWith(metadata.title) ?
-        metadata.description || metadata.title :
-        metadata.title || metadata.description;
+        <PageInfo metadata={ metadata } />
 
-    return {
-        favicon,
-        domain,
-        overline,
-    };
+        <PeersInfo peersCount={ peersCount } className={ styles.peersInfo } />
+    </div>
+);
+
+TopBar.propTypes = {
+    metadata: PropTypes.object,
+    peersCount: PropTypes.number,
+    className: PropTypes.string,
+    onClose: PropTypes.func.isRequired,
 };
 
-export default class TopBar extends Component {
-    static propTypes = {
-        metadata: PropTypes.object,
-        className: PropTypes.string,
-        onClose: PropTypes.func.isRequired,
-    };
-
-    state = {
-        faviconLoaded: false,
-    };
-
-    render() {
-        const { metadata, className, onClose } = this.props;
-        const { faviconLoaded } = this.state;
-        const info = metadata && getInfo(metadata);
-
-        return (
-            <div className={ classNames(styles.topBar, className) }>
-                <CloseIcon
-                    interactive
-                    onClick={ onClose }
-                    className={ styles.closeIcon } />
-
-                { info && <div className={ styles.info }>
-                    <div
-                        className={ classNames(styles.top, faviconLoaded && styles.faviconLoaded) }>
-                        { info.favicon && (
-                            <img
-                                src={ info.favicon }
-                                alt=""
-                                onLoad={ this.handleFaviconLoaded }
-                                className={ styles.favicon } />
-                        ) }
-                        <span className={ styles.domain }>{ info.domain }</span>
-                    </div>
-
-                    { info.overline && <div className={ styles.overline }>{ info.overline }</div> }
-                </div> }
-            </div>
-        );
-    }
-
-    handleFaviconLoaded = () => {
-        this.setState({ faviconLoaded: true });
-    };
-}
+export default TopBar;

@@ -1,0 +1,18 @@
+@import "@discussify/styleguide/styles/colors";
+
+.commentsTree {
+    overflow-y: auto;
+    padding: 3rem;
+    background-color: var(--color-white);
+
+    & .wrapper {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+
+        & .node:not(:last-child) {
+            margin-bottom: 3rem;
+        }
+    }
+}
