@@ -26,4 +26,5 @@ InitialScreen.propTypes = {
     onAuthenticate: PropTypes.func.isRequired,
     className: PropTypes.string,
 };
+
 export default InitialScreen;
