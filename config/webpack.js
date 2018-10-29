@@ -4,6 +4,7 @@ const path = require('path');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 const BannerPlugin = require('webpack/lib/BannerPlugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 
 const BROWSERS = [
@@ -191,9 +192,27 @@ const buildConfig = (env) => {
             // Support reloading extension during development
             isDev && new ChromeExtensionReloader(),
         ].filter(Boolean),
-        devtool: isDev ? 'cheap-module-eval-source-map' : 'none',
+        devtool: isDev ? 'cheap-module-eval-source-map' : 'nosources-source-map',
         optimization: {
-            minimize: false,
+            minimize: !isDev,
+            minimizer: [
+                new TerserPlugin({
+                    sourceMap: true,
+                    extractComments: true,
+                    parallel: true,
+                    cache: true,
+                    terserOptions: {
+                        mangle: true,
+                        compress: {
+                            warnings: false, // Mute warnings
+                            /* eslint-disable camelcase */
+                            drop_console: true, // Drop console.* statements
+                            drop_debugger: true, // Drop debugger statements
+                            /* eslint-enable camelcase */
+                        },
+                    },
+                }),
+            ],
         },
         performance: {
             hints: false,
