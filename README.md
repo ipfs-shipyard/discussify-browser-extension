@@ -30,7 +30,7 @@ Follow these step to install the extension locally for development:
 
 1. Install the dependencies by running `npm install` in the project folder
 
-1. Start the development server by running `npm start` in the project folder
+1. Start the development process by running `npm start` in the project folder
 
 1. Go to `chrome://extensions` in Chrome, enable "Developer Mode" and click "Load Unpacked"
 
@@ -61,8 +61,6 @@ $ npm run build
 ```
 
 Builds the project for production.
-
-You may preview the built site by using any regular static web-server, such as [`serve`](https://github.com/zeit/serve) with `$ serve -s build`.
 
 ### test
 
