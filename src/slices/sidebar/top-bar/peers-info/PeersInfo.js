@@ -1,16 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import pluralize from 'pluralize';
 import styles from './PeersInfo.css';
 
 const PeersInfo = ({ peersCount, className }) => {
-    const connected = peersCount > 1;
+    const otherPeersCount = peersCount - 1;
 
     return (
         <div className={ classNames(styles.peersInfo, className) }>
-            <div className={ classNames(styles.dot, connected && styles.connected) } />
+            <div className={ classNames(styles.dot, otherPeersCount > 0 && styles.connected) } />
             <div className={ styles.text }>
-                { connected ? `${peersCount - 1} peers online` : 'No peers online' }
+                { otherPeersCount > 0 ?
+                    `${otherPeersCount} ${pluralize('peer', otherPeersCount)} online` :
+                    'No peers online' }
             </div>
         </div>
     );
