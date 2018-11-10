@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import CommentLoading from './comment-loading';
-import CommentLoaded from './comment-loaded';
-import CommentErrored from './comment-errored';
+import classNames from 'classnames';
+import { Comment, CommentPlaceholder, CommentError, CommentInput } from '@discussify/styleguide';
+import styles from './CommentNode.css';
 
 export default class CommentNode extends Component {
     static propTypes = {
@@ -42,27 +42,40 @@ export default class CommentNode extends Component {
         const { comment } = commentNode;
 
         if (comment.loading || (!comment.error && !comment.data)) {
-            return <CommentLoading className={ className } />;
+            return (
+                <CommentPlaceholder
+                    className={ classNames(styles.commentNode, className) } />
+            );
         }
 
         if (comment.error) {
-            return <CommentErrored onRetry={ this.handleLoadRetry } className={ className } />;
+            return (
+                <CommentError
+                    onRetry={ this.handleLoadRetry }
+                    className={ classNames(styles.commentNode, className) } />
+            );
         }
 
-        const myself = user ? user.did === comment.data.author.did : false;
+        const owner = !!user && user.did === comment.data.author.did;
 
         return (
-            <CommentLoaded
-                comment={ comment.data }
-                myself={ myself }
-                editing={ editing }
-                onEditStart={ this.handleEditStart }
-                onEditSave={ this.handleEditSave }
-                onEditCancel={ this.handleEditCancel }
-                onRemove={ this.handleRemove }
-                onReply={ this.handleReplyStart }
-                onLoadHistory={ this.handleLoadHistory }
-                className={ className } />
+            <Fragment>
+                <Comment
+                    comment={ comment.data }
+                    owner={ owner }
+                    onRemove={ this.handleRemove }
+                    onEdit={ this.handleEditStart }
+                    onReply={ this.handleReplyStart }
+                    className={ classNames(styles.commentNode, editing && styles.hidden, className) } />
+                { editing && (
+                    <CommentInput
+                        author={ comment.data.author }
+                        body={ comment.data.body }
+                        onSubmit={ this.handleEditSave }
+                        onCancel={ this.handleEditCancel }
+                        className={ classNames(styles.commentNode, className) } />
+                ) }
+            </Fragment>
         );
     }
 
@@ -92,6 +105,7 @@ export default class CommentNode extends Component {
     };
 
     handleEditSave = (newBody) => {
+        this.setState({ editing: false });
         this.props.onUpdate(this.props.commentNode.id, newBody);
     };
 
@@ -108,6 +122,7 @@ export default class CommentNode extends Component {
     };
 
     handleLoadHistory = () => {
+        // TODO:
         this.props.onLoadHistory(this.props.commentNode.id);
     };
 }

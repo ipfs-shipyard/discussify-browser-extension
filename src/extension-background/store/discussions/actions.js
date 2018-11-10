@@ -169,6 +169,8 @@ export const updateComment = (discussionId, commentId, body) => async (dispatch,
         throw new Error(`Unknown comment with id ${commentId}`);
     }
 
+    // TODO: Skip if comment hasn't changed
+
     const comment = {
         author: user,
         body,
