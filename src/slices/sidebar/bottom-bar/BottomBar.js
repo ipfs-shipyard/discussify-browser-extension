@@ -1,37 +1,53 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isWhitespace from 'is-whitespace';
 import { TextareaAutosize, SubmitIcon } from '@discussify/styleguide';
 import styles from './BottomBar.css';
 
-// TODO: focus textarea should make submit icon visible
+const isBodyEmpty = (body) => !body || isWhitespace(body);
 
-export default class BottomBar extends Component {
+export default class BottomBar extends PureComponent {
     static propTypes = {
         className: PropTypes.string,
         disabled: PropTypes.bool,
         onNewComment: PropTypes.func.isRequired,
     };
 
+    state = {
+        empty: true,
+    };
+
     render() {
         const { disabled, className } = this.props;
+        const { empty } = this.state;
 
-        // Note that `required` + `pattern` is just for being able to style the textarea when not empty
-        // See https://stackoverflow.com/a/38636426
+        const finalClassName = classNames(
+            styles.bottomBar,
+            {
+                [styles.disabled]: disabled,
+                [styles.empty]: empty,
+            },
+            className
+        );
+
         return (
-            <div className={ classNames(styles.bottomBar, disabled && styles.disabled, className) }>
+            <div className={ finalClassName }>
                 <TextareaAutosize
                     ref={ this.storeTextareaAutosizeRef }
                     placeholder="Add comment..."
                     maxRows={ 10 }
                     disabled={ disabled }
-                    required
-                    pattern=".*?\S.*"
+                    onChange={ this.handleChange }
                     onKeyPress={ this.handleKeyPress }
                     className={ styles.textarea } />
 
-                <button className={ styles.submit } disabled={ disabled } onClick={ this.handleSubmitClick }>
+                <button
+                    className={ styles.submit }
+                    disabled={ disabled }
+                    onMouseDown={ this.handleSubmitMouseDown }
+                    onClick={ this.handleSubmitClick }>
                     <SubmitIcon className={ styles.submitIcon } />
                 </button>
             </div>
@@ -42,6 +58,12 @@ export default class BottomBar extends Component {
         this.textareaAutosize = ref;
     };
 
+    handleChange = (event) => {
+        const body = event.target.value;
+
+        this.setState({ empty: isBodyEmpty(body) });
+    };
+
     handleKeyPress = (event) => {
         // Create new comments when pressing enter without shift
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -50,10 +72,25 @@ export default class BottomBar extends Component {
         }
     };
 
+    handleSubmitMouseDown = (e) => {
+        // Prevent textarea from loosing focus if text is empty
+        const textareaNode = findDOMNode(this.textareaAutosize);
+        const body = textareaNode && textareaNode.value;
+
+        if (isBodyEmpty(body)) {
+            e.preventDefault();
+        }
+    };
+
     handleSubmitClick = () => {
         const textareaNode = findDOMNode(this.textareaAutosize);
+        const body = textareaNode && textareaNode.value;
 
-        this.props.onNewComment(textareaNode.value);
-        textareaNode.value = '';
+        if (!isBodyEmpty(body)) {
+            textareaNode.value = '';
+            this.setState({ empty: true });
+
+            this.props.onNewComment(body);
+        }
     };
 }

@@ -15,10 +15,6 @@
         &::placeholder {
             color: var(--color-gray);
         }
-
-        &[disabled] {
-            cursor: not-allowed;
-        }
     }
 
     & .submit {
@@ -32,8 +28,6 @@
         border: 0;
         background: transparent;
         color: var(--color-black);
-        cursor: pointer;
-        fill-opacity: 0;
 
         & .submitIcon {
             position: absolute;
@@ -42,20 +36,41 @@
             transform: translate(-50%, -50%);
             fill-opacity: 0;
         }
-
-        &:hover:not([disabled]) .submitIcon,
-        &:focus .submitIcon {
-            fill-opacity: 1;
-        }
-
-        &:disabled {
-            cursor: not-allowed;
-        }
     }
 
-    &:hover .submit:not([disabled]) .submitIcon,
-    & .textarea:focus ~ .submit:not([disabled]) .submitIcon,
-    & .textarea:valid ~ .submit:not([disabled]) .submitIcon {
+    /* This submit icon has several opacity states related to being disabled & empty:
+       - When disabled:
+           cursor disabled
+       - When empty:
+           default: 0
+           focus: 0
+           hover: 0.2
+       - When not empty & not disabled:
+           default: 0.45
+           focus: 0.45
+           hover: 1
+     */
+
+    &.disabled .textarea[disabled],
+    &.disabled .submit[disabled] {
+        cursor: not-allowed;
+    }
+
+    &.empty .submit .submitIcon {
+        fill-opacity: 0;
+    }
+
+    &.empty:hover .submit .submitIcon,
+    &.empty:focus-within .submit .submitIcon {
+        fill-opacity: 0.15;
+    }
+
+    &:not(.empty) .submit:not([disabled]) .submitIcon {
+        cursor: pointer;
         fill-opacity: 0.45;
+    }
+
+    &:not(.empty) .submit:not([disabled]):hover .submitIcon {
+        fill-opacity: 1;
     }
 }

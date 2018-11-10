@@ -5,6 +5,7 @@
   "dependencies": {
     "@discussify/styleguide": "^0.4.0",
     "classnames": "^2.2.6",
+    "is-whitespace": "^0.3.0",
     "lodash": "^4.17.11",
     "nano-md5": "^1.0.3",
     "normalize-url": "^3.3.0",
