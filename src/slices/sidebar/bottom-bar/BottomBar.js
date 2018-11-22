@@ -41,8 +41,9 @@ export default class BottomBar extends PureComponent {
                     placeholder="Add comment..."
                     maxRows={ 10 }
                     disabled={ disabled }
+                    submitOnEnter
+                    onSubmit={ this.handleSubmitClick }
                     onChange={ this.handleChange }
-                    onKeyPress={ this.handleKeyPress }
                     className={ styles.textarea } />
 
                 <button
@@ -60,14 +61,6 @@ export default class BottomBar extends PureComponent {
         const body = event.target.value;
 
         this.setState({ empty: isBodyEmpty(body) });
-    };
-
-    handleKeyPress = (event) => {
-        // Create new comments when pressing enter without shift
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            this.handleSubmitClick();
-        }
     };
 
     handleSubmitMouseDown = (e) => {
