@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, createRef } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -14,6 +14,8 @@ export default class BottomBar extends PureComponent {
         disabled: PropTypes.bool,
         onNewComment: PropTypes.func.isRequired,
     };
+
+    textareaAutosizeRef = createRef();
 
     state = {
         empty: true,
@@ -35,7 +37,7 @@ export default class BottomBar extends PureComponent {
         return (
             <div className={ finalClassName }>
                 <TextareaAutosize
-                    ref={ this.storeTextareaAutosizeRef }
+                    ref={ this.textareaAutosizeRef }
                     placeholder="Add comment..."
                     maxRows={ 10 }
                     disabled={ disabled }
@@ -54,10 +56,6 @@ export default class BottomBar extends PureComponent {
         );
     }
 
-    storeTextareaAutosizeRef = (ref) => {
-        this.textareaAutosize = ref;
-    };
-
     handleChange = (event) => {
         const body = event.target.value;
 
@@ -74,7 +72,7 @@ export default class BottomBar extends PureComponent {
 
     handleSubmitMouseDown = (e) => {
         // Prevent textarea from loosing focus if text is empty
-        const textareaNode = findDOMNode(this.textareaAutosize);
+        const textareaNode = findDOMNode(this.textareaAutosizeRef.current);
         const body = textareaNode && textareaNode.value;
 
         if (isBodyEmpty(body)) {
@@ -83,7 +81,7 @@ export default class BottomBar extends PureComponent {
     };
 
     handleSubmitClick = () => {
-        const textareaNode = findDOMNode(this.textareaAutosize);
+        const textareaNode = findDOMNode(this.textareaAutosizeRef.current);
         const body = textareaNode && textareaNode.value;
 
         if (!isBodyEmpty(body)) {

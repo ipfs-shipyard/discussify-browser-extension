@@ -22,11 +22,11 @@ class App extends Component {
     };
 
     state = {
-        newCommentId: null,
+        addedCommentId: null,
     };
 
     render() {
-        const { newCommentId } = this.state;
+        const { addedCommentId } = this.state;
         const {
             user,
             metadata,
@@ -50,29 +50,29 @@ class App extends Component {
                     key={ discussion.id }
                     user={ user }
                     error={ discussion.error }
-                    commentsTree={ discussion.commentsTree }
-                    scrollToCommentId={ newCommentId }
-                    onUpdate={ onCommentUpdate }
-                    onRemove={ onCommentRemove }
-                    onReply={ onCommentReply }
-                    onLoad={ onCommentLoad }
-                    onLoadHistory={ onCommentLoadHistory }
+                    commentNodes={ discussion.commentNodes }
+                    addedCommentId={ addedCommentId }
+                    onCommentUpdate={ onCommentUpdate }
+                    onCommentRemove={ onCommentRemove }
+                    onCommentReply={ onCommentReply }
+                    onCommentLoad={ onCommentLoad }
+                    onCommentLoadHistory={ onCommentLoadHistory }
                     className={ styles.discussionComments } />
 
                 <BottomBar
-                    disabled={ !discussion.error && !discussion.commentsTree }
+                    disabled={ !discussion.error && !discussion.commentNodes }
                     onNewComment={ this.handleNewComment } />
             </div>
         );
     }
 
     handleNewComment = async (body) => {
-        const lastComment = last(this.props.discussion.commentsTree);
-        const previousId = lastComment && lastComment.id;
+        const previousNode = last(this.props.discussion.commentNodes);
+        const previousId = previousNode && previousNode.id;
 
-        const newCommentId = await this.props.onCommentCreate(previousId, body);
+        const newId = await this.props.onCommentCreate(previousId, body);
 
-        this.setState({ newCommentId });
+        this.setState({ addedCommentId: newId });
     };
 }
 
@@ -87,7 +87,7 @@ const mapMethodsToProps = (methods) => ({
     onCommentCreate: (previousId, body) => methods.discussion.createComment(previousId, body),
     onCommentUpdate: (id, body) => methods.discussion.updateComment(id, body),
     onCommentRemove: (id) => methods.discussion.removeComment(id),
-    onCommentReply: (parentId, previousId, comment) => methods.discussion.replyComment(parentId, previousId, comment),
+    onCommentReply: (parentId, previousId, comment) => methods.discussion.replyToComment(parentId, previousId, comment),
     onCommentLoad: (ids) => methods.discussion.loadComments(ids),
     onCommentLoadHistory: (id) => methods.discussion.loadCommentHistory(id),
 });

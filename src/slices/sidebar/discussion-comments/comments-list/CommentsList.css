@@ -1,0 +1,16 @@
+@import "@discussify/styleguide/styles/colors";
+
+.commentsList {
+    position: relative;
+    overflow-y: auto;
+    padding: 1.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-white);
+
+    & .listWrapper {
+        /* Align the comments to the bottom with margin-top, can't use flex-content: flex-end */
+        /* See https://stackoverflow.com/a/37515194 */
+        margin-top: auto;
+    }
+}

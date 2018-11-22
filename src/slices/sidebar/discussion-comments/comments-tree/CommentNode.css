@@ -1,8 +1,0 @@
-.commentNode {
-    &.hidden {
-        position: fixed;
-        top: 100vh;
-        left: 100vw;
-        visibility: hidden;
-    }
-}
