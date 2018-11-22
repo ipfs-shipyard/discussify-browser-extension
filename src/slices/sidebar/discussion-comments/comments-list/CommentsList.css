@@ -13,4 +13,8 @@
         /* See https://stackoverflow.com/a/37515194 */
         margin-top: auto;
     }
+
+    & .node {
+        padding: 0.5rem 0;
+    }
 }

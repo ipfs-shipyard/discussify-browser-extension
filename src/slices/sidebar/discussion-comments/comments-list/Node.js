@@ -120,7 +120,7 @@ export default class Node extends PureComponent {
 
     renderReplies(visibleNodes) {
         const { replying, replyId } = this.state;
-        const { node: parentNode, user, depth: parentDeth, maxDepth, ...rest } = this.props;
+        const { node: parentNode, user, depth: parentDeth, maxDepth, className, ...rest } = this.props;
 
         if (!visibleNodes.length && !replying) {
             return null;

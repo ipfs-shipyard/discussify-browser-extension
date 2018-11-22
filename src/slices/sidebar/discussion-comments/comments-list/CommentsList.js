@@ -63,7 +63,8 @@ export default class CommentsList extends PureComponent {
                                         onRemove={ onRemove }
                                         onReply={ onReply }
                                         onLoad={ this.handleLoad }
-                                        onLoadHistory={ onLoadHistory } />
+                                        onLoadHistory={ onLoadHistory }
+                                        className={ styles.node } />
                                 )) }
                             </Fragment>
                         ) }

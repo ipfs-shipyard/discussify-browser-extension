@@ -109,7 +109,7 @@ export class Monitor extends Component {
 
         return (
             <Observer onChange={ this.handleChange }>
-                <div style={ { position: 'absolute', width: '100%', height: 3, background: 'red', top: threshold, left: 0 } } />
+                <span style={ { position: 'absolute', display: 'block', width: '100%', height: 1, top: threshold, left: 0 } } />
             </Observer>
         );
     }
