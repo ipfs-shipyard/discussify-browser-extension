@@ -12,7 +12,7 @@ Choose one of the installations below. Note that you will need to have a self-so
 
 Because the current version is a pre-alpha, it's not yet available through the regular Chrome Web store. Follow these steps to install the extension locally:
 
-1. Download the ZIP file from https://ipfs.io/ipfs/QmUZ7S5T7BJ8mvvNWdCCFpyxfne4YufCmSzVpmCC9SrR2M
+1. Download the ZIP file from https://ipfs.io/ipfs/QmUy13FyGqfsmxy7dwiHLtkMYwLaJf2XBfWBkdn6pxM8bn
 
 1. Extract the ZIP file to a folder
 
