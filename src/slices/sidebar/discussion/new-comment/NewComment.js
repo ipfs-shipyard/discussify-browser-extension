@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isWhitespace from 'is-whitespace';
 import { TextareaAutosize, SubmitIcon } from '@discussify/styleguide';
-import styles from './BottomBar.css';
+import styles from './NewComment.css';
 
 const isBodyEmpty = (body) => !body || isWhitespace(body);
 
-export default class BottomBar extends PureComponent {
+export default class NewComment extends PureComponent {
     static propTypes = {
         className: PropTypes.string,
         disabled: PropTypes.bool,
@@ -26,7 +26,7 @@ export default class BottomBar extends PureComponent {
         const { empty } = this.state;
 
         const finalClassName = classNames(
-            styles.bottomBar,
+            styles.newComment,
             {
                 [styles.disabled]: disabled,
                 [styles.empty]: empty,

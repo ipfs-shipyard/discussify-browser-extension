@@ -1,20 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import styles from './Error.css';
+import styles from './CommentsListError.css';
 
-// TODO: Render error message
-
-const Error = ({ className }) => (
-    <div className={ classNames(styles.error, className) }>
+const CommentsListError = ({ className }) => (
+    <div className={ classNames(styles.commentsListError, className) }>
         <div className={ styles.title }>
             Error loading comments :(
         </div>
     </div>
 );
 
-Error.propTypes = {
+CommentsListError.propTypes = {
     className: PropTypes.string,
 };
 
-export default Error;
+export default CommentsListError;

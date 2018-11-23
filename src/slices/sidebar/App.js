@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { last } from 'lodash';
 import { connectExtension } from '../../react-extension-client';
 import TopBar from './top-bar';
-import BottomBar from './bottom-bar';
-import DiscussionComments from './discussion-comments';
+import Discussion from './discussion';
 import styles from './App.css';
 
 class App extends Component {
@@ -21,17 +19,13 @@ class App extends Component {
         onCommentLoadHistory: PropTypes.func.isRequired,
     };
 
-    state = {
-        addedCommentId: null,
-    };
-
     render() {
-        const { addedCommentId } = this.state;
         const {
             user,
             metadata,
             discussion,
             onSidebarClose,
+            onCommentCreate,
             onCommentUpdate,
             onCommentRemove,
             onCommentReply,
@@ -46,34 +40,21 @@ class App extends Component {
                     peersCount={ discussion.peersCount }
                     onClose={ onSidebarClose } />
 
-                <DiscussionComments
+                <Discussion
                     key={ discussion.id }
                     user={ user }
                     error={ discussion.error }
                     commentNodes={ discussion.commentNodes }
-                    addedCommentId={ addedCommentId }
+                    onCommentCreate={ onCommentCreate }
                     onCommentUpdate={ onCommentUpdate }
                     onCommentRemove={ onCommentRemove }
                     onCommentReply={ onCommentReply }
                     onCommentLoad={ onCommentLoad }
                     onCommentLoadHistory={ onCommentLoadHistory }
-                    className={ styles.discussionComments } />
-
-                <BottomBar
-                    disabled={ !discussion.error && !discussion.commentNodes }
-                    onNewComment={ this.handleNewComment } />
+                    className={ styles.discussion } />
             </div>
         );
     }
-
-    handleNewComment = async (body) => {
-        const previousNode = last(this.props.discussion.commentNodes);
-        const previousId = previousNode && previousNode.id;
-
-        const newId = await this.props.onCommentCreate(previousId, body);
-
-        this.setState({ addedCommentId: newId });
-    };
 }
 
 const mapStateToProps = (state) => ({

@@ -1,9 +1,8 @@
-.app {
-    height: 100%;
+.discussion {
     display: flex;
     flex-direction: column;
 
-    & .discussion {
+    & .commentsList {
         flex: 1 0;
     }
 }

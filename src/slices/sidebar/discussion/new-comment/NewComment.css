@@ -1,7 +1,7 @@
 @import "@discussify/styleguide/styles/colors";
 @import "@discussify/styleguide/styles/mixins/typography";
 
-.bottomBar {
+.newComment {
     position: relative;
     background-color: var(--color-seashell);
 

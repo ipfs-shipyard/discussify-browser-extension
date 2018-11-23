@@ -1,7 +1,7 @@
 @import "@discussify/styleguide/styles/colors";
 @import "@discussify/styleguide/styles/mixins/typography";
 
-.error {
+.commentsListEmpty {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -9,6 +9,12 @@
 
     & .title {
         @mixin typography-h4 rem;
+        color: color(var(--color-black) alpha(0.2));
+    }
+
+    & .message {
+        margin-top: 0.5rem;
+        @mixin typography-body-1 rem;
         color: color(var(--color-black) alpha(0.2));
     }
 }

@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Error from './error';
-import Empty from './empty';
+import classNames from 'classnames';
+import { last } from 'lodash';
+import CommentsListError from './comments-list-error';
+import CommentsListEmpty from './comments-list-empty';
 import CommentsList from './comments-list';
+import NewComment from './new-comment';
+import styles from './Discussion.css';
 
 const WAIT_COMMENTS_TIMEOUT = 12000;
 
-export default class DiscussionComments extends Component {
+export default class Discussion extends Component {
     static propTypes = {
         user: PropTypes.object,
         error: PropTypes.object,
         commentNodes: PropTypes.object,
-        addedCommentId: PropTypes.string,
+        onCommentCreate: PropTypes.func.isRequired,
         onCommentUpdate: PropTypes.func.isRequired,
         onCommentRemove: PropTypes.func.isRequired,
         onCommentReply: PropTypes.func.isRequired,
@@ -22,6 +26,7 @@ export default class DiscussionComments extends Component {
 
     state = {
         waited: false,
+        addedCommentId: null,
     };
 
     componentDidMount() {
@@ -37,30 +42,42 @@ export default class DiscussionComments extends Component {
     }
 
     render() {
-        const { waited } = this.state;
+        const { error, commentNodes, className } = this.props;
+
+        return (
+            <div className={ classNames(styles.discussion, className) }>
+                { this.renderList() }
+
+                <NewComment
+                    disabled={ !error && !commentNodes }
+                    onNewComment={ this.handleNewComment } />
+            </div>
+        );
+    }
+
+    renderList() {
+        const { waited, addedCommentId } = this.state;
         const {
             error,
             user,
             commentNodes,
-            addedCommentId,
             onCommentUpdate,
             onCommentRemove,
             onCommentReply,
             onCommentLoad,
             onCommentLoadHistory,
-            className,
         } = this.props;
 
         if (error) {
-            return <Error error={ error } className={ className } />;
+            return <CommentsListError error={ error } className={ styles.commentsList } />;
         }
 
         if (!commentNodes) {
-            return <Empty status="not-ready" className={ className } />;
+            return <CommentsListEmpty status="not-ready" className={ styles.commentsList } />;
         }
 
         if (!commentNodes.length) {
-            return <Empty status={ waited ? 'loading-overtime' : 'loading' } className={ className } />;
+            return <CommentsListEmpty status={ waited ? 'loading-overtime' : 'loading' } className={ styles.commentsList } />;
         }
 
         return (
@@ -73,7 +90,7 @@ export default class DiscussionComments extends Component {
                 onReply={ onCommentReply }
                 onLoad={ onCommentLoad }
                 onLoadHistory={ onCommentLoadHistory }
-                className={ className } />
+                className={ styles.commentsList } />
         );
     }
 
@@ -103,4 +120,13 @@ export default class DiscussionComments extends Component {
             }
         }
     }
+
+    handleNewComment = async (body) => {
+        const previousNode = last(this.props.commentNodes);
+        const previousId = previousNode && previousNode.id;
+
+        const newId = await this.props.onCommentCreate(previousId, body);
+
+        this.setState({ addedCommentId: newId });
+    };
 }
