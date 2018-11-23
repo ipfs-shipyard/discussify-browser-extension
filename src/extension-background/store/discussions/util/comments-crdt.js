@@ -2,27 +2,24 @@ import { forIn, reduce } from 'lodash';
 
 // State:
 // {
-//   ab: {
-//       id: 'ab',
-//       parentId: undefined, // Points to the parent entry id in case it's a reply
-//       previousId: undefined, // Points to the last seen entry id, used for sorting
-//       createdAt: 1539874585185, // Date of creation, used for sorting as a tiebreaker for previousId
-//       updatedAt: 1539874585185, // Date of update of the entry, used to determine which entry wins when merging enntries with the same id
-//       cid: 'xx' // The cid of the ipfs object for the comment
-//   },
+//     <commentId>: {
+//         parentId: undefined, // Points to the parent entry id in case it's a reply
+//         previousId: undefined, // Points to the last seen entry id, used for sorting
+//         createdAt: 1539874585185, // Date of creation, used for sorting as a tiebreaker for previousId
+//         updatedAt: 1539874585185, // Date of update of the entry, used to decide which entry wins when merging entries with the same id
+//         cid: 'xx' // The cid of the ipfs object for the comment
+//         versidagCids: [yyy],
+//     },
 // };
 //
-// CID:
+// CID contents:
 // {
 //    author,
 //    body,
-//    timestamp,
+//    entropy (in case it's a new comment)
 // };
 
-const compareConcurrentEntries = (id1, id2, entries) => {
-    const entry1 = entries[id1];
-    const entry2 = entries[id2];
-
+const compareConcurrentEntries = (entry1, entry2) => {
     if (entry1.createdAt < entry2.createdAt) {
         return -1;
     }
@@ -72,33 +69,56 @@ export default {
     },
 
     mutators: {
-        create: (id, state, entry) => {
-            const commentId = entry.id;
+        create: (_, state, previousId, cid) => {
+            const id = cid;
 
-            if (state[entry.id]) {
-                throw new Error(`Comment with id ${commentId} already exists`);
+            if (state[id]) {
+                return {};
             }
 
             return {
-                [commentId]: {
-                    ...entry,
+                [id]: {
+                    previousId,
+                    cid: id,
                     createdAt: Date.now(),
                 },
             };
         },
 
-        update: (id, state, commentId, cid) => {
-            const entry = state[commentId];
+        update: (_, state, id, cid) => {
+            const entry = state[id];
 
             if (!entry) {
-                throw new Error(`Comment with id ${commentId} does not exist`);
+                throw new Error(`Comment with id ${id} does not exist`);
             }
 
             return {
-                [commentId]: {
+                [id]: {
                     ...entry,
                     cid,
                     updatedAt: Date.now(),
+                },
+            };
+        },
+
+        reply: (_, state, parentId, previousId, id) => {
+            if (!state[parentId]) {
+                throw new Error(`Comment with id ${parentId} does not exist`);
+            }
+            if (!state[previousId]) {
+                throw new Error(`Comment with id ${previousId} does not exist`);
+            }
+
+            if (state[id]) {
+                return {};
+            }
+
+            return {
+                [id]: {
+                    parentId,
+                    previousId,
+                    cid: id,
+                    createdAt: Date.now(),
                 },
             };
         },
@@ -118,7 +138,7 @@ export default {
         // Order concurrent entries in the temporary map created above
         // The conncurrent definition here is a comment that has the same previousId as another onne
         forIn(afterIdsMap, (afterIds) => {
-            afterIds.sort((id1, id2) => compareConcurrentEntries(id1, id2, state));
+            afterIds.sort((id1, id2) => compareConcurrentEntries(state[id1], state[id2]));
         });
 
         // Iterate over the `afterIds` by order, starting with the initial ones, in order to

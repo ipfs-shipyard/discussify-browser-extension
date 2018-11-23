@@ -54,7 +54,7 @@ export const getCommentData = (state, discussionId, commentId) => {
     };
 };
 
-export const getCommentsTree = (state, discussionId) => {
+export const getCommentNodes = (state, discussionId) => {
     const sharedValue = get(state.discussions, [discussionId, 'sharedValue']);
 
     if (!sharedValue) {
@@ -63,12 +63,12 @@ export const getCommentsTree = (state, discussionId) => {
 
     const { sequence, entries } = sharedValue;
     const nodesMap = new Map();
-    const rootNode = [];
+    const rootNodes = [];
 
     sequence.forEach((commentId) => {
         const crdtEntry = entries[commentId];
 
-        // Construct this tree node
+        // Construct this node
         const node = {
             id: commentId,
             cid: crdtEntry.cid,
@@ -77,26 +77,26 @@ export const getCommentsTree = (state, discussionId) => {
                 error: getCommentError(state, discussionId, commentId) || null,
                 data: getCommentData(state, discussionId, commentId) || null,
             },
-            children: [],
+            replyNodes: [],
         };
 
         nodesMap.set(commentId, node);
 
         // Add it to the correct parent node
-        const { parentId } = crdtEntry;
+        const { parentId: parentCommentId } = crdtEntry;
 
-        if (parentId) {
-            const parentNode = nodesMap.get(parentId);
+        if (parentCommentId) {
+            const parentNode = nodesMap.get(parentCommentId);
 
             if (parentNode) {
-                parentNode.children.push(node);
+                parentNode.replyNodes.push(node);
             }
         } else {
-            rootNode.push(node);
+            rootNodes.push(node);
         }
     });
 
-    return rootNode;
+    return rootNodes;
 };
 
 export const getSerializedDiscussions = () => undefined;

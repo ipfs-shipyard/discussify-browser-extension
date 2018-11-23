@@ -31,11 +31,12 @@ const createMethods = (tabId) => ({
     },
 
     discussion: {
-        createComment: (previousCommentId, body) => callBackgroundMethod(tabId, 'discussion.createComment', previousCommentId, body),
-        updateComment: (commentId, body) => callBackgroundMethod(tabId, 'discussion.updateComment', commentId, body),
-        removeComment: (commentId) => callBackgroundMethod(tabId, 'discussion.removeComment', commentId),
-        loadComments: (commentIds) => callBackgroundMethod(tabId, 'discussion.loadComments', commentIds),
-        loadCommentHistory: (commentId) => callBackgroundMethod(tabId, 'discussion.loadCommentHistory', commentId),
+        createComment: (previousId, body) => callBackgroundMethod(tabId, 'discussion.createComment', previousId, body),
+        updateComment: (id, body) => callBackgroundMethod(tabId, 'discussion.updateComment', id, body),
+        removeComment: (id) => callBackgroundMethod(tabId, 'discussion.removeComment', id),
+        replyToComment: (parentId, previousId, body) => callBackgroundMethod(tabId, 'discussion.replyToComment', parentId, previousId, body),
+        loadComments: (ids) => callBackgroundMethod(tabId, 'discussion.loadComments', ids),
+        loadCommentHistory: (id) => callBackgroundMethod(tabId, 'discussion.loadCommentHistory', id),
     },
 });
 

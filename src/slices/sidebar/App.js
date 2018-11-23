@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { last } from 'lodash';
 import { connectExtension } from '../../react-extension-client';
 import TopBar from './top-bar';
-import BottomBar from './bottom-bar';
-import DiscussionComments from './discussion-comments';
+import Discussion from './discussion';
 import styles from './App.css';
 
 class App extends Component {
@@ -21,17 +19,13 @@ class App extends Component {
         onCommentLoadHistory: PropTypes.func.isRequired,
     };
 
-    state = {
-        newCommentId: null,
-    };
-
     render() {
-        const { newCommentId } = this.state;
         const {
             user,
             metadata,
             discussion,
             onSidebarClose,
+            onCommentCreate,
             onCommentUpdate,
             onCommentRemove,
             onCommentReply,
@@ -46,34 +40,21 @@ class App extends Component {
                     peersCount={ discussion.peersCount }
                     onClose={ onSidebarClose } />
 
-                <DiscussionComments
+                <Discussion
                     key={ discussion.id }
                     user={ user }
                     error={ discussion.error }
-                    commentsTree={ discussion.commentsTree }
-                    scrollToCommentId={ newCommentId }
-                    onUpdate={ onCommentUpdate }
-                    onRemove={ onCommentRemove }
-                    onReply={ onCommentReply }
-                    onLoad={ onCommentLoad }
-                    onLoadHistory={ onCommentLoadHistory }
-                    className={ styles.discussionComments } />
-
-                <BottomBar
-                    disabled={ !discussion.error && !discussion.commentsTree }
-                    onNewComment={ this.handleNewComment } />
+                    commentNodes={ discussion.commentNodes }
+                    onCommentCreate={ onCommentCreate }
+                    onCommentUpdate={ onCommentUpdate }
+                    onCommentRemove={ onCommentRemove }
+                    onCommentReply={ onCommentReply }
+                    onCommentLoad={ onCommentLoad }
+                    onCommentLoadHistory={ onCommentLoadHistory }
+                    className={ styles.discussion } />
             </div>
         );
     }
-
-    handleNewComment = async (body) => {
-        const lastComment = last(this.props.discussion.commentsTree);
-        const previousId = lastComment && lastComment.id;
-
-        const newCommentId = await this.props.onCommentCreate(previousId, body);
-
-        this.setState({ newCommentId });
-    };
 }
 
 const mapStateToProps = (state) => ({
@@ -87,7 +68,7 @@ const mapMethodsToProps = (methods) => ({
     onCommentCreate: (previousId, body) => methods.discussion.createComment(previousId, body),
     onCommentUpdate: (id, body) => methods.discussion.updateComment(id, body),
     onCommentRemove: (id) => methods.discussion.removeComment(id),
-    onCommentReply: (parentId, previousId, comment) => methods.discussion.replyComment(parentId, previousId, comment),
+    onCommentReply: (parentId, previousId, comment) => methods.discussion.replyToComment(parentId, previousId, comment),
     onCommentLoad: (ids) => methods.discussion.loadComments(ids),
     onCommentLoadHistory: (id) => methods.discussion.loadCommentHistory(id),
 });

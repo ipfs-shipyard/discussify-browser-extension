@@ -1,7 +1,7 @@
 import getClientState from './util/client-state';
 import { authenticate, unauthenticate, cancelAuthenticate } from './store/session';
 import { getTabDiscussionId, dismissTabInjectionError, openSidebar, closeSidebar } from './store/tabs';
-import { createComment, updateComment, removeComment, loadComments } from './store/discussions';
+import { createComment, updateComment, removeComment, replyToComment, loadComments } from './store/discussions';
 
 const createMethods = (store) => ({
     getState: (tabId) => getClientState(store.getState(), tabId),
@@ -39,12 +39,17 @@ const createMethods = (store) => ({
         updateComment: (tabId, commentId, body) => {
             const discussionId = getTabDiscussionId(store.getState(), tabId);
 
-            store.dispatch(updateComment(discussionId, commentId, body));
+            return store.dispatch(updateComment(discussionId, commentId, body));
         },
         removeComment: (tabId, commentId) => {
             const discussionId = getTabDiscussionId(store.getState(), tabId);
 
-            store.dispatch(removeComment(discussionId, commentId));
+            return store.dispatch(removeComment(discussionId, commentId));
+        },
+        replyToComment: (tabId, parentCommentId, previousCommentId, body) => {
+            const discussionId = getTabDiscussionId(store.getState(), tabId);
+
+            return store.dispatch(replyToComment(discussionId, parentCommentId, previousCommentId, body));
         },
         loadComments: (tabId, commentIds) => {
             const discussionId = getTabDiscussionId(store.getState(), tabId);

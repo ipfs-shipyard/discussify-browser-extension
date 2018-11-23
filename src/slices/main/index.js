@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
+import './index.css';
 import { KeyboardOnlyOutlines } from '@discussify/styleguide';
 import { ExtensionProvider } from '../../react-extension-client';
-import './index.css';
 import App from './App';
 
 const renderApp = (rootEl, extensionClient) => {

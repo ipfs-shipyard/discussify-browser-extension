@@ -1,6 +1,6 @@
 import { getUser, getError, getQrCodeUri } from '../store/session';
 import { isTabSidebarOpen, getTabDiscussionId, getTabMetadata } from '../store/tabs';
-import { getDiscussionError, getCommentsTree, getDiscussionPeersCount } from '../store/discussions';
+import { getDiscussionError, getCommentNodes, getDiscussionPeersCount } from '../store/discussions';
 
 const getClientState = (state, tabId) => {
     const discussionId = getTabDiscussionId(state, tabId);
@@ -18,7 +18,7 @@ const getClientState = (state, tabId) => {
         discussion: {
             id: discussionId,
             error: getDiscussionError(state, discussionId),
-            commentsTree: getCommentsTree(state, discussionId),
+            commentNodes: getCommentNodes(state, discussionId),
             peersCount: getDiscussionPeersCount(state, discussionId),
         },
     };

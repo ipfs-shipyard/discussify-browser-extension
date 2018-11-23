@@ -1,6 +1,6 @@
 import * as actionTypes from './action-types';
 import { getUser } from '../session';
-import { hasDiscussion, isDiscussionStarted, isDiscussionStarting, getCommentCid, hasComment, isCommentLoading } from './selectors';
+import { hasDiscussion, isDiscussionStarted, isDiscussionStarting, getCommentCid, getCommentData, isCommentLoading } from './selectors';
 import { getCommentsCollaborationName } from './util/collaboration-names';
 import { getCollaboration, startCollaboration, stopCollaboration, registerCollaborationType } from '../../util/peer-star-collaborations';
 import commentsCrdt from './util/comments-crdt';
@@ -12,7 +12,7 @@ const STOP_COLLABORATION_TIMEOUT = 30000;
 
 registerCollaborationType(COMMENTS_CRDT_TYPE, commentsCrdt);
 
-export const createDiscussion = (discussionId, tabId) => (dispatch) => {
+export const createDiscussion = (discussionId, tabId) => async (dispatch, getState, { peerStarApp }) => {
     dispatch({
         type: actionTypes.CREATE_DISCUSSION,
         payload: {
@@ -21,37 +21,7 @@ export const createDiscussion = (discussionId, tabId) => (dispatch) => {
         },
     });
 
-    dispatch(startDiscussion(discussionId));
-};
-
-export const destroyDiscussion = (discussionId, tabId) => (dispatch, getState) => {
-    if (!hasDiscussion(getState(), discussionId)) {
-        throw new Error(`Discussion with id ${discussionId} does not exist`);
-    }
-
-    dispatch({
-        type: actionTypes.DESTROY_DISCUSSION,
-        payload: {
-            discussionId,
-            tabId,
-        },
-    });
-
-    // Destroy the collaboration if the discussion is gone
-    if (!hasDiscussion(getState(), discussionId)) {
-        setTimeout(() => {
-            if (!hasDiscussion(getState(), discussionId)) {
-                stopCollaboration(getCommentsCollaborationName(discussionId));
-            }
-        }, STOP_COLLABORATION_TIMEOUT);
-    }
-};
-
-export const startDiscussion = (discussionId) => async (dispatch, getState, { peerStarApp }) => {
-    if (!hasDiscussion(getState(), discussionId)) {
-        throw new Error(`Discussion with id ${discussionId} does not exist`);
-    }
-
+    // Skip if the discussion is already started (or starting)
     if (isDiscussionStarted(getState(), discussionId) || isDiscussionStarting(getState(), discussionId)) {
         return;
     }
@@ -116,11 +86,26 @@ export const startDiscussion = (discussionId) => async (dispatch, getState, { pe
     });
 };
 
-export const createComment = (discussionId, previousCommentId, body) => async (dispatch, getState, { peerStarApp }) => {
-    if (!hasDiscussion(getState(), discussionId)) {
-        throw new Error(`Discussion with id ${discussionId} does not exist`);
-    }
+export const destroyDiscussion = (discussionId, tabId) => (dispatch, getState) => {
+    dispatch({
+        type: actionTypes.DESTROY_DISCUSSION,
+        payload: {
+            discussionId,
+            tabId,
+        },
+    });
 
+    // Destroy the collaboration if the discussion is gone
+    if (!hasDiscussion(getState(), discussionId)) {
+        setTimeout(() => {
+            if (!hasDiscussion(getState(), discussionId)) {
+                stopCollaboration(getCommentsCollaborationName(discussionId));
+            }
+        }, STOP_COLLABORATION_TIMEOUT);
+    }
+};
+
+export const createComment = (discussionId, previousCommentId, body) => async (dispatch, getState, { peerStarApp }) => {
     const user = getUser(getState());
     const sanitizedBody = sanitizeBody(body);
 
@@ -128,10 +113,12 @@ export const createComment = (discussionId, previousCommentId, body) => async (d
         return;
     }
 
+    // The entropy guarantees that the comment id will be unique (cid),
+    // even if the same auther types the same text
     const comment = {
         author: user,
         body: sanitizedBody,
-        timestamp: Date.now(),
+        entropy: Math.round(Math.random() * (10 ** 15)).toString(36),
     };
 
     const cid = await storeComment(peerStarApp.ipfs, comment);
@@ -147,11 +134,7 @@ export const createComment = (discussionId, previousCommentId, body) => async (d
 
     const collaboration = await getCollaboration(getCommentsCollaborationName(discussionId));
 
-    collaboration && collaboration.shared.create({
-        id: cid,
-        previousId: previousCommentId,
-        cid,
-    });
+    collaboration && collaboration.shared.create(previousCommentId, cid);
 
     // Return the CID so that the clients can scroll to the new comment
     return cid;
@@ -159,20 +142,20 @@ export const createComment = (discussionId, previousCommentId, body) => async (d
 
 export const updateComment = (discussionId, commentId, body) => async (dispatch, getState, { peerStarApp }) => {
     const user = getUser(getState());
+    const originalComment = getCommentData(getState(), discussionId, commentId);
     const sanitizedBody = sanitizeBody(body);
 
-    if (!user || !sanitizedBody) {
-        return;
+    if (!originalComment) {
+        throw new Error(`Comment with id ${commentId} does not exist`);
     }
 
-    if (!hasComment(getState(), discussionId, commentId)) {
-        throw new Error(`Unknown comment with id ${commentId}`);
+    if (!user || !sanitizedBody || sanitizedBody === originalComment.body) {
+        return;
     }
 
     const comment = {
         author: user,
-        body,
-        timestamp: Date.now(),
+        body: sanitizedBody,
     };
 
     const cid = await storeComment(peerStarApp.ipfs, comment);
@@ -189,6 +172,9 @@ export const updateComment = (discussionId, commentId, body) => async (dispatch,
     const collaboration = await getCollaboration(getCommentsCollaborationName(discussionId));
 
     collaboration && collaboration.shared.update(commentId, cid);
+
+    // Return the CID so that the clients can react to the updated comment
+    return cid;
 };
 
 export const removeComment = (discussionId, commentId) => async (dispatch, getState, { peerStarApp }) => {
@@ -198,14 +184,9 @@ export const removeComment = (discussionId, commentId) => async (dispatch, getSt
         return;
     }
 
-    if (!hasComment(getState(), discussionId, commentId)) {
-        throw new Error(`Unknown comment with id ${commentId}`);
-    }
-
     const comment = {
         author: user,
         body: null,
-        timestamp: Date.now(),
     };
 
     const cid = await storeComment(peerStarApp.ipfs, comment);
@@ -222,14 +203,47 @@ export const removeComment = (discussionId, commentId) => async (dispatch, getSt
     const collaboration = await getCollaboration(getCommentsCollaborationName(discussionId));
 
     collaboration && collaboration.shared.update(commentId, cid);
+
+    // Return the CID so that the clients can react to the removed comment
+};
+
+export const replyToComment = (discussionId, parentCommentId, previousCommentId, body) => async (dispatch, getState, { peerStarApp }) => {
+    const user = getUser(getState());
+    const sanitizedBody = sanitizeBody(body);
+
+    if (!user || !sanitizedBody) {
+        return;
+    }
+
+    // The entropy guarantees that the comment id will be unique (cid),
+    // even if the same auther types the same text
+    const comment = {
+        author: user,
+        body: sanitizedBody,
+        entropy: Math.round(Math.random() * (10 ** 15)).toString(36),
+    };
+
+    const cid = await storeComment(peerStarApp.ipfs, comment);
+
+    dispatch({
+        type: actionTypes.SET_COMMENT,
+        payload: {
+            discussionId,
+            cid,
+            comment,
+        },
+    });
+
+    const collaboration = await getCollaboration(getCommentsCollaborationName(discussionId));
+
+    collaboration && collaboration.shared.reply(parentCommentId, previousCommentId, cid);
+
+    // Return the CID so that the clients can scroll to the new comment
+    return cid;
 };
 
 export const loadComments = (discussionId, commentIds) => async (dispatch, getState, { peerStarApp }) => {
     const state = getState();
-
-    if (!hasDiscussion(state, discussionId)) {
-        throw new Error(`Discussion with id ${discussionId} does not exist`);
-    }
 
     const cids = commentIds
     .map((commentId) =>
