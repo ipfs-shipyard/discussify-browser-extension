@@ -1,6 +1,9 @@
 {
   "name": "@discussify/browser-extension",
   "version": "0.0.1",
+  "dataVersions": {
+    "discussions": "1"
+  },
   "private": true,
   "dependencies": {
     "@discussify/styleguide": "^0.5.0",

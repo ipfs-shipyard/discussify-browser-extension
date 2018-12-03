@@ -186,6 +186,7 @@ const buildConfig = (env) => {
             // Add support for environment variables under `process.env`
             new DefinePlugin({
                 'process.env.NODE_ENV': `"${env}"`,
+                DATA_VERSIONS: JSON.stringify(require('../package.json').dataVersions),
             }),
             // Alleviate cases where developers working on OSX, which does not follow strict path case sensitivity
             new CaseSensitivePathsPlugin(),
