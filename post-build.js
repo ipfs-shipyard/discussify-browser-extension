@@ -4,7 +4,6 @@ const path = require('path');
 const template = require('lodash/template');
 const argv = require('yargs')
 .alias('h', 'help')
-.help('help')
 .usage('Usage: $0 <distDir> [options]')
 .example('$0 dist/chrome --manifest.target=chrome')
 .demand(1)
