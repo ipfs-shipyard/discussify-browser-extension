@@ -3,7 +3,7 @@
 .commentsList {
     position: relative;
     overflow-y: auto;
-    padding: 1.5rem 3rem;
+    padding: 1.5rem 5rem 1.5rem 3rem;
     display: flex;
     flex-direction: column;
     background-color: var(--color-white);
