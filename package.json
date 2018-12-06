@@ -31,10 +31,12 @@
     "webextension-polyfill": "^0.3.1"
   },
   "scripts": {
-    "start": "webpack --config config/webpack-dev.js --watch",
-    "build:chrome": "node ./post-build.js dist/chrome --manifest.target=chrome",
-    "build:firefox": "node ./post-build.js dist/firefox --manifest.target=firefox",
-    "build": "webpack --config config/webpack-prod.js && run-s build:*",
+    "start:chrome": "npm run dist:chrome && webpack --config config/webpack-dev.js --watch --output-path=dist/chrome/build",
+    "start:firefox": "npm run dist:firefox && webpack --config config/webpack-dev.js --watch --output-path=dist/firefox/build",
+    "start": "npm run start:chrome",
+    "dist:chrome": "node ./create-dist.js dist/chrome --manifest.target=chrome",
+    "dist:firefox": "node ./create-dist.js dist/firefox --manifest.target=firefox",
+    "build": "webpack --config config/webpack-prod.js && run-s dist:*",
     "lint": "eslint --ignore-path .gitignore . && stylelint --ignore-path .gitignore \"**/*.css\""
   },
   "husky": {
