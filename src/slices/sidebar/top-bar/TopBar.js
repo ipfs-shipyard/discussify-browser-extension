@@ -8,14 +8,16 @@ import styles from './TopBar.css';
 
 const TopBar = ({ metadata, peersCount, onClose, className }) => (
     <div className={ classNames(styles.topBar, className) }>
+        <div className={ styles.info }>
+            <PageInfo metadata={ metadata } />
+
+            <PeersInfo peersCount={ peersCount } />
+        </div>
+
         <CloseIcon
             interactive
             onClick={ onClose }
             className={ styles.closeIcon } />
-
-        <PageInfo metadata={ metadata } />
-
-        <PeersInfo peersCount={ peersCount } className={ styles.peersInfo } />
     </div>
 );
 

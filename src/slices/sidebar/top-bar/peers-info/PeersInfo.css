@@ -7,9 +7,10 @@
     align-items: center;
 
     & .dot {
-        width: 0.8rem;
-        height: 0.8rem;
-        border: 1px solid var(--color-white);
+        box-sizing: content-box;
+        width: 0.6rem;
+        height: 0.6rem;
+        border: 2px solid var(--color-white);
         background-color: color(var(--color-black) alpha(0.3));
         border-radius: 50%;
 
