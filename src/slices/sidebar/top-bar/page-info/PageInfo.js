@@ -4,10 +4,19 @@ import classNames from 'classnames';
 import styles from './PageInfo.css';
 
 const getInfo = (metadata) => {
+    const parsedUrl = new URL(metadata.canonicalUrl);
     const favicon = metadata.favicon;
+    const domain = parsedUrl.host || 'N/A';
+
+    // Use description if the title seems similar to the domain
+    const overline = domain.startsWith(metadata.title) ?
+        metadata.description || metadata.title :
+        metadata.title || metadata.description;
 
     return {
         favicon,
+        domain,
+        overline,
     };
 };
 
