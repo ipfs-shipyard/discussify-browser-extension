@@ -19,7 +19,9 @@
         }
     },
     "background": {
+        <% if (options.target === 'chrome') { %>
         "persistent": true,
+        <% } %>
         "scripts": [
             "build/background.js"
         ]

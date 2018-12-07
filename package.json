@@ -13,7 +13,7 @@
     "lodash": "^4.17.11",
     "nano-md5": "^1.0.3",
     "normalize-url": "^3.3.0",
-    "peer-star-app": "^0.9.1",
+    "peer-star-app": "^0.10.4",
     "prop-types": "^15.6.2",
     "query-string": "^6.1.0",
     "react": "^16.6.0",
@@ -31,8 +31,12 @@
     "webextension-polyfill": "^0.3.1"
   },
   "scripts": {
-    "start": "webpack --config config/webpack-dev.js --watch",
-    "build": "webpack --config config/webpack-prod.js",
+    "start:chrome": "npm run dist:chrome && webpack --config config/webpack-dev.js --watch --output-path=dist/chrome/build",
+    "start:firefox": "npm run dist:firefox && webpack --config config/webpack-dev.js --watch --output-path=dist/firefox/build",
+    "start": "npm run start:chrome",
+    "dist:chrome": "node ./create-dist.js dist/chrome --manifest.target=chrome",
+    "dist:firefox": "node ./create-dist.js dist/firefox --manifest.target=firefox",
+    "build": "webpack --config config/webpack-prod.js && run-s dist:*",
     "lint": "eslint --ignore-path .gitignore . && stylelint --ignore-path .gitignore \"**/*.css\""
   },
   "husky": {
@@ -67,8 +71,10 @@
     "eslint": "^5.5.0",
     "eslint-config-moxy": "^6.1.1",
     "file-loader": "^2.0.0",
+    "fs-extra": "^7.0.1",
     "husky": "^1.1.0",
     "lint-staged": "^7.2.0",
+    "npm-run-all": "^4.1.5",
     "postcss-loader": "^3.0.0",
     "postcss-preset-moxy": "^2.3.0",
     "raw-loader": "^0.5.1",
@@ -81,6 +87,7 @@
     "terser-webpack-plugin": "^1.1.0",
     "webpack": "^4.23.1",
     "webpack-chrome-extension-reloader": "^0.8.3",
-    "webpack-cli": "^3.1.0"
+    "webpack-cli": "^3.1.0",
+    "yargs": "^12.0.5"
   }
 }

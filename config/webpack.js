@@ -42,7 +42,7 @@ const buildConfig = (env) => {
             ],
         },
         output: {
-            path: path.join(projectDir, 'dist/build'),
+            path: path.join(projectDir, 'dist-template/build'),
             publicPath: '.',
             filename: '[name].js',
             chunkFilename: '[id].chunk.js',
