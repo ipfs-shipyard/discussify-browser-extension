@@ -46,10 +46,7 @@ export default class PageInfo extends Component {
                             onLoad={ this.handleFaviconLoaded }
                             className={ styles.favicon } />
                     ) }
-                    <span className={ styles.domain }>{ info.domain }</span>
                 </div>
-
-                { info.overline && <div className={ styles.overline }>{ info.overline }</div> }
             </div>
         );
     }

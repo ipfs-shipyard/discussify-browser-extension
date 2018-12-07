@@ -15,26 +15,11 @@
             vertical-align: middle;
         }
 
-        & .domain {
-            @mixin typography-body-1 rem;
-            @mixin text-ellipsis;
-            flex: 1 0;
-            color: color(var(--color-black) alpha(0.5));
-            font-size: 1.4rem;
-        }
-
         &.faviconLoaded .favicon {
             width: 1.6rem;
             height: 1.6rem;
-            margin-right: 0.5rem;
+            margin-right: 1.2rem;
             visibility: visible;
         }
-    }
-
-    & .overline {
-        @mixin typography-body-1 rem;
-        @mixin text-ellipsis;
-        color: color(var(--color-black) alpha(0.8));
-        font-size: 1.4rem;
     }
 }
