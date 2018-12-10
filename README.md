@@ -20,7 +20,8 @@ Because the current version is a pre-alpha, it's not yet available through the r
 
 1. Point to the folder where you extracted the ZIP contents
 
-The extension should now appear in the extensions list!
+The extension should now appear in the extensions list! Click on the extension icon and then look for the white floating action button in the bottom right of your window to login with a uPort identity and start using Discussify.
+
 
 ### Development
 
