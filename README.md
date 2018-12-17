@@ -10,7 +10,13 @@ Choose one of the installations below. Note that you will need to have a self-so
 
 ### Easy install (AMO/Add-ons for Firefox and Chrome Web Store)
 
-TODO: add links once available
+#### Chrome Web Store
+
+Download and install it [here](https://chrome.google.com/webstore/detail/discussify/bfmnjjkobeboejeocbompgljbiafbgcc).
+
+#### AMO/Add-ons for Firefox
+
+We did not submit the extension to AMO yet as we are tackling privacy policy first. There is an opened issue for that and you can check its status [here](https://github.com/ipfs-shipyard/pm-discussify/issues/68).
 
 ### Build from source
 
@@ -37,13 +43,15 @@ TODO: add links once available
     1. Click on "_Load Temporary Add-on_".
     1. Pick the file `dist/firefox/manifest.json`.
 
+1. The extension should now appear in the extensions list! Click on the extension icon and then look for the white floating action button in the bottom right of your window to login with a uPort identity and start using Discussify.
+
 ## Contributing
 
 If you want to contribute for the project, we encourage you to read over the [pm-discussify](https://github.com/ipfs-shipyard/pm-discussify) repository README.
 
 In order to run the project, follow the [Build from source](#build-from-source) instructions but, instead of `npm run build`, use `npm start`.
 
-The extension should now appear in the extensions list! Any changes to the source code will be compiled and the extension should automatically reload, thanks to [webpack-chrome-extension-reloader](https://github.com/rubenspgcavalcante/webpack-chrome-extension-reloader). If you have any problems with this feature, simply click the reload button on the extension.
+Any changes to the source code will be compiled and the extension should automatically reload, thanks to [webpack-chrome-extension-reloader](https://github.com/rubenspgcavalcante/webpack-chrome-extension-reloader). If you have any problems with this feature, simply click the reload button on the extension.
 
 ### Commands
 
