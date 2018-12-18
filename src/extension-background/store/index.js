@@ -14,8 +14,8 @@ const reducer = combineReducers({
 const configureStore = (peerStarApp, initialState) => {
     const middlewares = [
         thunk.withExtraArgument({ peerStarApp }),
-        logger,
-    ];
+        process.env.NODE_ENV === 'development' && logger,
+    ].filter(Boolean);
 
     return createStore(reducer, initialState, applyMiddleware(...middlewares));
 };
