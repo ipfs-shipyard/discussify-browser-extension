@@ -1,0 +1,141 @@
+/*  Edit comment keyframes */
+
+@keyframes default-comment {
+    0% {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    99.99% {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    100% {
+        position: relative;
+        z-index: 2;
+        pointer-events: auto;
+    }
+}
+
+@keyframes default-comment-input {
+    0% {
+        position: relative;
+        z-index: 2;
+        pointer-events: auto;
+    }
+
+    99.99% {
+        position: relative;
+        z-index: 2;
+        pointer-events: auto;
+    }
+
+    100% {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        pointer-events: none;
+    }
+}
+
+@keyframes editing-comment {
+    0% {
+        position: relative;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    99.99% {
+        position: relative;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    100% {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        pointer-events: none;
+    }
+}
+
+@keyframes editing-comment-input {
+    0% {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    99.99% {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    100% {
+        position: relative;
+        z-index: 2;
+        pointer-events: auto;
+    }
+}
+
+/*  Reply comment keyframe */
+
+@keyframes entering-reply-comment {
+    0% {
+        position: absolute;
+        z-index: 1;
+    }
+
+    99.99% {
+        position: absolute;
+        z-index: 1;
+    }
+
+    100% {
+        position: relative;
+        z-index: 2;
+    }
+}
+
+@keyframes exiting-reply-comment-input {
+    0% {
+        position: relative;
+        z-index: 2;
+    }
+
+    99.99% {
+        position: relative;
+        z-index: 2;
+    }
+
+    100% {
+        position: absolute;
+        z-index: 1;
+    }
+}

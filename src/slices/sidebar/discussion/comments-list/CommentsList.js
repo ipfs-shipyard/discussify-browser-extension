@@ -1,5 +1,4 @@
 import React, { PureComponent, Fragment, createRef } from 'react';
-import { findDOMNode } from 'react-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ViewMore, { Monitor as ViewMoreMonitor } from './ViewMore';
@@ -56,7 +55,7 @@ export default class CommentsList extends PureComponent {
                                 { visibleNodes.map((node) => (
                                     <Node
                                         key={ node.id }
-                                        ref={ node.id === addedId && this.scrollToAddedComment }
+                                        isNewComment={ node.id === addedId }
                                         node={ node }
                                         user={ user }
                                         onUpdate={ onUpdate }
@@ -64,7 +63,8 @@ export default class CommentsList extends PureComponent {
                                         onReply={ onReply }
                                         onLoad={ this.handleLoad }
                                         onLoadHistory={ onLoadHistory }
-                                        className={ styles.node } />
+                                        className={ styles.node }
+                                        listHasScroll={ this.hasScroll() } />
                                 )) }
                             </Fragment>
                         ) }
@@ -74,22 +74,16 @@ export default class CommentsList extends PureComponent {
         );
     }
 
+    hasScroll = () => this.commentsListRef.current ?
+        this.commentsListRef.current.scrollHeight !== this.commentsListRef.current.clientHeight :
+        false;
+
     maybeScrollToBottomInitially(prevProps) {
         const commentsCount = this.props.nodes ? this.props.nodes.length : 0;
         const prevCommentsCount = prevProps && prevProps.nodes ? prevProps.nodes.length : 0;
 
         if (commentsCount && !prevCommentsCount) {
             this.commentsListRef.current.scrollTop = this.commentsListRef.current.scrollHeight;
-        }
-    }
-
-    scrollToAddedComment(ref) {
-        const domNode = findDOMNode(ref);
-
-        if (domNode) {
-            domNode.scrollIntoView({
-                block: 'end',
-            });
         }
     }
 

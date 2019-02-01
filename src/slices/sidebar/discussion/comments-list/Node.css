@@ -1,13 +1,57 @@
+@import "@discussify/styleguide/styles/colors";
+@import "./keyframes";
+
 .node {
+    & .commentContainer {
+        position: relative;
+
+        & .commentPlacer {
+            &.default {
+                position: relative;
+                z-index: 2;
+            }
+
+            &.enteredEditingMode {
+                animation: default-comment 0.3s ease forwards;
+            }
+
+            &.editing {
+                animation: editing-comment 0.4s ease forwards;
+            }
+        }
+
+        & .commentInputPlacer {
+            &.default {
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 1;
+                pointer-events: none;
+            }
+
+            &.enteredEditingMode {
+                animation: default-comment-input 0.3s ease forwards;
+            }
+
+            &.editing {
+                animation: editing-comment-input 0.4s ease forwards;
+            }
+        }
+
+        & .newReply {
+            animation: entering-reply-comment 0.3s ease forwards;
+        }
+    }
+
+    & .replySubmited {
+        animation: exiting-reply-comment-input 0.3s ease forwards;
+    }
+
     & .commentFrame {
         padding: 1rem 0;
-
-        & .hidden {
-            position: fixed;
-            top: 100vh;
-            left: 100vw;
-            visibility: hidden;
-        }
+        background: var(--color-white);
     }
 
     & .repliesIndent {
