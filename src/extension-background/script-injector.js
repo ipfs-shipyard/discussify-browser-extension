@@ -1,6 +1,8 @@
 import serialize from 'serialize-javascript';
+import { MAIN_APP_FINALIZE } from './message-types';
 
 const HOST_ELEMENT_ID = window.__DISCUSSIFY_HOST_ELEMENT_ID__;
+const PRE_DESTROY_EVENT = 'discussify/pre-destroy';
 const DESTROY_EVENT = 'discussify/destroy';
 const SUPPORTED_PROTOCOLS = ['http:', 'https:', 'ftp:'];
 
@@ -22,6 +24,7 @@ const injectContext = async (tabId, clientState) => {
     const context = {
         hostElementId: HOST_ELEMENT_ID,
         destroyEvent: DESTROY_EVENT,
+        preDestroyEvent: PRE_DESTROY_EVENT,
         state: clientState,
         injected: false,
     };
@@ -48,6 +51,35 @@ const executeContentScript = (tabId) =>
     browser.tabs.executeScript(tabId, {
         file: '/build/content-script.js',
     });
+
+const preDestroyContentScript = async (tabId) => {
+    const result = await browser.tabs.executeScript(tabId, {
+        code: `
+        (() => {
+            const hostEl = document.getElementById('${HOST_ELEMENT_ID}');
+            hostEl.dispatchEvent(new Event('${PRE_DESTROY_EVENT}'));
+
+            return true;
+        })();`,
+    });
+
+    if (!result[0]) {
+        return false;
+    }
+
+    return new Promise((resolve) => {
+        const listener = (request) => {
+            if (request.type !== MAIN_APP_FINALIZE) {
+                return;
+            }
+
+            browser.runtime.onMessage.removeListener(listener);
+            resolve(true);
+        };
+
+        browser.runtime.onMessage.addListener(listener);
+    });
+};
 
 const destroyContentScript = async (tabId) => {
     const result = await browser.tabs.executeScript(tabId, {
@@ -109,7 +141,9 @@ export const injectScript = async (tabId, clientState) => {
 };
 
 export const removeScript = async (tabId) => {
-    const success = await destroyContentScript(tabId);
+    let success = await preDestroyContentScript(tabId);
+
+    success = success && await destroyContentScript(tabId);
 
     if (!success) {
         throw Object.assign(

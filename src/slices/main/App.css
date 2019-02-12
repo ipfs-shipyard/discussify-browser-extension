@@ -1,52 +1,88 @@
 .app {
     & .fab {
-        will-change: opacity;
         z-index: 1;
-        opacity: 0;
 
-        &.enter {
-            opacity: 0;
-            transition: opacity 0.2s 0.198s ease; /* 66% of sidebar duration */
+        animation: bounce-in 450ms linear forwards;
+
+        &.bounceOut {
+            animation: bounce-out 450ms linear forwards;
         }
 
-        &.enterActive,
-        &.enterDone {
-            opacity: 1;
-        }
-
-        &.exit {
-            opacity: 1;
-            transition: opacity 0.2s ease;
-        }
-
-        &.exitActive {
-            opacity: 0;
+        &.hidden {
+            display: none;
         }
     }
 
     & .sidebar {
-        will-change: transform;
-        z-index: 2;
-        transform: translateX(100%);
+        z-index: -100;
+        visibility: hidden;
 
-        &.enter {
-            transform: translateX(100%);
-            transition: transform 0.3s 0.132s ease; /* 66% of fab duration */
+        &.fadeOut,
+        &.fadeIn {
+            z-index: 2;
+            visibility: visible;
         }
 
-        &.enterActive,
-        &.enterDone {
-            transform: translateX(0);
+        &.fadeIn > * {
+            animation: fade-in 200ms ease-in-out forwards;
         }
 
-        &.exit {
-            transform: translateX(0);
-            transition: transform 0.3s ease;
+        &.fadeOut > * {
+            animation: fade-out 200ms ease-in-out forwards;
         }
+    }
+}
 
-        &.exitActive,
-        &.exitDone {
-            transform: translate(100%);
-        }
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes bounce-in {
+    0% {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes bounce-out {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(0);
+        opacity: 0;
     }
 }

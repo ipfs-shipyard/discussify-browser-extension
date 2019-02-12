@@ -1,0 +1,21 @@
+.fab {
+    position: absolute;
+    right: 40px;
+    bottom: 40px;
+    width: 6rem;
+    height: 6rem;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background-color: rgb(252, 252, 252);
+    border-radius: 50%;
+    box-shadow: 0 1rem 2.5rem 0 rgba(45, 65, 85, 0.25);
+
+    &.scaleUp {
+        transition: transform 500ms ease-in-out;
+    }
+
+    &.scaleDown {
+        transition: transform 300ms ease-in-out;
+    }
+}
