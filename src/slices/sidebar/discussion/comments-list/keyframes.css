@@ -109,11 +109,15 @@
 @keyframes entering-reply-comment {
     0% {
         position: absolute;
+        right: 0;
+        left: 0;
         z-index: 1;
     }
 
     99.99% {
         position: absolute;
+        right: 0;
+        left: 0;
         z-index: 1;
     }
 
@@ -136,6 +140,8 @@
 
     100% {
         position: absolute;
+        right: 0;
+        left: 0;
         z-index: 1;
     }
 }
