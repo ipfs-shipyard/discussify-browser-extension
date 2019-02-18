@@ -100,3 +100,9 @@ $ npm run lint
 ```
 
 Checks if the project has any linting errors.
+
+## Privacy Policy
+
+**Last update:** February 18, 2019.
+
+We really encourage you to read our [Privacy Policy](/privacy-policy) before start using our extension.
