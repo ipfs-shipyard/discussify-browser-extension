@@ -1,11 +1,13 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 const BannerPlugin = require('webpack/lib/BannerPlugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
+const createResolver = require('postcss-import-webpack-resolver');
 
 const BROWSERS = [
     'last 2 Chrome versions',
@@ -15,6 +17,7 @@ const BROWSERS = [
 const buildConfig = (env) => {
     const projectDir = path.resolve(__dirname, '..');
     const isDev = env === 'development';
+    const existsStyleguideSrc = fs.existsSync(path.join(projectDir, 'node_modules/@discussify/styleguide/src'));
 
     return {
         context: projectDir,
@@ -43,13 +46,17 @@ const buildConfig = (env) => {
         },
         output: {
             path: path.join(projectDir, 'dist-template/build'),
-            publicPath: '.',
+            publicPath: '/build/',
             filename: '[name].js',
             chunkFilename: '[id].chunk.js',
         },
         resolve: {
             // Allow symlinked packages to work normally, e.g.: when linking @discussify/styleguide
             symlinks: false,
+            // In dev, we want to compile the styleguide when linked
+            alias: isDev && existsStyleguideSrc ? {
+                '@discussify/styleguide': path.join(projectDir, 'node_modules/@discussify/styleguide/src'),
+            } : undefined,
         },
         module: {
             rules: [
@@ -109,11 +116,20 @@ const buildConfig = (env) => {
                             options: require('postcss-preset-moxy')({
                                 browsers: BROWSERS,
                                 // Inline any url() calls to avoid Content Security Policy errors
-                                // Do not inline woff files because woff2 will be used instead, saving space in the bundle
+                                // Do not inline woff files because woff2 will be used instead, saving space in the bundle,
+                                // but instead just print their basenames to avoid having your disk path there
                                 url: [
-                                    { filter: '**/*.woff', url: 'rebase' },
-                                    { filter: '**/*', url: 'inline' },
+                                    { filter: /.woff$/, url: ({ pathname }) => `https://${path.basename(pathname)}}` },
+                                    { filter: /.*/, url: 'inline' },
                                 ],
+                                import: {
+                                    // In dev, we want to compile the styleguide when linked
+                                    resolve: createResolver({
+                                        alias: isDev && existsStyleguideSrc ? {
+                                            '@discussify/styleguide/styles': path.join(projectDir, 'node_modules/@discussify/styleguide/src/styles'), // eslint-disable-line max-len
+                                        } : undefined,
+                                    }),
+                                },
                             }),
                         },
                     ],
