@@ -1,6 +1,7 @@
 # Discussify Privacy Policy
 
 > First Posted: February 18, 2019
+
 > Last Update: February 18, 2019
 
 The Discussify browser extension is owned by Protocol Labs Inc. and created by the IPFS Project. We know you care about how your personal data is used and we take your privacy seriously. **By using Discussify, you are accepting and agreeing to our collection and use of your information in the ways described below. At the moment, we only plan to use the information you provided to us for analytics to run and improve Discussify platform. We don’t plan to sell it to anyone else or use it for advertising. If that changes, we'll let you know by updating this policy.**
@@ -13,7 +14,7 @@ If you are under the age of majority in your place of residence, you may use Dis
 
 ### Will We Ever Change this Privacy Policy?
 
-We’re constantly trying to improve Discussify, so we may need to change this Privacy Policy sometimes. When we do, we will update the date at the top of the Privacy Policy.  If we make any material changes to our Privacy Policy, we will try to inform you [here](/privacy-policy.md) ([https://github.com/ipfs-shipyard/pm-discussify/blob/master/privacy-policy.md](https://github.com/ipfs-shipyard/pm-discussify/blob/master/privacy-policy.md)), and if you gave us your email address then we will also try to use that to contact you. Ultimately, however, it is your responsibility to periodically review this Privacy Policy to stay informed. If you use Discussify after any changes to the Privacy Policy have been posted, that means you agree to all of those changes.   
+We’re constantly trying to improve Discussify, so we may need to change this Privacy Policy sometimes. When we do, we will update the date at the top of the Privacy Policy.  If we make any material changes to our Privacy Policy, we will try to inform you [here](/PRIVACY_POLICY.md) ([https://github.com/ipfs-shipyard/pm-discussify/blob/master/PRIVACY_POLICY.md](https://github.com/ipfs-shipyard/pm-discussify/blob/master/PRIVACY_POLICY.md)), and if you gave us your email address then we will also try to use that to contact you. Ultimately, however, it is your responsibility to periodically review this Privacy Policy to stay informed. If you use Discussify after any changes to the Privacy Policy have been posted, that means you agree to all of those changes.   
 
 ### What Information Do We Collect?
 
