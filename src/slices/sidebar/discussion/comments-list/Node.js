@@ -221,7 +221,7 @@ export default class Node extends PureComponent {
         const { cid: previousCid } = prevProps ? prevProps.node : {};
 
         if (this.state.editing && cid !== previousCid) {
-            this.setState({ editing: false });
+            this.setState({ editing: false, enteredEditingMode: true });
         }
     }
 
