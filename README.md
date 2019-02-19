@@ -103,4 +103,4 @@ Checks if the project has any linting errors.
 
 ## Privacy Policy
 
-We encourage you to read our [Privacy Policy](/PRIVACY_POLICY.md) before start using Discussify.
+We encourage you to read our [Privacy Policy](https://github.com/ipfs-shipyard/pm-discussify/blob/master/PRIVACY_POLICY.md) before start using Discussify.
