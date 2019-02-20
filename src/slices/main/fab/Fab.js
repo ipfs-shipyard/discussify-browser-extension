@@ -23,7 +23,7 @@ class Fab extends Component {
 
         if (authenticated && !authenticationOpen) {
             return (
-                <div className={ finalClassName }>
+                <div ref={ this.setRef } className={ finalClassName }>
                     <DiscussionFab onClick={ onOpen } />
                 </div>
             );
@@ -40,7 +40,7 @@ class Fab extends Component {
         );
 
         return (
-            <div className={ finalClassName }>
+            <div ref={ this.setRef } className={ finalClassName }>
                 <PopoverTrigger
                     popover={ popover }
                     onOpen={ this.handleAuthenticationOpen }
@@ -62,6 +62,12 @@ class Fab extends Component {
         );
     }
 
+    setRef = (ref) => {
+        const { onAnimationEnd } = this.props;
+
+        ref && ref.addEventListener('animationend', onAnimationEnd);
+    };
+
     handleAuthenticationOpen = () => {
         this.setState({ authenticationOpen: true });
         this.props.onAuthenticationOpen();
@@ -79,6 +85,7 @@ Fab.propTypes = {
     onOpen: PropTypes.func.isRequired,
     onAuthenticationOpen: PropTypes.func.isRequired,
     onAuthenticationClose: PropTypes.func.isRequired,
+    onAnimationEnd: PropTypes.func.isRequired,
 };
 
 export default Fab;

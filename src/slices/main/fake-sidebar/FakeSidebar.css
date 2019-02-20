@@ -1,0 +1,48 @@
+@import "@discussify/styleguide/styles/colors";
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 25%;
+    min-width: 45rem;
+    max-width: 70rem;
+    overflow: hidden;
+    display: none;
+    border-left: 1px solid transparent;
+    background: transparent;
+
+    &.fadeIn,
+    &.fadeOut {
+        display: inline;
+    }
+
+    &.fadeIn {
+        animation: fade-in 300ms ease-in forwards;
+    }
+
+    &.fadeOut {
+        animation: fade-out 100ms ease-in forwards;
+    }
+}
+
+@keyframes fade-in {
+    0% {
+        border-color: transparent;
+    }
+
+    100% {
+        border-color: color(var(--color-black) alpha(0.1));
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        border-color: color(var(--color-black) alpha(0.1));
+    }
+
+    100% {
+        border-color: transparent;
+    }
+}
