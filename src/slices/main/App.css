@@ -24,11 +24,11 @@
         }
 
         &.fadeIn > * {
-            animation: fade-in 200ms ease-in-out forwards;
+            animation: fade-in 200ms ease forwards;
         }
 
         &.fadeOut > * {
-            animation: fade-out 200ms ease-in-out forwards;
+            animation: fade-out 100ms ease forwards;
         }
     }
 }
