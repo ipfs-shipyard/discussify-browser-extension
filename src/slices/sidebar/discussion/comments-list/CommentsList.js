@@ -63,8 +63,7 @@ export default class CommentsList extends PureComponent {
                                         onReply={ onReply }
                                         onLoad={ this.handleLoad }
                                         onLoadHistory={ onLoadHistory }
-                                        className={ styles.node }
-                                        listHasScroll={ this.hasScroll() } />
+                                        className={ styles.node } />
                                 )) }
                             </Fragment>
                         ) }
@@ -73,10 +72,6 @@ export default class CommentsList extends PureComponent {
             </div>
         );
     }
-
-    hasScroll = () => this.commentsListRef.current ?
-        this.commentsListRef.current.scrollHeight !== this.commentsListRef.current.clientHeight :
-        false;
 
     maybeScrollToBottomInitially(prevProps) {
         const commentsCount = this.props.nodes ? this.props.nodes.length : 0;

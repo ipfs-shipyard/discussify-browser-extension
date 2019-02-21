@@ -28,7 +28,6 @@ export default class Node extends PureComponent {
         onLoadHistory: PropTypes.func.isRequired,
         className: PropTypes.string,
         isNewComment: PropTypes.bool,
-        listHasScroll: PropTypes.bool.isRequired,
     };
 
     static defaultProps = {
@@ -57,7 +56,7 @@ export default class Node extends PureComponent {
     }
 
     render() {
-        const { node, parentNode, depth, maxDepth, className, isNewComment, user, preloadAvatarImage, listHasScroll } = this.props;
+        const { node, parentNode, depth, maxDepth, className, isNewComment, user, preloadAvatarImage } = this.props;
         const { editing, editingCompletedOnce, replyId } = this.state;
         const isNewReply = !preloadAvatarImage;
         const owner = isNewComment && !!user && user.did === node.comment.data.author.did;
@@ -80,8 +79,7 @@ export default class Node extends PureComponent {
                                         [styles.newReply]: isNewReply,
                                     }) }
                                     animateOnMount={ isNewComment && !isNewReply }
-                                    scrollOnMount={ isNewComment && owner }
-                                    listHasScroll={ listHasScroll }>
+                                    scrollOnMount={ isNewComment && owner }>
                                     <CommentFrame
                                         reply={ !!parentNode }
                                         replyTo={ parentNode && parentNode.comment.data && parentNode.comment.data.author }
@@ -101,8 +99,7 @@ export default class Node extends PureComponent {
                                         [styles.default]: !editingCompletedOnce,
                                         [styles.editingCompletedOnce]: editingCompletedOnce,
                                         [styles.editing]: editing,
-                                    }) }
-                                    listHasScroll={ listHasScroll }>
+                                    }) }>
                                     { editing && (
                                         <CommentFrame
                                             reply={ !!parentNode }
@@ -157,7 +154,7 @@ export default class Node extends PureComponent {
 
     renderReplies(visibleNodes) {
         const { replying, replyId } = this.state;
-        const { node: parentNode, user, depth: parentDeth, maxDepth, className, listHasScroll, ...rest } = this.props;
+        const { node: parentNode, user, depth: parentDeth, maxDepth, className, ...rest } = this.props;
 
         const depth = parentDeth + 1;
         const maxDepthExceeded = depth >= maxDepth;
@@ -173,8 +170,7 @@ export default class Node extends PureComponent {
                         user={ user }
                         depth={ depth }
                         maxDepth={ maxDepth }
-                        preloadAvatarImage={ node.id !== replyId }
-                        listHasScroll={ listHasScroll } />
+                        preloadAvatarImage={ node.id !== replyId } />
                 )) }
 
                 <CommentPlacer
@@ -183,8 +179,7 @@ export default class Node extends PureComponent {
                     animateOnUnmount
                     scrollOnMount
                     autofocus
-                    className={ classNames(replyId && styles.replySubmited) }
-                    listHasScroll={ listHasScroll }>
+                    className={ classNames(replyId && styles.replySubmited) }>
                     { replying && (
                         <CommentFrame
                             reply
