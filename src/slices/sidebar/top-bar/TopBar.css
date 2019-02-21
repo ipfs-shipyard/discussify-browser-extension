@@ -31,8 +31,8 @@
             opacity 0.2s ease;
         fill-opacity: 0.5;
 
-        &:hover,
-        &:focus {
+        &:not(.disabled):hover,
+        &:not(.disabled):focus {
             opacity: 0.5;
             background-color: var(--color-gray);
             color: var(--color-white);
