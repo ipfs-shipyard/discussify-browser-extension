@@ -39,7 +39,7 @@ export default class Node extends PureComponent {
 
     state = {
         editing: false,
-        enteredEditingMode: false,
+        editingCompletedOnce: false,
         replying: false,
         replyId: null,
     };
@@ -58,7 +58,7 @@ export default class Node extends PureComponent {
 
     render() {
         const { node, parentNode, depth, maxDepth, className, isNewComment, user, preloadAvatarImage, listHasScroll } = this.props;
-        const { editing, enteredEditingMode, replyId } = this.state;
+        const { editing, editingCompletedOnce, replyId } = this.state;
         const isNewReply = !preloadAvatarImage;
         const owner = isNewComment && !!user && user.did === node.comment.data.author.did;
 
@@ -74,8 +74,8 @@ export default class Node extends PureComponent {
                                 <CommentPlacer
                                     animation="fade-and-grow"
                                     className={ classNames(styles.commentPlacer, {
-                                        [styles.default]: !enteredEditingMode,
-                                        [styles.enteredEditingMode]: enteredEditingMode,
+                                        [styles.default]: !editingCompletedOnce,
+                                        [styles.editingCompletedOnce]: editingCompletedOnce,
                                         [styles.editing]: editing,
                                         [styles.newReply]: isNewReply,
                                     }) }
@@ -98,8 +98,8 @@ export default class Node extends PureComponent {
                                     animateOnMount
                                     animateOnUnmount
                                     className={ classNames(styles.commentInputPlacer, {
-                                        [styles.default]: !enteredEditingMode,
-                                        [styles.enteredEditingMode]: enteredEditingMode,
+                                        [styles.default]: !editingCompletedOnce,
+                                        [styles.editingCompletedOnce]: editingCompletedOnce,
                                         [styles.editing]: editing,
                                     }) }
                                     listHasScroll={ listHasScroll }>
@@ -221,7 +221,7 @@ export default class Node extends PureComponent {
         const { cid: previousCid } = prevProps ? prevProps.node : {};
 
         if (this.state.editing && cid !== previousCid) {
-            this.setState({ editing: false, enteredEditingMode: true });
+            this.setState({ editing: false, editingCompletedOnce: true });
         }
     }
 
@@ -241,14 +241,14 @@ export default class Node extends PureComponent {
     };
 
     handleEditCancel = () => {
-        this.setState({ editing: false, enteredEditingMode: true });
+        this.setState({ editing: false, editingCompletedOnce: true });
     };
 
     handleEditSave = async (newBody) => {
         const cid = await this.props.onUpdate(this.props.node.id, newBody);
 
         if (!cid) {
-            this.setState({ editing: false, enteredEditingMode: true });
+            this.setState({ editing: false, editingCompletedOnce: true });
         }
     };
 
