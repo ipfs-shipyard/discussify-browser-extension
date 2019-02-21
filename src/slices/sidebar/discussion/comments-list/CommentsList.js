@@ -1,5 +1,4 @@
 import React, { PureComponent, Fragment, createRef } from 'react';
-import { findDOMNode } from 'react-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ViewMore, { Monitor as ViewMoreMonitor } from './ViewMore';
@@ -56,7 +55,7 @@ export default class CommentsList extends PureComponent {
                                 { visibleNodes.map((node) => (
                                     <Node
                                         key={ node.id }
-                                        ref={ node.id === addedId && this.scrollToAddedComment }
+                                        isNewComment={ node.id === addedId }
                                         node={ node }
                                         user={ user }
                                         onUpdate={ onUpdate }
@@ -80,16 +79,6 @@ export default class CommentsList extends PureComponent {
 
         if (commentsCount && !prevCommentsCount) {
             this.commentsListRef.current.scrollTop = this.commentsListRef.current.scrollHeight;
-        }
-    }
-
-    scrollToAddedComment(ref) {
-        const domNode = findDOMNode(ref);
-
-        if (domNode) {
-            domNode.scrollIntoView({
-                block: 'end',
-            });
         }
     }
 

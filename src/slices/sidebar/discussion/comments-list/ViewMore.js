@@ -12,6 +12,7 @@ export default class ViewMore extends PureComponent {
         children: PropTypes.func.isRequired,
         perPage: PropTypes.number,
         initialPerPage: PropTypes.number,
+        replyId: PropTypes.string,
     };
 
     static defaultProps = {
@@ -32,6 +33,8 @@ export default class ViewMore extends PureComponent {
             } else {
                 this.recomputeVisibleNodes();
             }
+        } else if (this.props.replyId !== prevProps.replyId) {
+            this.recomputeVisibleNodes();
         }
     }
 
@@ -60,21 +63,24 @@ export default class ViewMore extends PureComponent {
     }
 
     recomputeVisibleNodes() {
-        const { nodes } = this.props;
+        const { nodes, replyId } = this.props;
         const { lastVisibleId, visibleNodes } = this.state;
 
-        if (!visibleNodes.length) {
+        if (!visibleNodes.length && !replyId) {
             return;
         }
 
-        let lastVisibleIndex = findCommentIndexById(nodes, lastVisibleId);
+        const replyIdIndex = findCommentIndexById(nodes, replyId);
+        const lastVisibleIndex = findCommentIndexById(nodes, lastVisibleId);
+        let actuallyLastVisibleIndex = lastVisibleIndex < 0 ? replyIdIndex : lastVisibleIndex;
 
-        if (lastVisibleIndex === -1) {
-            lastVisibleIndex = nodes.length - visibleNodes.length;
+        if (actuallyLastVisibleIndex === -1) {
+            actuallyLastVisibleIndex = nodes.length - visibleNodes.length;
         }
 
         this.setState({
-            visibleNodes: nodes.slice(lastVisibleIndex),
+            lastVisibleId: lastVisibleId ? lastVisibleId : replyId,
+            visibleNodes: nodes.slice(actuallyLastVisibleIndex),
         });
     }
 

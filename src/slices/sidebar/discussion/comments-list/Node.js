@@ -8,6 +8,7 @@ import {
     CommentError,
     CommentInput,
     CommentFrame,
+    CommentPlacer,
 } from '@discussify/styleguide';
 import ViewMore from './ViewMore';
 import styles from './Node.css';
@@ -26,6 +27,7 @@ export default class Node extends PureComponent {
         onLoad: PropTypes.func.isRequired,
         onLoadHistory: PropTypes.func.isRequired,
         className: PropTypes.string,
+        isNewComment: PropTypes.bool,
     };
 
     static defaultProps = {
@@ -36,6 +38,7 @@ export default class Node extends PureComponent {
 
     state = {
         editing: false,
+        editingCompletedOnce: false,
         replying: false,
         replyId: null,
     };
@@ -53,24 +56,69 @@ export default class Node extends PureComponent {
     }
 
     render() {
-        const { node, parentNode, depth, maxDepth, className } = this.props;
+        const { node, parentNode, depth, maxDepth, className, isNewComment, user, preloadAvatarImage } = this.props;
+        const { editing, editingCompletedOnce, replyId } = this.state;
+        const isNewReply = !preloadAvatarImage;
+        const owner = isNewComment && !!user && user.did === node.comment.data.author.did;
 
         return (
             <div className={ classNames(styles.node, className) }>
                 <ViewMore
                     nodes={ node.replyNodes }
-                    initialPerPage={ depth + 1 >= maxDepth ? 0 : 2 }>
+                    initialPerPage={ depth + 1 >= maxDepth ? 0 : 2 }
+                    replyId={ replyId }>
                     { ({ visibleNodes, totalCount, viewMoreCount, onViewMore }) => (
                         <Fragment>
-                            <CommentFrame
-                                reply={ !!parentNode }
-                                replyTo={ parentNode && parentNode.comment.data && parentNode.comment.data.author }
-                                replies={ totalCount > 0 }
-                                repliesCount={ { total: totalCount, viewMore: viewMoreCount } }
-                                onViewMoreReplies={ onViewMore }
-                                className={ styles.commentFrame }>
-                                { this.renderComment() }
-                            </CommentFrame>
+                            <div className={ styles.commentContainer }>
+                                <CommentPlacer
+                                    animation="fade-and-grow"
+                                    className={ classNames(styles.commentPlacer, {
+                                        [styles.default]: !editingCompletedOnce,
+                                        [styles.editingCompletedOnce]: editingCompletedOnce,
+                                        [styles.editing]: editing,
+                                        [styles.newReply]: isNewReply,
+                                    }) }
+                                    animateOnMount={ isNewComment && !isNewReply }
+                                    scrollOnMount={ isNewComment && owner }>
+                                    <CommentFrame
+                                        reply={ !!parentNode }
+                                        replyTo={ parentNode && parentNode.comment.data && parentNode.comment.data.author }
+                                        replies={ totalCount > 0 }
+                                        repliesCount={ { total: totalCount, viewMore: viewMoreCount } }
+                                        onViewMoreReplies={ onViewMore }
+                                        className={ styles.commentFrame }>
+                                        { this.renderComment() }
+                                    </CommentFrame>
+                                </CommentPlacer>
+
+                                <CommentPlacer
+                                    animation="fade"
+                                    animateOnMount
+                                    animateOnUnmount
+                                    className={ classNames(styles.commentInputPlacer, {
+                                        [styles.default]: !editingCompletedOnce,
+                                        [styles.editingCompletedOnce]: editingCompletedOnce,
+                                        [styles.editing]: editing,
+                                    }) }>
+                                    { editing && (
+                                        <CommentFrame
+                                            reply={ !!parentNode }
+                                            replyTo={ parentNode && parentNode.comment.data && parentNode.comment.data.author }
+                                            replies={ totalCount > 0 }
+                                            repliesCount={ { total: totalCount, viewMore: viewMoreCount } }
+                                            onViewMoreReplies={ onViewMore }
+                                            className={ styles.commentFrame }>
+                                            <CommentInput
+                                                type="edit"
+                                                author={ node.comment.data.author }
+                                                body={ node.comment.data.body }
+                                                preloadAvatarImage={ false }
+                                                onSubmit={ this.handleEditSave }
+                                                onCancel={ this.handleEditCancel } />
+                                        </CommentFrame>
+                                    ) }
+                                </CommentPlacer>
+                            </div>
 
                             { this.renderReplies(visibleNodes) }
                         </Fragment>
@@ -81,7 +129,6 @@ export default class Node extends PureComponent {
     }
 
     renderComment() {
-        const { editing } = this.state;
         const { node: { comment }, user, preloadAvatarImage } = this.props;
 
         if (comment.loading || (!comment.error && !comment.data)) {
@@ -95,36 +142,19 @@ export default class Node extends PureComponent {
         const owner = !!user && user.did === comment.data.author.did;
 
         return (
-            <Fragment>
-                <Comment
-                    comment={ comment.data }
-                    owner={ owner }
-                    preloadAvatarImage={ preloadAvatarImage }
-                    onRemove={ this.handleRemove }
-                    onEdit={ this.handleEditStart }
-                    onReply={ this.handleReplyStart }
-                    className={ classNames(editing && styles.hidden) } />
-
-                { editing && (
-                    <CommentInput
-                        type="edit"
-                        author={ comment.data.author }
-                        body={ comment.data.body }
-                        preloadAvatarImage={ false }
-                        onSubmit={ this.handleEditSave }
-                        onCancel={ this.handleEditCancel } />
-                ) }
-            </Fragment>
+            <Comment
+                comment={ comment.data }
+                owner={ owner }
+                preloadAvatarImage={ preloadAvatarImage }
+                onRemove={ this.handleRemove }
+                onEdit={ this.handleEditStart }
+                onReply={ this.handleReplyStart } />
         );
     }
 
     renderReplies(visibleNodes) {
         const { replying, replyId } = this.state;
         const { node: parentNode, user, depth: parentDeth, maxDepth, className, ...rest } = this.props;
-
-        if (!visibleNodes.length && !replying) {
-            return null;
-        }
 
         const depth = parentDeth + 1;
         const maxDepthExceeded = depth >= maxDepth;
@@ -141,22 +171,30 @@ export default class Node extends PureComponent {
                         depth={ depth }
                         maxDepth={ maxDepth }
                         preloadAvatarImage={ node.id !== replyId } />
-
                 )) }
 
-                { replying && (
-                    <CommentFrame
-                        reply
-                        replyTo={ parentNode.comment.data && parentNode.comment.data.author }
-                        className={ styles.commentFrame }>
-                        <CommentInput
-                            ref={ this.replyCommentInputRef }
-                            type="reply"
-                            author={ user }
-                            onSubmit={ this.handleReplySubmit }
-                            onCancel={ this.handleReplyCancel } />
-                    </CommentFrame>
-                ) }
+                <CommentPlacer
+                    animation={ replyId ? 'fade' : 'fade-and-grow' }
+                    animateOnMount
+                    animateOnUnmount
+                    scrollOnMount
+                    autofocus
+                    className={ classNames(replyId && styles.replySubmited) }>
+                    { replying && (
+                        <CommentFrame
+                            reply
+                            replyTo={ parentNode.comment.data && parentNode.comment.data.author }
+                            className={ styles.commentFrame }>
+                            <CommentInput
+                                ref={ this.replyCommentInputRef }
+                                type="reply"
+                                author={ user }
+                                onSubmit={ this.handleReplySubmit }
+                                onCancel={ this.handleReplyCancel }
+                                preloadAvatarImage={ false } />
+                        </CommentFrame>
+                    ) }
+                </CommentPlacer>
             </div>
         );
     }
@@ -178,7 +216,7 @@ export default class Node extends PureComponent {
         const { cid: previousCid } = prevProps ? prevProps.node : {};
 
         if (this.state.editing && cid !== previousCid) {
-            this.setState({ editing: false });
+            this.setState({ editing: false, editingCompletedOnce: true });
         }
     }
 
@@ -198,14 +236,14 @@ export default class Node extends PureComponent {
     };
 
     handleEditCancel = () => {
-        this.setState({ editing: false });
+        this.setState({ editing: false, editingCompletedOnce: true });
     };
 
     handleEditSave = async (newBody) => {
         const cid = await this.props.onUpdate(this.props.node.id, newBody);
 
         if (!cid) {
-            this.setState({ editing: false });
+            this.setState({ editing: false, editingCompletedOnce: true });
         }
     };
 
