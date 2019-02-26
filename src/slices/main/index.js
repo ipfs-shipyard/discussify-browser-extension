@@ -5,25 +5,19 @@ import { KeyboardOnlyOutlines } from '@discussify/styleguide';
 import { ExtensionProvider } from '../../react-extension-client';
 import App from './App';
 
-let finalize;
-
-const setFinalizeCallback = (cb) => (finalize = cb);
-
-const renderApp = (rootEl, extensionClient, onFinalized) => {
+const renderApp = (rootEl, extensionClient, onDestroy, props = {}) => {
     render(
         <ExtensionProvider extensionClient={ extensionClient }>
             <KeyboardOnlyOutlines>
-                <App onFinalized={ onFinalized } setFinalizeCallback={ setFinalizeCallback } />
+                <App onDestroy={ onDestroy } { ...props } />
             </KeyboardOnlyOutlines>
         </ExtensionProvider>,
         rootEl
     );
 };
 
-const finalizeApp = () => finalize();
+const preDestroyApp = (...args) => renderApp(...args, { destroy: true });
 
-const destroyApp = (rootEl) => {
-    unmountComponentAtNode(rootEl);
-};
+const destroyApp = (rootEl) => unmountComponentAtNode(rootEl);
 
-export { renderApp, finalizeApp, destroyApp };
+export { renderApp, preDestroyApp, destroyApp };

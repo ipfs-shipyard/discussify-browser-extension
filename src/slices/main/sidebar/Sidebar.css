@@ -1,13 +1,45 @@
 @import "@discussify/styleguide/styles/colors";
 
 .sidebar {
-    position: fixed;
+    position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
-    width: 25%;
-    min-width: 45rem;
-    max-width: 70rem;
+    left: 0;
+    visibility: hidden;
     border-left: 1px solid color(var(--color-black) alpha(0.1));
+    opacity: 0;
     background: var(--color-white);
+
+    &.fadeOut {
+        animation: fade-out 0.3s ease forwards;
+    }
+
+    &.fadeIn {
+        animation: fade-in 0.3s cubic-bezier(0.755, 0.05, 0.855, 0.06) forwards 0.25s;
+    }
+}
+
+@keyframes fade-in {
+    0% {
+        visibility: hidden;
+        opacity: 0;
+    }
+
+    100% {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    100% {
+        visibility: hidden;
+        opacity: 0;
+    }
 }

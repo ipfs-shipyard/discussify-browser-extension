@@ -1,88 +1,9 @@
 .app {
     & .fab {
         z-index: 1;
-
-        animation: bounce-in 450ms linear forwards;
-
-        &.bounceOut {
-            animation: bounce-out 450ms linear forwards;
-        }
-
-        &.hidden {
-            display: none;
-        }
     }
 
     & .sidebar {
-        z-index: -100;
-        visibility: hidden;
-
-        &.fadeOut,
-        &.fadeIn {
-            z-index: 2;
-            visibility: visible;
-        }
-
-        &.fadeIn > * {
-            animation: fade-in 200ms ease forwards;
-        }
-
-        &.fadeOut > * {
-            animation: fade-out 100ms ease forwards;
-        }
-    }
-}
-
-@keyframes fade-in {
-    0% {
-        opacity: 0;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
-
-@keyframes fade-out {
-    0% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-    }
-}
-
-@keyframes bounce-in {
-    0% {
-        transform: scale(0.6);
-        opacity: 0;
-    }
-
-    50% {
-        transform: scale(1.08);
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-@keyframes bounce-out {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(1.08);
-        opacity: 0;
-    }
-
-    100% {
-        transform: scale(0);
-        opacity: 0;
+        z-index: 2;
     }
 }
