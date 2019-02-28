@@ -1,8 +1,4 @@
-.discussion {
-    display: flex;
-    flex-direction: column;
-
-    & .commentsList {
-        flex: 1 0;
-    }
+.commentsList {
+    overflow-y: auto;
+    flex: 1 0;
 }
