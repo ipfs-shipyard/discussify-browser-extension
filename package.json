@@ -1,12 +1,12 @@
 {
   "name": "@discussify/browser-extension",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dataVersions": {
     "discussions": "1"
   },
   "private": true,
   "dependencies": {
-    "@discussify/styleguide": "^1.0.0",
+    "@discussify/styleguide": "^1.1.0",
     "@researchgate/react-intersection-observer": "^0.7.4",
     "classnames": "^2.2.6",
     "is-whitespace": "^0.3.0",
