@@ -1,5 +1,5 @@
 import serialize from 'serialize-javascript';
-import { MAIN_APP_FINALIZE } from './message-types';
+import { PRE_DESTROY_DONE } from './message-types';
 
 const HOST_ELEMENT_ID = window.__DISCUSSIFY_HOST_ELEMENT_ID__;
 const PRE_DESTROY_EVENT = 'discussify/pre-destroy';
@@ -69,7 +69,7 @@ const preDestroyContentScript = async (tabId) => {
 
     return new Promise((resolve) => {
         const listener = (request) => {
-            if (request.type !== MAIN_APP_FINALIZE) {
+            if (request.type !== PRE_DESTROY_DONE) {
                 return;
             }
 

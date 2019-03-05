@@ -5,10 +5,10 @@
     & .commentContainer {
         position: relative;
 
-        /* Do not show overflowed comment in case we edited it to have fewer lines */
-        overflow: hidden;
-
         & .commentPlacer {
+            /* Do not show overflowed comment in case we edited it to have fewer lines */
+            overflow: hidden;
+
             &.default {
                 position: relative;
                 z-index: 2;

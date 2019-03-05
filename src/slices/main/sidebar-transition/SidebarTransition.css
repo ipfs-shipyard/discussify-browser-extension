@@ -1,0 +1,12 @@
+.container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 25%;
+    min-width: 45rem;
+    max-width: 70rem;
+    overflow: hidden;
+    border-left: 1px solid transparent;
+    background: transparent;
+}
