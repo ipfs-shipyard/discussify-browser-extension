@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { last } from 'lodash';
 import CommentsListError from './comments-list-error';
 import CommentsListEmpty from './comments-list-empty';
@@ -42,16 +41,15 @@ export default class Discussion extends Component {
     }
 
     render() {
-        const { error, commentNodes, className } = this.props;
+        const { error, commentNodes } = this.props;
 
         return (
-            <div className={ classNames(styles.discussion, className) }>
+            <Fragment>
                 { this.renderList() }
-
                 <NewComment
                     disabled={ !error && !commentNodes }
                     onNewComment={ this.handleNewComment } />
-            </div>
+            </Fragment>
         );
     }
 
@@ -89,8 +87,8 @@ export default class Discussion extends Component {
                 onRemove={ onCommentRemove }
                 onReply={ onCommentReply }
                 onLoad={ onCommentLoad }
-                onLoadHistory={ onCommentLoadHistory }
-                className={ styles.commentsList } />
+                className={ styles.commentsList }
+                onLoadHistory={ onCommentLoadHistory } />
         );
     }
 
@@ -122,10 +120,12 @@ export default class Discussion extends Component {
     }
 
     handleNewComment = async (body) => {
-        const previousNode = last(this.props.commentNodes);
+        const { commentNodes, onCommentCreate } = this.props;
+
+        const previousNode = last(commentNodes);
         const previousId = previousNode && previousNode.id;
 
-        const newId = await this.props.onCommentCreate(previousId, body);
+        const newId = await onCommentCreate(previousId, body);
 
         this.setState({ addedCommentId: newId });
     };

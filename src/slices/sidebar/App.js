@@ -50,8 +50,7 @@ class App extends Component {
                     onCommentRemove={ onCommentRemove }
                     onCommentReply={ onCommentReply }
                     onCommentLoad={ onCommentLoad }
-                    onCommentLoadHistory={ onCommentLoadHistory }
-                    className={ styles.discussion } />
+                    onCommentLoadHistory={ onCommentLoadHistory } />
             </div>
         );
     }
